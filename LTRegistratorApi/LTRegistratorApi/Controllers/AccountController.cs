@@ -6,15 +6,17 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
-namespace WebApiJwt.Controllers
+namespace LTRegistratorApi.Controllers
 {
-    [Route("[controller]/[action]")]
-    public class AccountController : Controller
+    [Route("api/[controller]/[action]")]
+    [ApiController]
+    public class AccountController : ControllerBase
     {
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
