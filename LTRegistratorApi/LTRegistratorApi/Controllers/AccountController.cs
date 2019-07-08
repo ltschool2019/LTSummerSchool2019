@@ -48,14 +48,18 @@ namespace LTRegistratorApi.Controllers
         }
 
         [HttpPost]
-        public async Task<object> Register([FromBody] RegisterDto model)
+        public async Task<object> Register([FromBody] RegisterDto model, string role)
         {
+            if (role != "Employee" && role != "Manager" && role != "Administrator")
+                throw new ApplicationException("INVALID_ROLE");
+
             var user = new IdentityUser
             {
                 UserName = model.Email,
                 Email = model.Email
             };
             var result = await _userManager.CreateAsync(user, model.Password);
+            await _userManager.AddToRoleAsync(user, role);
 
             if (result.Succeeded)
             {
@@ -68,11 +72,14 @@ namespace LTRegistratorApi.Controllers
 
         private async Task<object> GenerateJwtToken(string email, IdentityUser user)
         {
+            var resultOfGetRoles = _userManager.GetRolesAsync(user).Result.First(); //We have one role
+
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Sub, email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Role, resultOfGetRoles) 
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
