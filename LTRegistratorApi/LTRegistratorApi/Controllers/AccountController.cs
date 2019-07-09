@@ -33,6 +33,11 @@ namespace LTRegistratorApi.Controllers
             _configuration = configuration;
         }
 
+        /// <summary>
+        /// The method tries to authorize the user and return the JWT-token.
+        /// </summary>
+        /// <param name="model">user</param>
+        /// <returns>JWT-token</returns>
         [HttpPost]
         public async Task<object> Login([FromBody] LoginDto model)
         {
@@ -41,46 +46,67 @@ namespace LTRegistratorApi.Controllers
             if (result.Succeeded)
             {
                 var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.Email);
-                return await GenerateJwtToken(model.Email, appUser);
+                return await GenerateJwtToken(appUser);
             }
 
             throw new ApplicationException("INVALID_LOGIN_ATTEMPT");
         }
 
+        /// <summary>
+        /// The method attempts to register a user and return the JWT-token.
+        /// </summary>
+        /// <param name="model">User</param>
+        /// <returns>JWT-token</returns>
         [HttpPost]
-        public async Task<object> Register([FromBody] RegisterDto model, string role)
+        public async Task<object> Register([FromBody] RegisterDto model)
         {
-            if (role != "Employee" && role != "Manager" && role != "Administrator")
-                throw new ApplicationException("INVALID_ROLE");
-
             var user = new IdentityUser
             {
                 UserName = model.Email,
-                Email = model.Email
+                Email = model.Email,
             };
+
+            /* Passwords must be at least 6 characters.
+             * Passwords must have at least one non alphanumeric character.
+             * Passwords must have at least one digit ('0'-'9').
+             * Passwords must have at least one lowercase ('a'-'z').
+             * Passwords must have at least one uppercase ('A'-'Z').*/
             var result = await _userManager.CreateAsync(user, model.Password);
-            await _userManager.AddToRoleAsync(user, role);
 
             if (result.Succeeded)
             {
-                await _signInManager.SignInAsync(user, false);
-                return await GenerateJwtToken(model.Email, user);
+                var addClaim1 = await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, model.Role));
+                var addClaim2 = await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, model.Name));
+
+                if(addClaim1.Succeeded && addClaim2.Succeeded)
+                {
+                    await _signInManager.SignInAsync(user, false);
+                    return await GenerateJwtToken(user);
+                }
             }
 
             throw new ApplicationException("UNKNOWN_ERROR");
         }
 
-        private async Task<object> GenerateJwtToken(string email, IdentityUser user)
+        /// <summary>
+        /// Method generates JWT-token for user.
+        /// </summary>
+        /// <param name="user">The IdentityUser who has mail.</param>
+        /// <returns>JWT-token</returns>
+        private async Task<object> GenerateJwtToken(IdentityUser user)
         {
-            var resultOfGetRoles = _userManager.GetRolesAsync(user).Result.First(); //We have one role
+            var resultOfGetClaims = _userManager.GetClaimsAsync(user).Result;
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, email),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                new Claim(ClaimTypes.Role, resultOfGetRoles) 
             };
+            foreach (var claim in resultOfGetClaims)
+            {
+                claims.Add(claim);
+            }
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
