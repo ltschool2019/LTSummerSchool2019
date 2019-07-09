@@ -86,14 +86,14 @@ namespace LTRegistratorApi.Controllers
                 var addClaim1 = await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, model.Role));
                 var addClaim2 = await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, model.Name));
 
-                if(addClaim1.Succeeded && addClaim2.Succeeded)
+                if (addClaim1.Succeeded && addClaim2.Succeeded)
                 {
                     await _signInManager.SignInAsync(user, false);
                     return await GenerateJwtToken(user);
                 }
             }
 
-            throw new ApplicationException("UNKNOWN_ERROR");
+            throw new ApplicationException("INVALID_PASSWORD");
         }
 
         /// <summary>
