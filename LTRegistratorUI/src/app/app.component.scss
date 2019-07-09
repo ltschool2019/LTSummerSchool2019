@@ -1,0 +1,88 @@
+$background-color:  #f8f8f8;
+$font-stack: "PT Sans Narrow", Arial, sans-serif;
+$f-size: 18px;
+
+header {
+  font: $font-stack;
+  background: $background-color;
+  height: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+a {
+  text-decoration: none;
+}
+
+body {
+  .section_menu, .section_TimeSheet {
+    float: left;
+  }
+
+  .section_menu {
+    //   border: 1px solid red;
+    position: relative;
+    width: 250px;
+    height: 100%;
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      width: 250px;
+
+      a {
+        background: $background-color;
+        padding: 20px;
+        display: block;
+        font-size: $f-size;
+      }
+    }
+  }
+
+  .section_TimeSheet {
+    width: 950px;
+    height: 100%;
+    margin-left: 300px;
+    position: absolute;
+    align-self: flex-start;
+    margin-right: 50px;
+    margin-top: -20px;
+
+    .timesheet {
+      font-size: $f-size;
+      padding: 15px 0 15px 0;
+      display: block;
+      border: $background-color;
+    }
+
+    ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      margin-top: -50px;
+      color: #ffffff;
+
+      li {
+        display: block;
+        font-size: 15px;
+
+        .save {
+          background: #00ff21;
+        }
+
+        .cansel {
+          background: #ff0000;
+        }
+
+        .save, .cansel {
+          padding: 8px 5px 8px 5px;
+          margin-right: 3px;
+          border-radius: 3px;
+          color: #ffffff;
+        }
+      }
+    }
+  }
+}
