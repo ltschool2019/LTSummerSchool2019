@@ -7,11 +7,10 @@ namespace LTRegistratorApi.Model
 {
     public class Employee
     {
-        //EmployeeID, UserId, User - из AspNetUsers таблицы, List <ProjectsIds>
         public int EmployeeID { get; set; }
         public int UserId { get; set; }
         public string User { get; set; }
 
-        public ICollection<ProjectsEmployee> ProjectsEmployee { get; set; }
+        public ICollection<ProjectEmployee> ProjectEmployee { get; set; }
     }
 }

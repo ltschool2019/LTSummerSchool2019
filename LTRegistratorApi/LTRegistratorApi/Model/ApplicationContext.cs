@@ -17,22 +17,24 @@ namespace LTTimeRegistrator.Models
 
         public DbSet<Value> Values { get; set; }
 
-        public DbSet<Projects> Projects { get; set; }
+        public DbSet<Project> Project { get; set; }
         public DbSet<Employee> Employee { get; set; }
-        public DbSet<ProjectsEmployee> ProjectsEmployee { get; set; }
+        public DbSet<ProjectEmployee> ProjectEmployee { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<ProjectsEmployee>()
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<ProjectEmployee>()
                 .HasKey(pe => new { pe.EmployeeId, pe.ProjectId});
-            modelBuilder.Entity<ProjectsEmployee>()
+            modelBuilder.Entity<ProjectEmployee>()
                 .HasOne(pe => pe.Employee)
-                .WithMany(e => e.ProjectsEmployee)
+                .WithMany(e => e.ProjectEmployee)
                 .HasForeignKey(pe => pe.EmployeeId);
-            modelBuilder.Entity<ProjectsEmployee>()
-                .HasOne(pe => pe.Projects)
-                .WithMany(p => p.ProjectsEmployee)
+            modelBuilder.Entity<ProjectEmployee>()
+                .HasOne(pe => pe.Project)
+                .WithMany(p => p.ProjectEmployee)
                 .HasForeignKey(pe => pe.ProjectId);
+          
         }
     }
 }
