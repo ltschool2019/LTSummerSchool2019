@@ -1,83 +1,74 @@
-
-form {
+.login__form {
   margin-top: 250px;
   width: 400px;
   margin-left: auto;
   margin-right: auto;
+
+  fieldset {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    border: 1px solid;
+    border-radius: 10px;
+    border-color: rgb(245, 245, 245);
+    background: rgb(248, 248, 248);
+    margin: 0 auto;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.75);
+
+    .logo {
+      margin: 0 auto;
+    }
+
+    input {
+      padding-left: 5px;
+      margin: 10px auto;
+      width: auto;
+      width: 300px;
+      font-size: 13px;
+      padding: 6px 0 4px 10px;
+      border: 1px solid #cecece;
+      background: #F6F6f6;
+    }
+    
+    .enter-button {
+      margin: 0 auto;
+      color: lightgray;
+      margin-top: 15px;
+      background: rgb(0, 175, 216);
+      font: inherit;
+      font-size: 14px;
+      line-height: 18px;
+
+      &:disabled{
+        background:gray;
+      }
+      &:hover,
+      &:focus {
+        color: #323232;
+        cursor: pointer;
+      }
+    }
+  }
 }
 
-fieldset {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 30px;
-  border: 1px solid;
-  border-radius: 10px;
-  border-color: rgb(245, 245, 245);
-  background: rgb(248, 248, 248);
-  margin: 0 auto;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.75);
-}
-
-.login-form p a {
-  font-size: 13px;
-  line-height: 24px;
-  font-weight: normal;
-  color: #323232;
-}
-
-.login-form p a:hover,
-.login-form p a:focus {
-  color: #323232;
-
-}
-
-[type="submit"]:hover,
-[type="submit"]:focus {
-
-  color: #323232;
-  cursor: pointer;
-}
-
-h2,
-img,
-input,
-a,
-button {
-  display: flex;
-  justify-content: center;
-
-}
-
-img {
-  margin: 0 auto;
-}
-
-input {
-  padding-left: 5px;
-  margin: 10px auto;
-  width: auto;
-  width: 300px;
-  font-size: 13px;
-  padding: 6px 0 4px 10px;
-  border: 1px solid #cecece;
-  background: #F6F6f6;
-  /*  border-radius: 5px;*/
-}
-
-[type="submit"] {
-  margin: 0 auto;
-  color: lightgray;
-  margin-top: 15px;
-  background: rgb(0, 175, 216);
-  font: inherit;
-  font-size: 14px;
-  line-height: 18px;
-}
-
-.login-form {
+.login {
   display: flex;
   flex-direction: column;
+
+  .login__form__link {
+    a {
+      font-size: 13px;
+      line-height: 24px;
+      font-weight: normal;
+      color: #323232;
+
+      &:hover,
+      &focus {
+        color: #323232;
+      }
+    }
+  }
 }
 
 .visually-hidden {
@@ -86,8 +77,4 @@ input {
   width: 1px;
   height: 1px;
   margin: 1px;
-}
-
-form+p {
-  margin-top: 20px;
 }
