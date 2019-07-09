@@ -3,13 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <title>Lanit Time Manager</title>
-  
 </head>
 <header>
   <img src="#" alt="Logo">
   <p>TIME MANAGER</p>
   <p>Hi demouser!</p>
-  <a href="#"><img src = "#" alt="icon"></a>
+  <a href="#">
+    <img class="icon" src="#" alt="icon">
+    <ul>
+      <li>Edit</li>
+      <li>Exit</li>
+    </ul>
+  </a>
 </header>
 <body>
   <div class="section_menu">
@@ -22,11 +27,81 @@
   <div class="section_TimeSheet">
     <p class="timesheet"><b>TimeSheet</b><br></p>
     <p><b>From Data</b></p>
-    <input class="input_button" type="text" size="20">
-  <ul>
+    <input class="input_button" type="date" value="0000-00-00" size="20">
+    <ul>
         <li ><a class="save" href="#">Save Details</a></li>
         <li ><a class ="cansel" href="#">Cansel</a></li>
-      </ul> 
+     </ul>
+    <table>
+      <tbody>
+        <tr>
+          <td>Project name</td>
+          <td>Monday</td>
+          <td>Tuesday</td>
+          <td>Wednesday</td>
+          <td>Thursday</td>
+          <td>Friday</td>
+          <td>Saturday</td>
+          <td>Sunday</td>
+          <td>Total<br>hours</td>
+          <td>Description</td>
+        </tr>
+        <tr>
+          <td>
+            <select name="project">
+              <option value="none">--Select--</option>
+              <option value="alpha">Project Alpha</option>
+              <option value="omega">Project Omega</option>
+            </select>
+          </td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><textarea rows="2" cols=" 15"></textarea></td>
+        </tr>
+        <tr>
+          <td>
+            <select name="project">
+              <option value="none">--Select--</option>
+              <option value="alpha">Project Alpha</option>
+              <option value="omega">Project Omega</option>
+            </select>
+          </td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><textarea rows="2" cols=" 15"></textarea></td>
+        </tr>
+        <tr>
+          <td>
+            <select name="project">
+              <option value="none">--Select--</option>
+              <option value="alpha">Project Alpha</option>
+              <option value="omega">Project Omega</option>
+            </select>
+          </td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><input type="text" size="5"></td>
+          <td><textarea rows="2" cols=" 15"></textarea></td>
+        </tr>
+      </tbody>
+    </table>
   </div> 
 </body>
 </html>

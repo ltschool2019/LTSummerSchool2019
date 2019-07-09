@@ -2,6 +2,10 @@ $background-color:  #f8f8f8;
 $font-stack: "PT Sans Narrow", Arial, sans-serif;
 $f-size: 18px;
 
+ul {
+  list-style: none;
+}
+
 header {
   font: $font-stack;
   background: $background-color;
@@ -9,6 +13,20 @@ header {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+
+ a{
+   //тут непонятно немного как делать, чтобы
+   //при наведении на иконку появлялось меню
+   ul {
+     display: none;
+     opacity: 0;
+   }
+   ul:hover {
+     display: block;
+     opacity: 1;
+   }
+ }
+
 }
 
 a {
@@ -60,7 +78,8 @@ body {
     ul {
       list-style: none;
       display: flex;
-      justify-content: center;
+      justify-content: flex-end;
+      margin-right: 30px;
       margin-top: -50px;
       color: #ffffff;
 
@@ -83,6 +102,10 @@ body {
           color: #ffffff;
         }
       }
+    }
+
+    table {
+      margin-top: 50px;
     }
   }
 }
