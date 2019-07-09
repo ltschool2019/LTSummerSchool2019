@@ -16,7 +16,5 @@ namespace LTTimeRegistrator.Models
         }
 
         public DbSet<Value> Values { get; set; }
-
-
     }
 }

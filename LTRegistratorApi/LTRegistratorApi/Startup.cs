@@ -52,7 +52,7 @@ namespace LTRegistratorApi
                       ValidAudience = Configuration["JwtIssuer"],
                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"])),
                       ClockSkew = TimeSpan.Zero // remove delay of token when expire
-            };
+                  };
               });
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
