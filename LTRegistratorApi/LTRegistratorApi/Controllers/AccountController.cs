@@ -31,6 +31,14 @@ namespace LTRegistratorApi.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+
+            //If there are no users, then add basic users.
+            if (_userManager.Users.Count() == 0)
+            {
+                _ = Register(new RegisterDto { Name = "Alice", Role = "Administrator", Email = "alice@mail.ru", Password = "aA123456!" });
+                _ = Register(new RegisterDto { Name = "Bob", Role = "Manager", Email = "b0b@yandex.ru", Password = "+B00B+" });
+                _ = Register(new RegisterDto { Name = "Eve", Role = "Employee", Email = "eve.99@yandex.ru", Password = "1Adam!!!" });
+            }
         }
 
         /// <summary>
