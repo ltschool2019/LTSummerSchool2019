@@ -14,18 +14,16 @@ header {
   justify-content: space-between;
   align-items: flex-end;
 
- a{
-   //тут непонятно немного как делать, чтобы
-   //при наведении на иконку появлялось меню
-   ul {
-     display: none;
-     opacity: 0;
-   }
-   ul:hover {
-     display: block;
-     opacity: 1;
-   }
- }
+  .container {
+    .menu {
+      display: none;
+      opacity: 0;
+    }
+  }
+  .container: hover {
+      display: block;
+      opacity: 1;
+  }
 
 }
 
