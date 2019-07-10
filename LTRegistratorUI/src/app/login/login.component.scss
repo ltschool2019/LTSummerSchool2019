@@ -12,13 +12,13 @@ $lightblue:rgb(0, 174, 214);
   margin-left: auto;
   margin-right: auto;
 
-  border: 1px solid;
+  border: 1px solid rgb(245, 245, 245);
   border-radius: 10px;
-  border-color: rgb(245, 245, 245);
   background: rgb(248, 248, 248);
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.75);
 
-  width: 400px;
+  width: 100%;
+  max-width: 400px;
 
   .logo {
     margin: 0 auto;
@@ -28,7 +28,8 @@ $lightblue:rgb(0, 174, 214);
     padding: 6px 0 4px 10px;
     margin: 10px auto;
 
-    width: 300px;
+    width: 100%;
+    max-width: 300px;
 
     font-size: 13px;
 
@@ -41,7 +42,8 @@ $lightblue:rgb(0, 174, 214);
     margin: 0 auto;
     margin-top: 15px;
 
-    width: 300px;
+    width: 100%;
+    max-width: 300px;
 
     color: $lightgray;
     background: $lightblue;
