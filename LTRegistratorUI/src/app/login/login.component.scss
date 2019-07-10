@@ -1,80 +1,93 @@
-.login__form {
+$lightgray:rgb(211, 211, 211);
+$gray:rgb(127, 127, 127);
+$darkgray:rgb(51, 51, 51);
+$lightblue:rgb(0, 174, 214);
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  
+  padding: 30px;
   margin-top: 250px;
-  width: 400px;
   margin-left: auto;
   margin-right: auto;
 
-  fieldset {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 30px;
-    border: 1px solid;
-    border-radius: 10px;
-    border-color: rgb(245, 245, 245);
-    background: rgb(248, 248, 248);
+  border: 1px solid;
+  border-radius: 10px;
+  border-color: rgb(245, 245, 245);
+  background: rgb(248, 248, 248);
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.75);
+
+  width: 400px;
+
+  .logo {
     margin: 0 auto;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.75);
+  }
 
-    .logo {
-      margin: 0 auto;
+  input {
+    padding: 6px 0 4px 10px;
+    margin: 10px auto;
+
+    width: 300px;
+
+    font-size: 13px;
+
+    border: 1px solid $lightgray;
+    background: #F6F6f6;
+  }
+
+  &__enter-button {
+    padding: 6px 0 4px 10px;
+    margin: 0 auto;
+    margin-top: 15px;
+
+    width: 300px;
+
+    color: $lightgray;
+    background: $lightblue;
+    border: 1px solid $lightgray;
+
+    font: inherit;
+    font-size: 14px;
+    line-height: 18px;
+
+    &:disabled {
+      background: $gray;
+      pointer-events: none;
     }
-
-    input {
-      padding-left: 5px;
-      margin: 10px auto;
-      width: auto;
-      width: 300px;
-      font-size: 13px;
-      padding: 6px 0 4px 10px;
-      border: 1px solid #cecece;
-      background: #F6F6f6;
-    }
-    
-    .enter-button {
-      margin: 0 auto;
-      color: lightgray;
-      margin-top: 15px;
-      background: rgb(0, 175, 216);
-      font: inherit;
-      font-size: 14px;
-      line-height: 18px;
-
-      &:disabled{
-        background:gray;
-      }
-      &:hover,
-      &:focus {
-        color: #323232;
-        cursor: pointer;
-      }
+    &:hover,
+    &:focus {
+      color: $darkgray;
+      cursor: pointer;
     }
   }
 }
+
 
 .login {
   display: flex;
   flex-direction: column;
 
-  .login__form__link {
+  &__forget-link {
     a {
       font-size: 13px;
       line-height: 24px;
       font-weight: normal;
-      color: #323232;
+      color: $darkgray;
 
       &:hover,
       &focus {
-        color: #323232;
+        color: $darkgray;
       }
     }
   }
 }
 
+/* 
 .visually-hidden {
   position: absolute;
   clip: rect(0 0 0 0);
   width: 1px;
   height: 1px;
   margin: 1px;
-}
+} */
