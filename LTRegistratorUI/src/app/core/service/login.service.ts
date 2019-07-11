@@ -11,11 +11,5 @@ export class LoginService {
   constructor(private http: HttpClient) {}
   getUser() {
     return this.http.get('http://localhost:3000/token');
-    
-   // return JSON.parse(atob(this.token.token.split('.')[1]))
   }
 }
-
-
-
-//JSON.parse(atob(token.split('.')[1]))
