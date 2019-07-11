@@ -7,6 +7,8 @@ import { EmployeeComponent } from './employee/employee.component';
 import { SideMenuComponent } from './side-menu/side-menu.component';
 import { HeaderComponent } from './header/header.component';
 import { LoginComponent } from './login/login.component';
+import { HttpClientModule } from '@angular/common/http';
+import { LoginService } from 'src/app/core/service/login.service';
 
 
 @NgModule({
@@ -18,9 +20,13 @@ import { LoginComponent } from './login/login.component';
     LoginComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [
+    LoginService,
+
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
