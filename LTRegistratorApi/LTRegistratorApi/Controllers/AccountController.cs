@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using LTTimeRegistrator.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +26,8 @@ namespace LTRegistratorApi.Controllers
         public AccountController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            IConfiguration configuration
+            IConfiguration configuration,
+            ApplicationContext context
             )
         {
             _userManager = userManager;
@@ -35,10 +37,38 @@ namespace LTRegistratorApi.Controllers
             //If there are no users, then add basic users.
             if (_userManager.Users.Count() == 0)
             {
-                _ = Register(new RegisterDto { Name = "Alice", Role = "Administrator", Email = "alice@mail.ru", Password = "aA123456!" });
-                _ = Register(new RegisterDto { Name = "Bob", Role = "Manager", Email = "b0b@yandex.ru", Password = "+B00B+" });
-                _ = Register(new RegisterDto { Name = "Eve", Role = "Employee", Email = "eve.99@yandex.ru", Password = "1Adam!!!" });
+                _ = RegisterUser(new IdentityUser { UserName = "Alice", Email = "alice@mail.ru" },  "aA123456!", "Administrator");
+                _ = RegisterUser(new IdentityUser { UserName = "Bob", Email = "b0b@yandex.ru" }, "+B0o0B+", "Manager");
+                _ = RegisterUser(new IdentityUser { UserName = "Eve", Email = "eve.99@yandex.ru" }, "1Adam!!!", "Employee");
+                context.SaveChanges();
             }
+        }
+
+        /// <summary>
+        /// The method attempts to register a user
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="password"></param>
+        /// <param name="role"></param>
+        /// <returns></returns>
+        private async Task<bool> RegisterUser(IdentityUser user, string password, string role)
+        {
+            /* Passwords must be at least 6 characters.
+             * Passwords must have at least one non alphanumeric character.
+             * Passwords must have at least one digit ('0'-'9').
+             * Passwords must have at least one lowercase ('a'-'z').
+             * Passwords must have at least one uppercase ('A'-'Z').*/
+            var result = await _userManager.CreateAsync(user, password);
+            if (result.Succeeded)
+            {
+                var addClaim = await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role));
+                if (addClaim.Succeeded)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -70,30 +100,16 @@ namespace LTRegistratorApi.Controllers
         {
             var user = new IdentityUser
             {
-                UserName = model.Email,
+                UserName = model.Name,
                 Email = model.Email,
             };
 
-            /* Passwords must be at least 6 characters.
-             * Passwords must have at least one non alphanumeric character.
-             * Passwords must have at least one digit ('0'-'9').
-             * Passwords must have at least one lowercase ('a'-'z').
-             * Passwords must have at least one uppercase ('A'-'Z').*/
-            var result = await _userManager.CreateAsync(user, model.Password);
-
-            if (result.Succeeded)
+            if (await RegisterUser(user, model.Password, model.Role))
             {
-                var addClaim1 = await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, model.Role));
-                var addClaim2 = await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, model.Name));
-
-                if (addClaim1.Succeeded && addClaim2.Succeeded)
-                {
-                    await _signInManager.SignInAsync(user, false);
-                    return await GenerateJwtToken(user);
-                }
+                await _signInManager.SignInAsync(user, false);
             }
 
-            throw new ApplicationException("INVALID_PASSWORD");
+            throw new ApplicationException("ERROR_REGISTER");
         }
 
         /// <summary>
