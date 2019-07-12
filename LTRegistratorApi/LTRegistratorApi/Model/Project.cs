@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace LTRegistratorApi.Model
 {
+    //this class describes Project
     public class Project
     {
 
@@ -14,9 +15,6 @@ namespace LTRegistratorApi.Model
         public int ManagerId { get; set; }
         public string Manager { get; set; }
         public ICollection<ProjectEmployee> ProjectEmployee { get; set; }
-
-
-
     }
 }
 

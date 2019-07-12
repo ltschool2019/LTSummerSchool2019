@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace LTRegistratorApi.Model
 {
+    //this class describes Employee
     public class Employee 
     {
         public int EmployeeID { get; set; }
@@ -13,7 +14,6 @@ namespace LTRegistratorApi.Model
         public string User { get; set; }
         public ICollection<ProjectEmployee> ProjectEmployee { get; set; }
 
-
-        public virtual UserApplication UserApplication { get; set; }
+        public virtual ApplicationUser ApplicationUser { get; set; }
     }
 }
