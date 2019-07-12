@@ -1,0 +1,26 @@
+<section class="vacation">
+  <button class="vacation__add" (click)="add(heroName.value); heroName.value=''">+</button>
+  <form class="vacation-form">
+    <label for="vacation-form__start"> С </label>
+    <input type="date" id="vacation-form__start" name="vacation-start" min="2019-06-13" max="2019-12-31" step="week"
+      required>
+    <label id="vacation-form__end"> По </label>
+    <input type="date" id="vacation-form__end" name="vacation-end" value="" min="2019-06-13" max="2019-12-31" required>
+    <select name="vacation-type" id="vacation-form__type">
+      <option selected>Отпуск</option>
+      <option>Больничный</option>
+    </select>
+    <button class="vacation-form"> Add </button>
+  </form>
+
+
+  <ul class="vacations">
+    <li *ngFor="let vacation of vacations">
+      <p> {{vacation.type}} с {{vacation.start}} по {{vacation.end}}</p>
+      <button class="delete" title="delete vacation" (click)="delete(vacation)">x</button>
+    </li>
+  </ul>
+
+
+
+</section>
