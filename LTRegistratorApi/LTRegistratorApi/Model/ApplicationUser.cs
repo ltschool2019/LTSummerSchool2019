@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 namespace LTRegistratorApi.Model
 {
     /// <summary>
-    /// This additional class which created in the aim of relationships to AspNetUsers
+    /// Links IdentityUser to Employee entity.
     /// </summary>
     public class ApplicationUser : IdentityUser
     {
