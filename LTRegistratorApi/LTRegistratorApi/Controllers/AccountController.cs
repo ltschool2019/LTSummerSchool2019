@@ -5,7 +5,6 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using LTTimeRegistrator.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -13,6 +12,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace LTRegistratorApi.Controllers
 {
+    /// <summary>
+    /// The controller that is responsible for basic user operations.
+    /// </summary>
     [Route("api/[controller]/[action]")]
     [ApiController]
     public class AccountController : ControllerBase
@@ -21,11 +23,13 @@ namespace LTRegistratorApi.Controllers
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IConfiguration _configuration;
 
+        /// <param name="userManager">Allows you to manage users</param>
+        /// <param name="signInManager">Provides the APIs for user sign in</param>
+        /// <param name="configuration">To use the file setting</param>
         public AccountController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
-            IConfiguration configuration,
-            ApplicationContext context
+            IConfiguration configuration
             )
         {
             _userManager = userManager;
@@ -35,10 +39,9 @@ namespace LTRegistratorApi.Controllers
             //If there are no users, then add basic users.
             if (_userManager.Users.Count() == 0)
             {
-                _ = RegisterUser(new IdentityUser { UserName = "Alice", Email = "alice@mail.ru" },  "aA123456!", "Administrator");
-                _ = RegisterUser(new IdentityUser { UserName = "Bob", Email = "b0b@yandex.ru" }, "+B0o0B+", "Manager");
-                _ = RegisterUser(new IdentityUser { UserName = "Eve", Email = "eve.99@yandex.ru" }, "1Adam!!!", "Employee");
-                context.SaveChanges();
+                RegisterUser(new IdentityUser { UserName = "Alice", Email = "alice@mail.ru" },  "aA123456!", "Administrator");
+                RegisterUser(new IdentityUser { UserName = "Bob", Email = "b0b@yandex.ru" }, "+B0o0B+", "Manager");
+                RegisterUser(new IdentityUser { UserName = "Eve", Email = "eve.99@yandex.ru" }, "1Adam!!!", "Employee");
             }
         }
 
@@ -49,15 +52,16 @@ namespace LTRegistratorApi.Controllers
         /// <param name="password">User password</param>
         /// <param name="role">User role</param>
         /// <returns>Did you register</returns>
-        private async Task<bool> RegisterUser(IdentityUser user, string password, string role)
+        private bool RegisterUser(IdentityUser user, string password, string role)
         {
             /* Passwords must be at least 6 characters.
              * Passwords must have at least one non alphanumeric character.
              * Passwords must have at least one digit ('0'-'9').
              * Passwords must have at least one lowercase ('a'-'z').
              * Passwords must have at least one uppercase ('A'-'Z').*/
-            var result = await _userManager.CreateAsync(user, password);
-            return result.Succeeded && (await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role))).Succeeded;
+            var result = _userManager.CreateAsync(user, password).Result;
+            var resultAddClaim = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
+            return result.Succeeded && resultAddClaim.Succeeded;
         }
 
         /// <summary>
@@ -89,11 +93,11 @@ namespace LTRegistratorApi.Controllers
         {
             var user = new IdentityUser
             {
-                UserName = model.Name,
+                UserName = model.Email, //for PasswordSignInAsync
                 Email = model.Email,
             };
 
-            if (await RegisterUser(user, model.Password, model.Role))
+            if (RegisterUser(user, model.Password, model.Role))
             {
                 await _signInManager.SignInAsync(user, false);
             }
@@ -112,18 +116,14 @@ namespace LTRegistratorApi.Controllers
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //generate almost unique identifier for token
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
+                resultOfGetClaims.Single(claim => claim.Type == ClaimTypes.Role) //for now one
             };
-            foreach (var claim in resultOfGetClaims)
-            {
-                claims.Add(claim);
-            }
-
+            
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["JwtExpireDays"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256); //signing algorithm
+            var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["JwtExpireDays"])); //how many days is the token valid
 
             var token = new JwtSecurityToken(
                 _configuration["JwtIssuer"],
@@ -135,6 +135,5 @@ namespace LTRegistratorApi.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
     }
 }
