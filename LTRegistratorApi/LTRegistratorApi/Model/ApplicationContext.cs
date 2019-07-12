@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace LTTimeRegistrator.Models
 {
     /// <summary>
-    ///   creating database entities and configuring relationships with the Fluent API
+    ///   Creating database entities and configuring relationships with the Fluent API.
     /// </summary>
     public class ApplicationContext : IdentityDbContext<ApplicationUser>
     {
