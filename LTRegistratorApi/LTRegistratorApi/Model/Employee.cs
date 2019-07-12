@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace LTRegistratorApi.Model
 {
     /// <summary>
-    /// this class describes Employee
+    /// Describes employee entity.
     /// </summary>
     public class Employee 
     {
