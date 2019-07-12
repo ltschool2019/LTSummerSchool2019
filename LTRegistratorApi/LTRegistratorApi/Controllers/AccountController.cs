@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+
 using LTRegistratorApi.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -26,6 +27,7 @@ namespace LTRegistratorApi.Controllers
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
+
             IConfiguration configuration
             )
         {
@@ -52,6 +54,7 @@ namespace LTRegistratorApi.Controllers
         public async Task<object> Register([FromBody] RegisterDto model)
         {
             var user = new ApplicationUser
+
             {
                 UserName = model.Email,
                 Email = model.Email
@@ -68,6 +71,7 @@ namespace LTRegistratorApi.Controllers
         }
 
         private async Task<object> GenerateJwtToken(string email, ApplicationUser user)
+
         {
             var claims = new List<Claim>
             {
