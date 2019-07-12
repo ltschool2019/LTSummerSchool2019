@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace LTRegistratorApi.Model
 {
     /// <summary>
-    /// this class describes Project
+    /// Describes project entity.
     /// </summary>
     public class Project
     {
