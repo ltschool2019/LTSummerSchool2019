@@ -5,7 +5,9 @@ using System.Threading.Tasks;
 
 namespace LTRegistratorApi.Model
 {
-    //this class describes Project
+    /// <summary>
+    /// this class describes Project
+    /// </summary>
     public class Project
     {
 

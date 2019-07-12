@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace LTRegistratorApi.Model
 {
-    //this class describes Employee
+    /// <summary>
+    /// this class describes Employee
+    /// </summary>
     public class Employee 
     {
         public int EmployeeID { get; set; }

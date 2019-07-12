@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace LTRegistratorApi.Model
 {
-    //This additional class which created in the aim of relationships to AspNetUsers
+    /// <summary>
+    /// This additional class which created in the aim of relationships to AspNetUsers
+    /// </summary>
     public class ApplicationUser : IdentityUser
     {
         public virtual Employee Employee { get; set; }
