@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace LTRegistratorApi.Model
 {
     /// <summary>
-    ///this class created in the aim of configuration relationship many-to-many between Project's and Employee's entities
+    ///Describes many-to-many relationships between Project's and Employee's entities.
     /// </summary>
     public class ProjectEmployee
     {
