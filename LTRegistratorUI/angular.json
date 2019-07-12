@@ -23,9 +23,7 @@
               "src/assets"
             ],
             "styles": [
-
               "src/sass/styles.scss"
-
             ],
             "scripts": []
           },
@@ -85,9 +83,7 @@
               "src/assets"
             ],
             "styles": [
-
               "src/sass/styles.scss"
-
             ],
             "scripts": []
           }
