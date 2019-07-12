@@ -47,6 +47,5 @@ namespace LTTimeRegistrator.Models
                 .HasForeignKey<Employee>(u => u.UserId);
 
         }
-
     }
 }
