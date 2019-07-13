@@ -6,7 +6,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using LTRegistratorApi.Model;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -41,20 +40,21 @@ namespace LTRegistratorApi.Controllers
             //If there are no users, then add basic users.
             if (_userManager.Users.Count() == 0)
             {
-                RegisterUser(new IdentityUser { UserName = "Alice", Email = "alice@mail.ru" },  "aA123456!", "Administrator");
-                RegisterUser(new IdentityUser { UserName = "Bob", Email = "b0b@yandex.ru" }, "+B0o0B+", "Manager");
-                RegisterUser(new IdentityUser { UserName = "Eve", Email = "eve.99@yandex.ru" }, "1Adam!!!", "Employee");
+                RegisterUser(new ApplicationUser { UserName = "alice@mail.ru", Email = "alice@mail.ru" },  "aA123456!", "Administrator", "Alice");
+                RegisterUser(new ApplicationUser { UserName = "b0b@yandex.ru", Email = "b0b@yandex.ru" }, "+B0o0B+", "Manager", "Bob");
+                RegisterUser(new ApplicationUser { UserName = "eve.99@yandex.ru", Email = "eve.99@yandex.ru" }, "1Adam!!!", "Employee", "Eve");
             }
         }
 
         /// <summary>
-        /// The method attempts to register a user
+        /// The method attempts to register a user.
         /// </summary>
-        /// <param name="user">IdentityUser with UserName and Email</param>
+        /// <param name="user">ApplicationUser with UserName and Email</param>
         /// <param name="password">User password</param>
         /// <param name="role">User role</param>
+        /// /// <param name="name">User name</param>
         /// <returns>Did you register</returns>
-        private bool RegisterUser(IdentityUser user, string password, string role)
+        private bool RegisterUser(ApplicationUser user, string password, string role, string name)
         {
             /* Passwords must be at least 6 characters.
              * Passwords must have at least one non alphanumeric character.
@@ -62,8 +62,9 @@ namespace LTRegistratorApi.Controllers
              * Passwords must have at least one lowercase ('a'-'z').
              * Passwords must have at least one uppercase ('A'-'Z').*/
             var result = _userManager.CreateAsync(user, password).Result;
-            var resultAddClaim = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
-            return result.Succeeded && resultAddClaim.Succeeded;
+            var resultAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
+            var resultAddName = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, name)).Result;
+            return result.Succeeded && resultAddRole.Succeeded && resultAddName.Succeeded;
         }
 
         /// <summary>
@@ -79,7 +80,7 @@ namespace LTRegistratorApi.Controllers
             if (result.Succeeded)
             {
                 var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.Email);
-                return await GenerateJwtToken(appUser);
+                return GenerateJwtToken(appUser);
             }
 
             throw new ApplicationException("INVALID_LOGIN_ATTEMPT");
@@ -99,7 +100,7 @@ namespace LTRegistratorApi.Controllers
                 Email = model.Email,
             };
 
-            if (RegisterUser(user, model.Password, model.Role))
+            if (RegisterUser(user, model.Password, model.Role, model.Name))
             {
                 await _signInManager.SignInAsync(user, false);
             }
@@ -110,19 +111,18 @@ namespace LTRegistratorApi.Controllers
         /// <summary>
         /// Method generates JWT-token for user.
         /// </summary>
-        /// <param name="user">The IdentityUser who has mail.</param>
+        /// <param name="user">The ApplicationUser who has mail</param>
         /// <returns>JWT-token</returns>
-        private async Task<object> GenerateJwtToken(string email, ApplicationUser user)
+        private object GenerateJwtToken(ApplicationUser user)
         {
             var resultOfGetClaims = _userManager.GetClaimsAsync(user).Result;
 
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //generate almost unique identifier for token
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                resultOfGetClaims.Single(claim => claim.Type == ClaimTypes.Role) //for now one
+                new Claim(ClaimTypes.NameIdentifier, user.Id)
             };
-            
+
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256); //signing algorithm
             var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["JwtExpireDays"])); //how many days is the token valid
