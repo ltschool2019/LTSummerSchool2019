@@ -4,117 +4,99 @@
   <meta charset="UTF-8">
   <title>Lanit Time Manager</title>
 </head>
-<header>
-  <img src="#" alt="Logo">
-  <p>TIME MANAGER</p>
-  <p>Hi demouser!</p>
-  <div class=" container">
-    <a href="#">
-      <img class="icon" src="#" alt="icon"> </a>
-      <div class="menu">
+<header> 
+</header>
+<section>
+  <div class="container">
+    <ul>
+      <li>
+        <a href="#"><img class="icon" src="#" alt="icon"> </a>
         <ul>
           <li><a href="#">Edit</a></li>
           <li><a href="#">Exit</a></li>
         </ul>
-      </div>
-</div>
-<!--  <a href="#">
-    <img class="icon" src="#" alt="icon">
-    <ul>
-      <li>Edit</li>
-      <li>Exit</li>
+      </li>
     </ul>
-  </a>
-  -->
-</header>
+  </div>
+</section>
 <body>
-  <div class="section_menu">
+  <div class="header">
+    <!--<div class="box"><img src="/assets/Lanit_logo.svg" /></div>-->
+
+    <p>TIME MANAGER</p>
+    <p>Hi demouser!</p>
+  </div>
+  <div class="section-menu">
     <ul>
-      <li><a href="#">Dashboard</a></li>
       <li><a href="#">TimeSheet</a></li>
       <li><a href="#">Leaves</a></li>
     </ul>
   </div>
-  <div class="section_TimeSheet">
+  <div class="section-TimeSheet">
     <p class="timesheet"><b>TimeSheet</b><br></p>
     <p><b>From Data</b></p>
-    <input class="input_button" type="date" value="0000-00-00" size="20">
+    <ul class="dates">
+      <li><a href="#"><img src="/assets/arrow_left.png"></a></li>
+      <li><input class="input_button" type="date" value="0000-00-00" size="20"></li>
+      <li><input class="input_button" type="date" value="0000-00-00" size="20"></li>
+      <li><a href="#"><img src="/assets/arrow_right.png"></a></li>
+    </ul>
+
+
     <ul>
-        <li ><a class="save" href="#">Save Details</a></li>
-        <li ><a class ="cansel" href="#">Cansel</a></li>
-     </ul>
-    <table>
-      <tbody>
-        <tr>
-          <td>Project name</td>
-          <td>Monday</td>
-          <td>Tuesday</td>
-          <td>Wednesday</td>
-          <td>Thursday</td>
-          <td>Friday</td>
-          <td>Saturday</td>
-          <td>Sunday</td>
-          <td>Total<br>hours</td>
-          <td>Description</td>
-        </tr>
-        <tr>
-          <td>
-            <select name="project">
-              <option value="none">--Select--</option>
-              <option value="alpha">Project Alpha</option>
-              <option value="omega">Project Omega</option>
-            </select>
-          </td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><textarea rows="2" cols=" 15"></textarea></td>
-        </tr>
-        <tr>
-          <td>
-            <select name="project">
-              <option value="none">--Select--</option>
-              <option value="alpha">Project Alpha</option>
-              <option value="omega">Project Omega</option>
-            </select>
-          </td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><textarea rows="2" cols=" 15"></textarea></td>
-        </tr>
-        <tr>
-          <td>
-            <select name="project">
-              <option value="none">--Select--</option>
-              <option value="alpha">Project Alpha</option>
-              <option value="omega">Project Omega</option>
-            </select>
-          </td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><input type="text" size="5"></td>
-          <td><textarea rows="2" cols=" 15"></textarea></td>
-        </tr>
-      </tbody>
-    </table>
+      <li><a class="save" href="#">Save Details</a></li>
+      <li><a class="cancel" href="#">Edit</a></li>
+    </ul>
+    <ul class="table-header">
+      <li><p>Project name</p></li>
+      <li><p>Mon</p></li>
+      <li><p>Tue</p></li>
+      <li><p>Wed</p></li>
+      <li><p>Thu</p></li>
+      <li><p>Fri</p></li>
+      <li><p>Sat</p></li>
+      <li><p>Sun</p></li>
+      <li><p>Total<br>hours</p></li>
+      <li><p>     </p></li>
+    </ul>
+    <ul class="projects">
+      <li>
+        <select name="project">
+          <option value="none">--Select--</option>
+          <option value="alpha">Project Alpha</option>
+          <option value="omega">Project Omega</option>
+        </select>
+      </li>
+      <li><input type="text" size="7"></li>
+      <li><input type="text" size="7"></li>
+      <li><input type="text" size="7"></li>
+      <li><input type="text" size="7"></li>
+      <li><input type="text" size="7"></li>
+      <li><input type="text" size="7"></li>
+      <li><input type="text" size="7"></li>
+      <li><input type="text" size="7"></li>
+      <li><a href="#">Edit</a></li>
+    </ul>
+    <ul class="projects">
+      <li>
+        <select name="project">
+          <option value="none">--Select--</option>
+          <option value="alpha">Project Alpha</option>
+          <option value="omega">Project Omega</option>
+        </select>
+      </li>
+      <li><input type="text" size="7"></li>
+      <li><input type="text" size="7"></li>
+      <li><input type="text" size="7"></li>
+      <li><input type="text" size="7"></li>
+      <li><input type="text" size="7"></li>
+      <li><input type="text" size="7"></li>
+      <li><input type="text" size="7"></li>
+      <li><input type="text" size="7"></li>
+      <li><a href="#">Edit</a></li>
+    </ul>
   </div> 
 </body>
 </html>
 
-<!--<input type="text" size="40"> -->
+
