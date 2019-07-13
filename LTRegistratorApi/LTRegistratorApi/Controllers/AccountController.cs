@@ -115,12 +115,11 @@ namespace LTRegistratorApi.Controllers
         /// <returns>JWT-token</returns>
         private object GenerateJwtToken(ApplicationUser user)
         {
-            var resultOfGetClaims = _userManager.GetClaimsAsync(user).Result;
-
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //generate almost unique identifier for token
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                _userManager.GetClaimsAsync(user).Result.Single(claim => claim.Type == ClaimTypes.Role) //role
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
