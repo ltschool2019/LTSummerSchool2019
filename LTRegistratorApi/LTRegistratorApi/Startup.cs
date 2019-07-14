@@ -75,8 +75,6 @@ namespace LTRegistratorApi
 
             app.UseAuthentication();
             app.UseMvc();
-            dbContext.Database.EnsureCreated();
-
         }
     }
 }

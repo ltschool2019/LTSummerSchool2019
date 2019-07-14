@@ -23,7 +23,7 @@ namespace LTRegistratorApi
                 new RegisterDto { Name = "Eve", Email = "eve.99@yandex.ru", Password = "1Adam!!!", Role = "Employee" }
             };
 
-            if (context.Users.Any())
+            if (context.Users.Count() == 0)
             {
                 foreach (var model in users)
                 {

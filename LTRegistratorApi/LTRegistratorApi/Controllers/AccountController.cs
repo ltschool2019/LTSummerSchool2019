@@ -83,6 +83,7 @@ namespace LTRegistratorApi.Controllers
             if (result.Succeeded && resultAddRole.Succeeded && resultAddName.Succeeded)
             {
                 await _signInManager.SignInAsync(user, false);
+                return GenerateJwtToken(user);
             }
 
             throw new ApplicationException("ERROR_REGISTER");
