@@ -36,35 +36,6 @@ namespace LTRegistratorApi.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
-
-            //If there are no users, then add basic users.
-            if (_userManager.Users.Count() == 0)
-            {
-                RegisterUser(new ApplicationUser { UserName = "alice@mail.ru", Email = "alice@mail.ru" },  "aA123456!", "Administrator", "Alice");
-                RegisterUser(new ApplicationUser { UserName = "b0b@yandex.ru", Email = "b0b@yandex.ru" }, "+B0o0B+", "Manager", "Bob");
-                RegisterUser(new ApplicationUser { UserName = "eve.99@yandex.ru", Email = "eve.99@yandex.ru" }, "1Adam!!!", "Employee", "Eve");
-            }
-        }
-
-        /// <summary>
-        /// The method attempts to register a user.
-        /// </summary>
-        /// <param name="user">ApplicationUser with UserName and Email</param>
-        /// <param name="password">User password</param>
-        /// <param name="role">User role</param>
-        /// /// <param name="name">User name</param>
-        /// <returns>Did you register</returns>
-        private bool RegisterUser(ApplicationUser user, string password, string role, string name)
-        {
-            /* Passwords must be at least 6 characters.
-             * Passwords must have at least one non alphanumeric character.
-             * Passwords must have at least one digit ('0'-'9').
-             * Passwords must have at least one lowercase ('a'-'z').
-             * Passwords must have at least one uppercase ('A'-'Z').*/
-            var result = _userManager.CreateAsync(user, password).Result;
-            var resultAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
-            var resultAddName = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, name)).Result;
-            return result.Succeeded && resultAddRole.Succeeded && resultAddName.Succeeded;
         }
 
         /// <summary>
@@ -100,7 +71,16 @@ namespace LTRegistratorApi.Controllers
                 Email = model.Email,
             };
 
-            if (RegisterUser(user, model.Password, model.Role, model.Name))
+            /* Passwords must be at least 6 characters.
+             * Passwords must have at least one non alphanumeric character.
+             * Passwords must have at least one digit ('0'-'9').
+             * Passwords must have at least one lowercase ('a'-'z').
+             * Passwords must have at least one uppercase ('A'-'Z').*/
+            var result = _userManager.CreateAsync(user, model.Password).Result;
+            var resultAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, model.Role)).Result;
+            var resultAddName = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, model.Name)).Result;
+
+            if (result.Succeeded && resultAddRole.Succeeded && resultAddName.Succeeded)
             {
                 await _signInManager.SignInAsync(user, false);
             }
