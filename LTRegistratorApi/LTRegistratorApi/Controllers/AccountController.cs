@@ -57,7 +57,10 @@ namespace LTRegistratorApi.Controllers
 
             throw new ApplicationException("INVALID_LOGIN_ATTEMPT");
         }
-
+        /// <summary>
+        /// Test method to check restrictions
+        /// </summary>
+        /// <returns>Returns "Success" if access is allowed and "401 Unauthorized" otherwise</returns>
         [HttpPost]
         [Authorize(Policy = "Administrator")]
         public async Task<object> rolecheck()

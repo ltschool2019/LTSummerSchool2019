@@ -57,8 +57,10 @@ namespace LTRegistratorApi
             };
               });
 
+            //Add dependency for IAuthorizationHandler.
             services.AddTransient<IAuthorizationHandler, RoleHandler>();
 
+            //Add policy for each role
             services.AddAuthorization(options =>
             {
                 options.AddPolicy(
