@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -55,6 +56,13 @@ namespace LTRegistratorApi.Controllers
             }
 
             throw new ApplicationException("INVALID_LOGIN_ATTEMPT");
+        }
+
+        [HttpPost]
+        [Authorize(Policy = "Administrator")]
+        public async Task<object> rolecheck()
+        {
+            return "Success!";
         }
 
         /// <summary>

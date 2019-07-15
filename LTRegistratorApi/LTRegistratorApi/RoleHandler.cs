@@ -12,10 +12,13 @@ namespace LTRegistratorApi
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context,
             RoleRequirement requirement)
         {
-            string role = context.User.FindFirst(c => c.Type == ClaimTypes.Role).Value;
-            if (role == requirement.Role)
+            if (context.User.HasClaim(c => c.Type == ClaimTypes.Role))
             {
-                context.Succeed(requirement);
+                string role = context.User.FindFirst(c => c.Type == ClaimTypes.Role).Value;
+                if (role == requirement.Role)
+                {
+                    context.Succeed(requirement);
+                }
             }
 
             return Task.CompletedTask;
