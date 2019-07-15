@@ -4,6 +4,7 @@ using System.Text;
 using LTRegistratorApi.Model;
 using LTTimeRegistrator.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -56,6 +57,29 @@ namespace LTRegistratorApi
             };
               });
 
+            services.AddTransient<IAuthorizationHandler, RoleHandler>();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(
+                    "Administrator",
+                    policy => policy.Requirements.Add(new RoleRequirement("Administrator")));
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(
+                    "Manager",
+                    policy => policy.Requirements.Add(new RoleRequirement("Manager")));
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(
+                    "Employee",
+                    policy => policy.Requirements.Add(new RoleRequirement("Employee")));
+            });
+            
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
 
