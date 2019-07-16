@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 using LTRegistratorApi.Model;
 using LTTimeRegistrator.Models;
@@ -53,9 +54,16 @@ namespace LTRegistratorApi
                       ValidAudience = Configuration["JwtIssuer"],
                       IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"])),
                       ClockSkew = TimeSpan.Zero // remove delay of token when expire
-            };
+                  };
               });
 
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("IsEmployee", policy => policy.RequireClaim(ClaimTypes.Role, "Employee"));
+                options.AddPolicy("IsManager", policy => policy.RequireClaim(ClaimTypes.Role, "Manager")); 
+                options.AddPolicy("IsAdministrator", policy => policy.RequireClaim(ClaimTypes.Role, "Administrator"));
+            });
+          
             services.AddMvc();
         }
 
