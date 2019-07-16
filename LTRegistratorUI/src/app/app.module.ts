@@ -6,13 +6,15 @@ import { LoginComponent } from './login/login.component';
 import { VacationComponent } from './vacation/vacation.component';
 import { AppRoutingModule } from './app-routing.module';
 import { NotFoundComponent } from './not-found/not-found.component';
+import { TimesheetComponent } from './timesheet/timesheet.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
     VacationComponent,
-    NotFoundComponent
+    NotFoundComponent,
+    TimesheetComponent
   ],
   imports: [
     BrowserModule,

@@ -1,0 +1,8 @@
+<section class="timesheet">
+  <ul class="projects">
+    <li *ngFor="let project of projects">
+      <label for="project-edit-button"> {{project.name}}  {{project.hours}} </label>
+      <button class="project__edit" title="edit project" routerLink='/editproject/{{project.name}}' id="project-edit-button" name="project-edit-button">Edit</button>
+    </li>
+  </ul>
+</section>

@@ -9,7 +9,7 @@ import { VacationService } from '../vacation.service';
 })
 
 export class VacationComponent implements OnInit {
-  
+  type="Отпуск";
   vacations: Vacation[]=[
     
   ];
