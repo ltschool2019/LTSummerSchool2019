@@ -44,7 +44,8 @@ namespace LTTimeRegistrator.Models
             modelBuilder.Entity<Employee>()
                 .HasOne(e => e.ApplicationUser)
                 .WithOne(au => au.Employee)
-                .HasForeignKey<ApplicationUser>(u => u.EmployeeId);           
+                .HasForeignKey<Employee>(u => u.UserId);
+
         }
     }
 }
