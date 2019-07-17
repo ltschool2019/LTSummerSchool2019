@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -61,7 +60,7 @@ namespace LTRegistratorApi
                 context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2, Role = "Employee" });
                 context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3, Role = "Employee" });
                 context.SaveChanges();
-            }          
+            }
         }
     }
 }
