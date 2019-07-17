@@ -30,9 +30,11 @@ a {
   ul {
     list-style: none;
     display: flex;
-    justify-content: flex-end;
+     justify-content: flex-end;
+    
     margin-right: 30px;
-    margin-top: -50px;
+    margin-top: 50px; 
+    align-items: flex-end;
     color: #ffffff;
 
     li {
@@ -59,7 +61,7 @@ a {
   .dates {
     display: flex;
     justify-content: center;
-    margin-top: 50px;
+    align-self: flex-start;
 
     li {
       margin-right: 30px;
