@@ -1,5 +1,4 @@
 ﻿using LTRegistratorApi.Model;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +23,7 @@ namespace LTTimeRegistrator.Models
         public DbSet<Employee> Employee { get; set; }
         public DbSet<Project> Project { get; set; }
         public DbSet<ProjectEmployee> ProjectEmployee { get; set; }
+        public DbSet<Leave> Leave { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -58,7 +58,13 @@ namespace LTTimeRegistrator.Models
                 .WithMany(e => e.Project)          
                 .HasForeignKey(u => u.ManagerId);
 
-
+            //Configuring one-to-many relationships between Employee and Leave
+            modelBuilder.Entity<Leave>()
+                .HasKey(ei => ei.EmployeeId);
+            /*modelBuilder.Entity<Leave>()
+                .HasOne<Employee>()
+                .WithMany()
+                .HasForeignKey(ei => ei.EmployeeId);*/
         }
     }
 }

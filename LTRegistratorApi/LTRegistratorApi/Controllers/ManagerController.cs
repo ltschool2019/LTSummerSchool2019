@@ -37,7 +37,7 @@ namespace LTRegistratorApi.Controllers
 
             var result = db.Project.Join(db.Employee,
                                      p => p.ManagerId,
-                                     e => e.EmployeeId,
+                                     e => e.EmployeeID,
                                      (p, e) => new { p, e }).Where(u => u.e.User == User).Select(u => new { u.p.Name });
                                                                                                         
                 if (User == null)
@@ -45,7 +45,7 @@ namespace LTRegistratorApi.Controllers
                     return BadRequest();
                 }
 
-                return result;
+                return Ok(result);
             
         }
 
