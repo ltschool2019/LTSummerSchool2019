@@ -20,20 +20,20 @@ namespace LTRegistratorApi.Controllers
     {
         ApplicationContext db;
 
-       
-            public ManagerController(ApplicationContext context)
-            {
+
+        public ManagerController(ApplicationContext context)
+        {
             db = context;
-            }
-            //GET api/manager/1
-            [HttpGet("{EmployeeId}")]
+        }
+        //GET api/manager/1
+        [HttpGet("{EmployeeId}")]
 
         public ActionResult<string> Get(int EmployeeId)
         {
             var result = db.ProjectEmployee.Join(db.Project,
                                      p => p.ProjectId,
                                      pe => pe.ProjectId,
-                                     (pe, p) => new { pe, p }).Where(w => w.pe.EmployeeId == EmployeeId && w.pe.Role == "Manager").Select(name => new { name.p.Name});
+                                     (pe, p) => new { pe, p }).Where(w => w.pe.EmployeeId == EmployeeId && w.pe.Role == "Manager").Select(name => new { name.p.Name });
 
             if (User == null)
             {

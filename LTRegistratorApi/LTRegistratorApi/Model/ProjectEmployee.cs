@@ -16,6 +16,6 @@ namespace LTRegistratorApi.Model
 
         public Project Project { get; set; }
         public Employee Employee { get; set; }
-        
+
     }
 }

@@ -9,9 +9,9 @@ namespace LTRegistratorApi.Model
     /// <summary>
     /// Describes employee entity.
     /// </summary>
-    public class Employee 
+    public class Employee
     {
-        public int EmployeeId { get; set; }     
+        public int EmployeeId { get; set; }
         public string FirstName { get; set; }
         public string SecondName { get; set; }
         public string Mail { get; set; }
