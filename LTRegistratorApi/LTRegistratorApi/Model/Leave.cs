@@ -2,7 +2,7 @@
 
 namespace LTRegistratorApi.Model
 {
-    
+    public enum TypeLeave { SickLeave, Vacation };
     /// <summary>
     /// Describes employee leave.
     /// </summary>
@@ -10,7 +10,7 @@ namespace LTRegistratorApi.Model
     {
         public int LeaveId { get; set; }
 
-        public enum TypeLeave { SickLeave, Vacation };
+        public TypeLeave TypeLeave { get; set; }
         public DateTime StartDate { get; set; } //new DateTime(year, month, day);
         public DateTime EndDate { get; set; }
     }

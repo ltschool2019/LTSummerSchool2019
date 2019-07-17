@@ -29,7 +29,7 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("{id}")]
         public ActionResult<List<Leave>> GetLeaves(int id)
         {
-            var leaves = db.Employee.SingleOrDefault(V => V.EmployeeId == id).Leave;
+            var leaves = db.Employee.Include(e => e.Leave).SingleOrDefault(V => V.EmployeeId == id).Leave;
 
             if (leaves == null)
             {
@@ -48,7 +48,7 @@ namespace LTRegistratorApi.Controllers
         [HttpPut("{id}/leaves")]
         public ActionResult SetLeaves(int id, [FromBody] List<Leave> leaves)
         {
-            var user = db.Employee.SingleOrDefaultAsync(V => V.EmployeeId == id);
+            var user = db.Employee.Include(e => e.Leave).SingleOrDefaultAsync(V => V.EmployeeId == id);
 
             if (leaves != null || user.IsCompleted)
                 foreach (var leave in leaves)
@@ -71,19 +71,18 @@ namespace LTRegistratorApi.Controllers
         [HttpPut("{id}/leaves")]
         public ActionResult UpdateLeaves(int id, [FromBody] List<Leave> leaves)
         {
-            var user = db.Employee.SingleOrDefaultAsync(V => V.EmployeeId == id);
+            var user = db.Employee.Include(e => e.Leave).SingleOrDefaultAsync(V => V.EmployeeId == id);
 
             if (leaves != null || user.IsCompleted)
             {
                 foreach (var leave in leaves)
                 {
-                    //var countinuser = user.Result.Leave.Count();
-                    //var countinleave = db.Leave.Count();
-                    //db.Leave.Remove(db.Leave.SingleOrDefault(k => k.LeaveId == leave.LeaveId));
-                    //if (countinleave < db.Leave.Count() && countinuser == user.Result.Leave.Count()) //=> leaveid not-> user
-                    //    return BadRequest();
+                    var count = user.Result.Leave.Count();
+                    db.Leave.Remove(db.Leave.SingleOrDefault(k => k.LeaveId == leave.LeaveId));
+                    if (count == user.Result.Leave.Count()) //=> LeaveId not-> user
+                        return BadRequest();
 
-                    //db.Leave.Add(leave);
+                    db.Leave.Add(leave);
                 }
             }
             else return BadRequest();
@@ -102,7 +101,7 @@ namespace LTRegistratorApi.Controllers
         [HttpDelete("{id}/leaves")]
         public ActionResult DeleteLeave(int id, [FromBody] List<Leave> leaves)
         {
-            var user = db.Employee.SingleOrDefaultAsync(V => V.EmployeeId == id);
+            var user = db.Employee.Include(e => e.Leave).SingleOrDefaultAsync(V => V.EmployeeId == id);
 
             if (leaves != null || user.IsCompleted || user.Result.Leave.Any())
             {
