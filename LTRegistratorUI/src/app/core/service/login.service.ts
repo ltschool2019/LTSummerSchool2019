@@ -9,7 +9,10 @@ export class LoginService {
   public token = new Object(); 
   public token_Json = new String;
   constructor(private http: HttpClient) {}
-  getUser() {
-    return this.http.get('http://localhost:3000/token');
+  getUser(email:string, password:string) {
+    return this.http.post<string>('http://localhost:53634/api/account/login', {email, password})
+    // return this.http.get('http://localhost:3000/token')
+    // .pipe(catchError(this.handleError('login', hero))
+    // );
   }
 }
