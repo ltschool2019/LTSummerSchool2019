@@ -20,7 +20,10 @@ namespace LTRegistratorApi
             {
                 new RegisterDto { Name = "Alice", Email = "alice@mail.ru", Password = "aA123456!", Role = "Administrator" },
                 new RegisterDto { Name = "Bob", Email = "b0b@yandex.ru", Password = "+B0o0B+", Role = "Manager" },
-                new RegisterDto { Name = "Eve", Email = "eve.99@yandex.ru", Password = "1Adam!!!", Role = "Employee" }
+                new RegisterDto { Name = "Eve", Email = "eve.99@yandex.ru", Password = "1Adam!!!", Role = "Employee" },
+                new RegisterDto { Name = "Carol", Email = "car0l@mail.ru", Password = "+C0o0C+", Role = "Manager" },
+                new RegisterDto { Name = "Dave", Email = "dave.99@mail.ru", Password = "1Adam!!!", Role = "Employee" },
+                new RegisterDto { Name = "Frank", Email = "frank.99@mail.ru", Password = "1Adam!!!", Role = "Employee" }
             };
 
             if (context.Users.Count() == 0)
@@ -40,6 +43,33 @@ namespace LTRegistratorApi
                     if (!(result.Succeeded && resultAddRole.Succeeded && resultAddName.Succeeded))
                         throw new ApplicationException("ERROR_INITIALIZE_DB");
                 }
+            }
+
+            var leaveEve = new Leave[]
+            {
+                new Leave() { StartDate = new DateTime(2019, 1, 1), EndDate = new DateTime(2019, 1, 13) },
+                new Leave() { StartDate = new DateTime(2019, 2, 10), EndDate = new DateTime(2019, 2, 13) }
+            };
+            var leaveCarol = new Leave[]
+            {
+                new Leave() { StartDate = new DateTime(2019, 1, 1), EndDate = new DateTime(2019, 1, 13) },
+                new Leave() { StartDate = new DateTime(2019, 3, 1), EndDate = new DateTime(2019, 4, 1) }
+            };
+            var leaveFrank = new Leave[]
+            {
+                new Leave() { StartDate = new DateTime(2019, 1, 1), EndDate = new DateTime(2019, 1, 13) }
+            };
+
+            if (!context.Employee.Any())
+            {
+                context.Employee.Add(new Employee() { User = "Alice" });
+                context.Employee.Add(new Employee() { User = "Eve", Leave = leaveEve });
+                context.Employee.Add(new Employee() { User = "Bob" });
+                context.Employee.Add(new Employee() { User = "Carol", Leave = leaveCarol });
+                context.Employee.Add(new Employee() { User = "Dave" });
+                context.Employee.Add(new Employee() { User = "Frank", Leave = leaveFrank });
+
+                context.SaveChanges();
             }
         }
     }
