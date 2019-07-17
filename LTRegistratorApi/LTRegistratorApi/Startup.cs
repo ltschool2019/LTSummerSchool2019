@@ -34,6 +34,11 @@ namespace LTRegistratorApi
               .AddEntityFrameworkStores<ApplicationContext>()
               .AddDefaultTokenProviders();
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("local", p => p.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod());
+            });
+
             // ===== Add Jwt Authentication ========
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // => remove default claims
             services
@@ -80,14 +85,8 @@ namespace LTRegistratorApi
             }
 
             app.UseHttpsRedirection();
-
-            app.UseCors(builder =>
-            {
-                builder.WithOrigins("http://localhost:4200",
-                                    "http://localhost:5000");
-            });
-
             app.UseAuthentication();
+            app.UseCors("local");
             app.UseMvc();
         }
     }
