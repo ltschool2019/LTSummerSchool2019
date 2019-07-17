@@ -115,7 +115,7 @@ namespace LTRegistratorApi.Controllers
                 signingCredentials: creds
             );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            return Content("{'token' : '" + (new JwtSecurityTokenHandler().WriteToken(token)) + "'}", "application/json");
         }
     }
 }

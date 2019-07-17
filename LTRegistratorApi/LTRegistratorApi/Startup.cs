@@ -81,6 +81,12 @@ namespace LTRegistratorApi
 
             app.UseHttpsRedirection();
 
+            app.UseCors(builder =>
+            {
+                builder.WithOrigins("http://localhost:4200",
+                                    "http://localhost:5000");
+            });
+
             app.UseAuthentication();
             app.UseMvc();
         }
