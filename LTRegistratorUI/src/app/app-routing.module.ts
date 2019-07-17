@@ -14,7 +14,7 @@ const routes: Routes = [
   { path: 'vacation', component: VacationComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'timesheet', component: TimesheetComponent },
-  //{ path: 'editproject/:project.name', component: EditprojectComponent },
+  //{ path: 'editproject/:project.id', component: EditprojectComponent },
   /* Эти еще не добавленны
   {path:'projects', component:ProjectsComponent},
   {path: 'addempolyee', component:},

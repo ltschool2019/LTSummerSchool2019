@@ -1,5 +1,6 @@
 <section class="vacation">
   <form class="vacation-form">
+    <!-- надо будет изменить тип кнопки на submit, чтобы обязательные поля работали -->
     <button class="vacation-form__add" (click)="add(type,start,end)">+</button>
     <select name="vacation-type" id="vacation-type" class="vacation-form__type" [(ngModel)]='type' required
     (change)="ChangingValue($event)" [value]="'Отпуск'">
@@ -17,8 +18,8 @@
 
   <ul class="vacations">
     <li *ngFor="let vacation of vacations">
-      <label for="delete-button"> {{vacation.type}} с {{vacation.start}} по {{vacation.end}}</label>
-      <button class="delete" title="delete vacation" (click)="delete(vacation)" id="delete-button" name="delete-button">x</button>
+      <p class="vacations_vacation"> {{vacation.type}} с {{vacation.start}} по {{vacation.end}}</p>
+      <button class="vacations__delete" title="vacation delete vacation" (click)="delete(vacation)" id="vacation-delete-button" name="delete-button">x</button>
     </li>
   </ul>
 </section>

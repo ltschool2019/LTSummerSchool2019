@@ -8,8 +8,8 @@ import {Project} from '../project';
 })
 export class TimesheetComponent implements OnInit {
   projects: Project[]=[
-    {name:'Project A',hours:45},
-    {name:'Project B', hours:65}
+    {name:'Project A',hours:45, id:1},
+    {name:'Project B', hours:65, id:2}
   ];
   constructor() { }
 
