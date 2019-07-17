@@ -9,44 +9,39 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LTRegistratorApi.Controllers
 {
+
+    /// <summary>
+    /// Output of all projects of the manager. 
+    /// </summary>
+
     [Route("api/[controller]")]
     [ApiController]
     public class ManagerController : ControllerBase
     {
         ApplicationContext db;
-        public ManagerController(ApplicationContext context)
-        {
+
+       
+            public ManagerController(ApplicationContext context)
+            {
             db = context;
-        }
-        // GET api/manager/Bob
-        [HttpGet("{User}")]
+            }
+            //GET api/manager/1
+            [HttpGet("{EmployeeId}")]
 
-        public ActionResult<string> Get(string User)
+        public ActionResult<string> Get(int EmployeeId)
         {
+            var result = db.ProjectEmployee.Join(db.Project,
+                                     p => p.ProjectId,
+                                     pe => pe.ProjectId,
+                                     (pe, p) => new { pe, p }).Where(w => w.pe.EmployeeId == EmployeeId && w.pe.Role == "Manager").Select(name => new { name.p.Name});
 
-            //IList<string> projectList = new List<string>();
-            //var query = (from e in db.Employee
-            //             join p in db.Project
-            //             on e.EmployeeID equals p.ManagerId
-            //             where e.User == User
-            //             select new
-            //             {
-            //                 e.User,
-            //                 p.Name
-            //             });
+            if (User == null)
+            {
+                return BadRequest();
+            }
 
-            var result = db.Project.Join(db.Employee,
-                                     p => p.ManagerId,
-                                     e => e.EmployeeId,
-                                     (p, e) => new { p, e }).Where(u => u.e.User == User).Select(u => new { u.p.Name });
-                                                                                                        
-                if (User == null)
-                {
-                    return BadRequest();
-                }
+            return Ok(result);
 
-                return result;
-            
         }
 
     }
