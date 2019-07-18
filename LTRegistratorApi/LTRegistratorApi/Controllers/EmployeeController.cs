@@ -4,6 +4,7 @@ using LTRegistratorApi.Model;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -50,7 +51,7 @@ namespace LTRegistratorApi.Controllers
         {
             var user = db.Employee.Include(e => e.Leave).SingleOrDefault(V => V.EmployeeId == id);
 
-            if (leaves != null)
+            if (leaves != null && ValidatorLeaveLists.MergingListsValidly(leaves, user.Leave.ToList()))
                 foreach (var leave in leaves)
                 {
                     var newLeave = new Leave() { StartDate = leave.StartDate, EndDate = leave.EndDate, TypeLeave = leave.TypeLeave };
@@ -82,6 +83,7 @@ namespace LTRegistratorApi.Controllers
                     if (temp != null)
                         db.Leave.Remove(temp);
                     else return BadRequest();
+
                     var newTemp = user.Leave.Where(li => li.LeaveId == leave.LeaveId);
                     if (newTemp.Count() == 1)
                     {
@@ -89,6 +91,9 @@ namespace LTRegistratorApi.Controllers
                         user.Leave.Add(newLeave);
                     }
                 }
+
+                if (!ValidatorLeaveLists.ListValidly(user.Leave.ToList()))
+                    return BadRequest();
             }
             else return BadRequest();
 
@@ -120,6 +125,63 @@ namespace LTRegistratorApi.Controllers
 
             db.SaveChanges();
             return Ok();
+        }
+    }
+
+    /// <summary>
+    /// Verifies that the dates in the List<Leave>('s) are correct.
+    /// </summary>
+    public static class ValidatorLeaveLists
+    {
+        public static bool MergingListsValidly(List<Leave> first, List<Leave> second)
+        {
+            return ListValidly(first.Concat(second).ToList());
+        }
+
+        public static bool ListValidly(List<Leave> list)
+        {
+            var normalizedList = GetDoubleDTList(list);
+            return normalizedList.StartEndIsValid() && normalizedList.LocationStartEndIsValid();
+        }
+
+        private static List<(DateTime, DateTime)> GetDoubleDTList(List<Leave> leaves)
+        {
+            if (leaves == null)
+                throw new ArgumentNullException();
+
+            var result = new List<(DateTime, DateTime)>();
+            foreach (var leave in leaves)
+            {
+                result.Add((leave.StartDate, leave.EndDate));
+            }
+            return result;
+        }
+
+        private static bool StartEndIsValid(this List<(DateTime, DateTime)> list)
+        {
+            if (list == null)
+                throw new ArgumentNullException();
+
+            foreach (var item in list)
+            {
+                if (item.Item1 >= item.Item2)
+                    return false;
+            }
+            return true;
+        }
+
+        private static bool LocationStartEndIsValid(this List<(DateTime, DateTime)> list)
+        {
+            if (list == null)
+                throw new ArgumentNullException();
+
+            list.Sort();
+            for (int i = 0; i < list.Count() - 1; ++i)
+            {
+                if (list[i].Item2 > list[i + 1].Item1)
+                    return false;
+            }
+            return true;
         }
     }
 }
