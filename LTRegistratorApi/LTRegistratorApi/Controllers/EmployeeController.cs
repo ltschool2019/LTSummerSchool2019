@@ -39,22 +39,29 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// PUT api/employee/{id}/leaves/
+        /// POST api/employee/{id}/leaves/
+        /// POST LeaveId = -1
         /// Add new leaves for user.
         /// </summary>
         /// <param name="id">UserId</param>
         /// <param name="leaves">List of leave that is added to the user</param>
         /// <returns>Was the operation successful?</returns>
-        [HttpPut("{id}/leaves")]
+        [HttpPost("{id}/leaves")]
         public ActionResult SetLeaves(int id, [FromBody] List<Leave> leaves)
         {
-            var user = db.Employee.Include(e => e.Leave).SingleOrDefaultAsync(V => V.EmployeeId == id);
+            var user = db.Employee.Include(e => e.Leave).SingleOrDefault(V => V.EmployeeId == id);
 
-            if (leaves != null || user.IsCompleted)
+            if (leaves != null)
                 foreach (var leave in leaves)
-                    if (!user.Result.Leave.Contains(leave))
-                        user.Result.Leave.Add(leave);
+                {
+                    var temp = user.Leave.Where(li => li.LeaveId == leave.LeaveId);
+                    if (temp.Count() == 0)
+                    {
+                        var newLeave = new Leave() { StartDate = leave.StartDate, EndDate = leave.EndDate, TypeLeave = leave.TypeLeave };
+                        user.Leave.Add(newLeave);
+                    }
                     else return BadRequest();
+                }
             else return BadRequest();
 
             db.SaveChanges();
@@ -71,18 +78,22 @@ namespace LTRegistratorApi.Controllers
         [HttpPut("{id}/leaves")]
         public ActionResult UpdateLeaves(int id, [FromBody] List<Leave> leaves)
         {
-            var user = db.Employee.Include(e => e.Leave).SingleOrDefaultAsync(V => V.EmployeeId == id);
+            var user = db.Employee.Include(e => e.Leave).Single(V => V.EmployeeId == id);
 
-            if (leaves != null || user.IsCompleted)
+            if (leaves != null)
             {
                 foreach (var leave in leaves)
                 {
-                    var count = user.Result.Leave.Count();
-                    db.Leave.Remove(db.Leave.SingleOrDefault(k => k.LeaveId == leave.LeaveId));
-                    if (count == user.Result.Leave.Count()) //=> LeaveId not-> user
-                        return BadRequest();
-
-                    db.Leave.Add(leave);
+                    var temp = user.Leave.SingleOrDefault(li => li.LeaveId == leave.LeaveId);
+                    if (temp != null)
+                        db.Leave.Remove(temp);
+                    else return BadRequest();
+                    var newTemp = user.Leave.Where(li => li.LeaveId == leave.LeaveId);
+                    if (newTemp.Count() == 1)
+                    {
+                        var newLeave = new Leave() { StartDate = leave.StartDate, EndDate = leave.EndDate, TypeLeave = leave.TypeLeave };
+                        user.Leave.Add(newLeave);
+                    }
                 }
             }
             else return BadRequest();
@@ -101,14 +112,16 @@ namespace LTRegistratorApi.Controllers
         [HttpDelete("{id}/leaves")]
         public ActionResult DeleteLeave(int id, [FromBody] List<Leave> leaves)
         {
-            var user = db.Employee.Include(e => e.Leave).SingleOrDefaultAsync(V => V.EmployeeId == id);
+            var user = db.Employee.Include(l => l.Leave).SingleOrDefault(E => E.EmployeeId == id);
 
-            if (leaves != null || user.IsCompleted || user.Result.Leave.Any())
-            {
+            if (leaves != null)
                 foreach (var leave in leaves)
-                    if (!user.Result.Leave.Remove(leave))
-                        return BadRequest();
-            }
+                {
+                    var temp = user.Leave.SingleOrDefault(li => li.LeaveId == leave.LeaveId);
+                    if (temp != null)
+                        db.Leave.Remove(temp);
+                    else return BadRequest();
+                }
             else return BadRequest();
 
             db.SaveChanges();
