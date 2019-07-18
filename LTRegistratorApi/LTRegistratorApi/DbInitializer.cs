@@ -10,37 +10,57 @@ using System.Threading.Tasks;
 
 namespace LTRegistratorApi
 {
+    /// <summary>
+    /// Adding values ​​to a table.
+    /// </summary>
     public class DbInitializer
     {
         public static void Initialize(ApplicationContext context, UserManager<ApplicationUser> userManager)
         {
             context.Database.EnsureCreated();
 
-            var users = new RegisterDto[]
+            if (!context.Employee.Any())
             {
-                new RegisterDto { Name = "Alice", Email = "alice@mail.ru", Password = "aA123456!", Role = "Administrator" },
-                new RegisterDto { Name = "Bob", Email = "b0b@yandex.ru", Password = "+B0o0B+", Role = "Manager" },
-                new RegisterDto { Name = "Eve", Email = "eve.99@yandex.ru", Password = "1Adam!!!", Role = "Employee" }
-            };
+                context.Employee.Add(new Employee() { FirstName = "Bob", SecondName = "Johnson", Mail = "b0b@yandex.ru", MaxRole = "Manager" });
+                context.Employee.Add(new Employee() { FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", MaxRole = "Employee" });
+                context.Employee.Add(new Employee() { FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", MaxRole = "Administrator" });
+                context.SaveChanges();
 
-            if (context.Users.Count() == 0)
-            {
-                foreach (var model in users)
+                foreach (var employee in context.Employee)
                 {
                     var user = new ApplicationUser
                     {
-                        UserName = model.Email, //for PasswordSignInAsync
-                        Email = model.Email,
+                        UserName = employee.Mail, //for PasswordSignInAsync
+                        Email = employee.Mail,
+                        EmployeeId = employee.EmployeeId
                     };
 
-                    var result = userManager.CreateAsync(user, model.Password).Result;
-                    var resultAddRole = userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, model.Role)).Result;
-                    var resultAddName = userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, model.Name)).Result;
-
-                    if (!(result.Succeeded && resultAddRole.Succeeded && resultAddName.Succeeded))
+                    var result = userManager.CreateAsync(user, employee.Mail + "Password1").Result;
+                    var resultAddRole = userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, employee.MaxRole)).Result;
+                    if (!(result.Succeeded && resultAddRole.Succeeded))
                         throw new ApplicationException("ERROR_INITIALIZE_DB");
                 }
             }
+
+            if (!context.Project.Any())
+            {
+                context.Project.Add(new Project() { Name = "A" });
+                context.Project.Add(new Project() { Name = "B" });
+                context.Project.Add(new Project() { Name = "С" });
+                context.SaveChanges();
+            }
+
+            if (!context.ProjectEmployee.Any())
+            {
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1, Role = "Manager" });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 1, Role = "Manager" });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 1, Role = "Employee" });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2, Role = "Employee" });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2, Role = "Employee" });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3, Role = "Employee" });
+                context.SaveChanges();
+            }
+            
         }
     }
 }
