@@ -25,22 +25,21 @@ namespace LTRegistratorApi
                 context.Employee.Add(new Employee() { FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", MaxRole = "Employee" });
                 context.Employee.Add(new Employee() { FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", MaxRole = "Administrator" });
                 context.SaveChanges();
-            }
 
-
-            foreach (var employee in context.Employee)
-            {
-                var user = new ApplicationUser
+                foreach (var employee in context.Employee)
                 {
-                    UserName = employee.Mail, //for PasswordSignInAsync
-                    Email = employee.Mail,
-                    EmployeeId = employee.EmployeeId
-                };
+                    var user = new ApplicationUser
+                    {
+                        UserName = employee.Mail, //for PasswordSignInAsync
+                        Email = employee.Mail,
+                        EmployeeId = employee.EmployeeId
+                    };
 
-                var result = userManager.CreateAsync(user, employee.Mail + "Password1").Result;
-                var resultAddRole = userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, employee.MaxRole)).Result;
-                if (!(result.Succeeded && resultAddRole.Succeeded))
-                    throw new ApplicationException("ERROR_INITIALIZE_DB");
+                    var result = userManager.CreateAsync(user, employee.Mail + "Password1").Result;
+                    var resultAddRole = userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, employee.MaxRole)).Result;
+                    if (!(result.Succeeded && resultAddRole.Succeeded))
+                        throw new ApplicationException("ERROR_INITIALIZE_DB");
+                }
             }
 
             if (!context.Project.Any())
@@ -61,6 +60,7 @@ namespace LTRegistratorApi
                 context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3, Role = "Employee" });
                 context.SaveChanges();
             }
+            
         }
     }
 }
