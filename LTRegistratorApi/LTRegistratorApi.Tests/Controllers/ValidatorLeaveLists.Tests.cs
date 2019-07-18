@@ -15,7 +15,7 @@ namespace LTRegistratorApi.Tests.Controllers
         public void SimpleTestForOneList(bool expected, int start, int end)
         {
             var list = new List<Leave>() { new Leave { StartDate = new DateTime(2019, 1, start), EndDate = new DateTime(2019, 1, end) } };
-            Assert.Equal(expected, ValidatorLeaveLists.ListValidly(list));
+            Assert.Equal(expected, ValidatorLeaveLists.ValidateLeaves(list));
         }
 
         [Theory]
@@ -31,7 +31,7 @@ namespace LTRegistratorApi.Tests.Controllers
                 new Leave { StartDate = new DateTime(2019, 1, start1), EndDate = new DateTime(2019, 1, end1) },
                 new Leave { StartDate = new DateTime(2019, 1, start2), EndDate = new DateTime(2019, 1, end2) }
             };
-            Assert.Equal(expected, ValidatorLeaveLists.ListValidly(list));
+            Assert.Equal(expected, ValidatorLeaveLists.ValidateLeaves(list));
         }
 
         [Theory]
@@ -46,7 +46,7 @@ namespace LTRegistratorApi.Tests.Controllers
                 new Leave { StartDate = new DateTime(2019, 1, start2), EndDate = new DateTime(2019, 1, end2) },
                 new Leave { StartDate = new DateTime(2019, 1, start3), EndDate = new DateTime(2019, 1, end3) }
             };
-            Assert.Equal(expected, ValidatorLeaveLists.ListValidly(list));
+            Assert.Equal(expected, ValidatorLeaveLists.ValidateLeaves(list));
         }
 
         [Theory]

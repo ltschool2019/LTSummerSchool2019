@@ -81,18 +81,16 @@ namespace LTRegistratorApi.Controllers
                 {
                     var temp = user.Leave.SingleOrDefault(li => li.LeaveId == leave.LeaveId);
                     if (temp != null)
-                        db.Leave.Remove(temp);
-                    else return BadRequest();
-
-                    var newTemp = user.Leave.Where(li => li.LeaveId == leave.LeaveId);
-                    if (newTemp.Count() == 1)
                     {
-                        var newLeave = new Leave() { StartDate = leave.StartDate, EndDate = leave.EndDate, TypeLeave = leave.TypeLeave };
-                        user.Leave.Add(newLeave);
+                        temp.StartDate = leave.StartDate;
+                        temp.EndDate = leave.EndDate;
+                        temp.TypeLeave = leave.TypeLeave;
+                        db.Leave.Update(temp);
                     }
+                    else return BadRequest();
                 }
 
-                if (!ValidatorLeaveLists.ListValidly(user.Leave.ToList()))
+                if (!ValidatorLeaveLists.ValidateLeaves(user.Leave.ToList()))
                     return BadRequest();
             }
             else return BadRequest();
@@ -135,10 +133,10 @@ namespace LTRegistratorApi.Controllers
     {
         public static bool MergingListsValidly(List<Leave> first, List<Leave> second)
         {
-            return ListValidly(first.Concat(second).ToList());
+            return ValidateLeaves(first.Concat(second).ToList());
         }
 
-        public static bool ListValidly(List<Leave> list)
+        public static bool ValidateLeaves(List<Leave> list)
         {
             var normalizedList = GetDoubleDTList(list);
             return normalizedList.StartEndIsValid() && normalizedList.LocationStartEndIsValid();
