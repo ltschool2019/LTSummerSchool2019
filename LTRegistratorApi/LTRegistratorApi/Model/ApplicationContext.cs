@@ -28,7 +28,7 @@ namespace LTTimeRegistrator.Models
 
             //Configuring many-to-many relationships between Project and Employee 
             modelBuilder.Entity<ProjectEmployee>()
-                .HasKey(pe => new { pe.EmployeeId, pe.ProjectId});
+                .HasKey(pe => new { pe.EmployeeId, pe.ProjectId });
             modelBuilder.Entity<ProjectEmployee>()
                 .HasOne(pe => pe.Employee)
                 .WithMany(e => e.ProjectEmployee)
@@ -45,8 +45,7 @@ namespace LTTimeRegistrator.Models
             modelBuilder.Entity<Employee>()
                 .HasOne(e => e.ApplicationUser)
                 .WithOne(au => au.Employee)
-                .HasForeignKey<Employee>(u => u.UserId);
-
+                .HasForeignKey<ApplicationUser>(u => u.EmployeeId);
         }
     }
 }
