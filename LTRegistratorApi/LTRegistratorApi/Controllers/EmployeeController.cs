@@ -40,7 +40,6 @@ namespace LTRegistratorApi.Controllers
 
         /// <summary>
         /// POST api/employee/{id}/leaves/
-        /// POST LeaveId = -1
         /// Add new leaves for user.
         /// </summary>
         /// <param name="id">UserId</param>
@@ -54,13 +53,8 @@ namespace LTRegistratorApi.Controllers
             if (leaves != null)
                 foreach (var leave in leaves)
                 {
-                    var temp = user.Leave.Where(li => li.LeaveId == leave.LeaveId);
-                    if (temp.Count() == 0)
-                    {
-                        var newLeave = new Leave() { StartDate = leave.StartDate, EndDate = leave.EndDate, TypeLeave = leave.TypeLeave };
-                        user.Leave.Add(newLeave);
-                    }
-                    else return BadRequest();
+                    var newLeave = new Leave() { StartDate = leave.StartDate, EndDate = leave.EndDate, TypeLeave = leave.TypeLeave };
+                    user.Leave.Add(newLeave);
                 }
             else return BadRequest();
 
