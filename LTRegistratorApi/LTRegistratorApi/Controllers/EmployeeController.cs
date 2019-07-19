@@ -30,7 +30,9 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("{id}/leaves")]
         public ActionResult<List<Leave>> GetLeaves(int id)
         {
-            var leaves = db.Employee.Include(e => e.Leave).SingleOrDefault(V => V.EmployeeId == id).Leave;
+            var leaves = db.Employee
+                .Include(e => e.Leave)
+                .SingleOrDefault(V => V.EmployeeId == id).Leave;
 
             if (leaves == null)
             {
@@ -49,15 +51,17 @@ namespace LTRegistratorApi.Controllers
         [HttpPost("{id}/leaves")]
         public ActionResult SetLeaves(int id, [FromBody] List<Leave> leaves)
         {
-            var user = db.Employee.Include(e => e.Leave).SingleOrDefault(V => V.EmployeeId == id);
+            var user = db.Employee
+                .Include(e => e.Leave)
+                .SingleOrDefault(V => V.EmployeeId == id);
 
-            if (leaves != null && ValidatorLeaveLists.MergingListsValidly(leaves, user.Leave.ToList()))
+            if (leaves != null && user != null && ValidatorLeaveLists.MergingListsValidly(leaves, user.Leave.ToList()))
                 foreach (var leave in leaves)
                 {
                     var newLeave = new Leave() { StartDate = leave.StartDate, EndDate = leave.EndDate, TypeLeave = leave.TypeLeave };
                     user.Leave.Add(newLeave);
                 }
-            else return BadRequest();
+            else return NotFound();
 
             db.SaveChanges();
             return Ok();
@@ -73,9 +77,11 @@ namespace LTRegistratorApi.Controllers
         [HttpPut("{id}/leaves")]
         public ActionResult UpdateLeaves(int id, [FromBody] List<Leave> leaves)
         {
-            var user = db.Employee.Include(e => e.Leave).Single(V => V.EmployeeId == id);
+            var user = db.Employee
+                .Include(e => e.Leave)
+                .Single(V => V.EmployeeId == id);
 
-            if (leaves != null)
+            if (leaves != null && user != null)
             {
                 foreach (var leave in leaves)
                 {
@@ -93,7 +99,7 @@ namespace LTRegistratorApi.Controllers
                 if (!ValidatorLeaveLists.ValidateLeaves(user.Leave.ToList()))
                     return BadRequest();
             }
-            else return BadRequest();
+            else return NotFound();
 
             db.SaveChanges();
             return Ok();
@@ -109,9 +115,11 @@ namespace LTRegistratorApi.Controllers
         [HttpDelete("{id}/leaves")]
         public ActionResult DeleteLeave(int id, [FromBody] List<Leave> leaves)
         {
-            var user = db.Employee.Include(l => l.Leave).SingleOrDefault(E => E.EmployeeId == id);
+            var user = db.Employee
+                .Include(l => l.Leave)
+                .SingleOrDefault(E => E.EmployeeId == id);
 
-            if (leaves != null)
+            if (leaves != null && user != null)
                 foreach (var leave in leaves)
                 {
                     var temp = user.Leave.SingleOrDefault(li => li.LeaveId == leave.LeaveId);
@@ -119,7 +127,7 @@ namespace LTRegistratorApi.Controllers
                         db.Leave.Remove(temp);
                     else return BadRequest();
                 }
-            else return BadRequest();
+            else return NotFound();
 
             db.SaveChanges();
             return Ok();

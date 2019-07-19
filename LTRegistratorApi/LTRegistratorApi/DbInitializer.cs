@@ -70,12 +70,16 @@ namespace LTRegistratorApi
 
             if (!context.ProjectEmployee.Any())
             {
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1, Role = "Manager" });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 1, Role = "Manager" });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 1, Role = "Employee" });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2, Role = "Employee" });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1, Role = "Employee" });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2, Role = "Manager" });
                 context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2, Role = "Employee" });
                 context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3, Role = "Employee" });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 3, Role = "Employee" });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 3, Role = "Manager" });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4, Role = "Manager" });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5, Role = "Employee" });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6, Role = "Employee" });
+
                 context.SaveChanges();
             }
         }
