@@ -55,12 +55,14 @@ namespace LTRegistratorApi.Controllers
                 .Include(e => e.Leave)
                 .SingleOrDefault(V => V.EmployeeId == id);
 
-            if (leaves != null && user != null && ValidatorLeaveLists.MergingListsValidly(leaves, user.Leave.ToList()))
-                foreach (var leave in leaves)
-                {
-                    var newLeave = new Leave() { StartDate = leave.StartDate, EndDate = leave.EndDate, TypeLeave = leave.TypeLeave };
-                    user.Leave.Add(newLeave);
-                }
+            if (leaves != null && user != null)
+                if (ValidatorLeaveLists.MergingListsValidly(leaves, user.Leave.ToList()))
+                    foreach (var leave in leaves)
+                    {
+                        var newLeave = new Leave() { StartDate = leave.StartDate, EndDate = leave.EndDate, TypeLeave = leave.TypeLeave };
+                        user.Leave.Add(newLeave);
+                    }
+                else return BadRequest();
             else return NotFound();
 
             db.SaveChanges();
