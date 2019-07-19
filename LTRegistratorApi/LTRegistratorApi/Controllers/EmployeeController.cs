@@ -22,12 +22,12 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// GET api/employee/{id}
+        /// GET api/employee/{id}/leaves/
         /// Gets a list of all human leaves.
         /// </summary>
         /// <param name="id">UserId</param>
         /// <returns>User's leave list</returns>
-        [HttpGet("{id}")]
+        [HttpGet("{id}/leaves")]
         public ActionResult<List<Leave>> GetLeaves(int id)
         {
             var leaves = db.Employee.Include(e => e.Leave).SingleOrDefault(V => V.EmployeeId == id).Leave;
