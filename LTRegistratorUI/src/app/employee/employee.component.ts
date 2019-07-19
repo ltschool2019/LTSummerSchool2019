@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+//import { Days } from 'src/app/days';
+//import { DAYS } from 'src/app/days-of-week';
 
 @Component({
   selector: 'app-employee',
@@ -11,5 +13,7 @@ export class EmployeeComponent implements OnInit {
 
   ngOnInit() {
   }
-
+  days = [ "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+ // days = DAYS;
+  
 }
