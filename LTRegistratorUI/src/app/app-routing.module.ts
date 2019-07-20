@@ -3,27 +3,28 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 //import путей
 import { LoginComponent } from './login/login.component';
+import { UserComponent } from './user/user.component';
 import { VacationComponent } from './vacation/vacation.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { TimesheetComponent } from './timesheet/timesheet.component';
-//import { EditprojectComponent} from './editproject/editproject.component';
+import { EmployeeComponent } from './employee/employee.component';
 
-
-const routes: Routes = [
-  { path: 'login', component: LoginComponent },
-  { path: 'vacation', component: VacationComponent },
-  { path: '', redirectTo: '/login', pathMatch: 'full' },
+const userRoutes: Routes = [
   { path: 'timesheet', component: TimesheetComponent },
-  //{ path: 'editproject/:project.id', component: EditprojectComponent },
-  /* Эти еще не добавленны
-  {path:'projects', component:ProjectsComponent},
-  {path: 'addempolyee', component:},
-  */
+  { path: 'vacation', component: VacationComponent },
+  { path: 'timesheet/edit', component: EmployeeComponent }//позже добавить id и сделать children
+]
+
+const appRoutes: Routes = [
+  { path: 'login', component: LoginComponent },
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
+  { path: 'user', component: UserComponent },
+  { path: 'user', component: UserComponent, children: userRoutes },
   { path: '**', component: NotFoundComponent }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(appRoutes)],
   exports: [RouterModule]
 })
 export class AppRoutingModule { }
