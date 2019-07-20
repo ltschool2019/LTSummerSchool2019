@@ -1,10 +1,10 @@
-using LTRegistratorApi.Controllers;
 using LTRegistratorApi.Model;
+using LTRegistratorApi.Validators;
 using System;
 using System.Collections.Generic;
 using Xunit;
 
-namespace LTRegistratorApi.Tests.Controllers
+namespace LTRegistratorApi.Tests.Validators
 {
     public class ValidatorLeaveListsTests
     {
