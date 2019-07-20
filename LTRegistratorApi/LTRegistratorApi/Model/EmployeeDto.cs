@@ -2,6 +2,9 @@
 
 namespace LTRegistratorApi.Model
 {
+    /// <summary>
+    /// Basic information about the employee.
+    /// </summary>
     public class EmployeeDto
     {
         public int EmployeeId { get; set; }

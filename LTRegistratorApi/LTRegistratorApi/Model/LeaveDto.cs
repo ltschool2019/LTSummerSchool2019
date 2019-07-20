@@ -3,7 +3,7 @@
 namespace LTRegistratorApi.Model
 {
     /// <summary>
-    /// 
+    /// Basic information about leave.
     /// </summary>
     public class LeaveDto
     {
