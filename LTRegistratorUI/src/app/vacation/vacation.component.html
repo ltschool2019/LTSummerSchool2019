@@ -1,26 +1,22 @@
 <section class="vacation">
-  <form class="vacation-form">
-    <!-- надо будет изменить тип кнопки на submit, чтобы обязательные поля работали -->
-    <button class="vacation-form__add" (click)="add(type,start,end)">+</button>
-    <select name="vacation-type" id="vacation-type" class="vacation-form__type" [(ngModel)]='type' required
-    (change)="ChangingValue($event)" [value]="'Отпуск'">
-      <option >Отпуск</option>
-      <option >Больничный</option>
+  <form [formGroup]="vacationForm" (ngSubmit)="onSubmit()" class="vacation-form">
+    <button type="submit"  class="vacation-form__add">+</button>
+    <select formControlName="type" id="vacation-type" class="vacation-form__type" [value]="'Отпуск'">
+      <option>Отпуск</option>
+      <option>Больничный</option>
     </select>
     <label for="vacation-start"> С </label>
-    <input type="date" id="vacation-start" name="vacation-start" class='vacation-form__start' min="2019-06-13"
-      max="2019-12-31" [(ngModel)]='start' required>
+    <input type="date" id="vacation-start" formControlName="start" class='vacation-form__start'>
     <label id="vacation-end"> По </label>
-    <input type="date" id="vacation-end" class="vacation-form__end" name="vacation-end" value="" min="2019-06-13"
-      max="2019-12-31" [(ngModel)]='end' required>
+    <input type="date" id="vacation-end" formControlName="end" class="vacation-form__end">
   </form>
 
 
   <ul class="vacations">
     <li *ngFor="let vacation of vacations">
       <p class="vacations_vacation"> {{vacation.type}} с {{vacation.start}} по {{vacation.end}}</p>
-      <button class="vacations__delete" title="vacation delete vacation" (click)="delete(vacation)" id="vacation-delete-button" name="delete-button">x</button>
+      <button class="vacations__delete" title="vacation delete vacation" (click)="delete(vacation)"
+        id="vacation-delete-button" name="delete-button">x</button>
     </li>
   </ul>
 </section>
-  

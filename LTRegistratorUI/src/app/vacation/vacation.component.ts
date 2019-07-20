@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Vacation } from '../vacation';
+import { Vacation } from '../vacation.model';
 import { VacationService } from '../vacation.service';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-vacation',
@@ -9,20 +10,30 @@ import { VacationService } from '../vacation.service';
 })
 
 export class VacationComponent implements OnInit {
-  type="Отпуск";
-  vacations: Vacation[]=[
-    
+  vacationForm = new FormGroup({
+    type: new FormControl('', Validators.required),
+    start: new FormControl('', Validators.required),
+    end: new FormControl('', Validators.required),
+  });
+
+
+  //надо из бд подгружать
+  vacations: Vacation[] = [
+
   ];
 
   constructor() { }
 
   ngOnInit() {
   }
-  
-  add(type:string,start:string,end:string):void{
-    this.vacations.push(new Vacation(type,start,end));
+
+  add(type: string, start: string, end: string): void {
+    //метод добавления
   }
-  delete(vacation:Vacation):void{
-    this.vacations.splice(this.vacations.indexOf(vacation),1)
+  delete(vacation: Vacation): void {
+    //написать метод удаления
+  }
+  onSubmit() {
+    console.warn(this.vacationForm.value);
   }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {Project} from '../project';
+import { Project } from '../project.model';
 
 @Component({
   selector: 'app-timesheet',
@@ -7,9 +7,9 @@ import {Project} from '../project';
   styleUrls: ['./timesheet.component.scss']
 })
 export class TimesheetComponent implements OnInit {
-  projects: Project[]=[
-    {name:'Project A',hours:45, id:1},
-    {name:'Project B', hours:65, id:2}
+  projects: Project[] = [
+    { name: 'Project A', hours: 45, id: 1 },
+    { name: 'Project B', hours: 65, id: 2 }
   ];
   constructor() { }
 
