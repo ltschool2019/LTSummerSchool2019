@@ -12,7 +12,7 @@ import { EmployeeComponent } from './employee/employee.component';
 const userRoutes: Routes = [
   { path: 'timesheet', component: TimesheetComponent },
   { path: 'vacation', component: VacationComponent },
-  { path: 'timesheet/edit', component: EmployeeComponent }//позже добавить id и сделать children
+  { path: 'timesheet/edit', component: EmployeeComponent }//позже  сделать children
 ]
 
 const appRoutes: Routes = [
