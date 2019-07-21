@@ -23,11 +23,12 @@ namespace LTRegistratorApi.Controllers
             _context = context;
         }
 
-        //TODO Метод GetAllProjects для получения всех проектов
-        //TODO Связывание проектов с менеджерами из таблицы ProjectEmployee (уточнить нужно ли)
-        //TODO Назначение и снятие менеджера с проекта
-
-        // GET: api/Administrator/GetProject
+        /// <summary>
+        /// method for getting the project by id
+        /// GET: api/Administrator/GetProject/{id}
+        /// </summary>
+        /// <param name="id">id of project</param>
+        /// <returns>json {ProjectId, Name}</returns>
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProject([FromRoute] int id)
         {
@@ -46,7 +47,13 @@ namespace LTRegistratorApi.Controllers
             return Ok(project);
         }
 
-        // PUT: api/Administrator/UpdateProject
+        /// <summary>
+        /// updating project information
+        /// PUT: api/Administrator/UpdateProject
+        /// </summary>
+        /// <param name="project">json {ProjectId, Name, projectEmployee}
+        /// Name and projectEmployee not obligatory</param>
+        /// <returns> "OK" or "bad request" or "not found"</returns>
         [HttpPut]
         public async Task<IActionResult> UpdateProject([FromBody] Project project)
         {
@@ -76,7 +83,12 @@ namespace LTRegistratorApi.Controllers
             return Ok();
         }
 
-        // POST: api/Administrator/AddProject
+        /// <summary>
+        /// adding a new project
+        /// POST: api/Administrator/AddProject
+        /// </summary>
+        /// <param name="project">json {Name}</param>
+        /// <returns>"201 created" and json {ProjectId, "Name", "projectEmployee"}</returns>
         [HttpPost]
         public async Task<IActionResult> AddProject([FromBody] Project project)
         {
@@ -91,7 +103,12 @@ namespace LTRegistratorApi.Controllers
             return CreatedAtAction("GetProject", new { id = project.ProjectId }, project);
         }
 
-        // DELETE: api/Administrator/DeleteProject
+        /// <summary>
+        /// deleting project by id
+        /// DELETE: api/Administrator/DeleteProject/{id}
+        /// </summary>
+        /// <param name="id">id of project</param>
+        /// <returns>"200 ok" or "404 not found"</returns>
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProject([FromRoute] int id)
         {
@@ -112,7 +129,12 @@ namespace LTRegistratorApi.Controllers
             return Ok(project);
         }
 
-        // POST: api/Administrator/SetManager
+        /// <summary>
+        /// method for assigning a project manager
+        /// POST: api/Administrator/SetManager
+        /// </summary>
+        /// <param name="projectemployee">json {ProjectId, EmployeeId, Role}</param>
+        /// <returns>"200 ok" or "401 bad request"</returns>
         [HttpPost]
         public async Task<IActionResult> SetManager([FromBody] ProjectEmployee projectemployee)
         {
@@ -127,7 +149,12 @@ namespace LTRegistratorApi.Controllers
             return Ok();
         }
 
-        // DELETE: api/Administrator/DeleteManager
+        /// <summary>
+        /// method for removing the manager from the project
+        /// DELETE: api/Administrator/DeleteManager
+        /// </summary>
+        /// <param name="projectemployee">json {ProjectId, EmployeeId, Role}</param>
+        /// <returns>"200 ok" or "401 bad request" or "404 not found"</returns>
         [HttpDelete]
         public async Task<IActionResult> DeleteManager([FromBody] ProjectEmployee projectemployee)
         {
@@ -145,7 +172,6 @@ namespace LTRegistratorApi.Controllers
             {
                 _context.ProjectEmployee.Remove(pe);
                 await _context.SaveChangesAsync();
-
 
                 return Ok();
             }
