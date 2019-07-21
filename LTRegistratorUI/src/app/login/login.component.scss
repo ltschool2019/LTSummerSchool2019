@@ -94,3 +94,7 @@ $lightblue:rgb(0, 174, 214);
   height: 1px;
   margin: 1px;
 } */
+//неправильно введенные данные
+input.ng-touched.ng-invalid{
+  border-color: red;
+ }

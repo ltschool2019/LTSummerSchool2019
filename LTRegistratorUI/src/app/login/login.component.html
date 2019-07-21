@@ -1,5 +1,5 @@
 <section class="login">
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+  <form [formGroup]="loginForm" (submit)="onSubmit()" class="login-form">
     <img src="../../assets/logo.PNG" alt="logo" class="logo">
     <input type="email" formControlName="email" class="login-form__email" placeholder="Электронная почта">
     <input type="password" formControlName="password" class="login-form__pasword" placeholder="Пароль">

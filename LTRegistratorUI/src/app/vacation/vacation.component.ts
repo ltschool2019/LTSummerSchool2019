@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Vacation } from '../vacation.model';
 import { VacationService } from '../vacation.service';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-vacation',
@@ -10,30 +10,48 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 })
 
 export class VacationComponent implements OnInit {
-  vacationForm = new FormGroup({
-    type: new FormControl('', Validators.required),
-    start: new FormControl('', Validators.required),
-    end: new FormControl('', Validators.required),
-  });
-
+  vacationForm: FormGroup;
+  vacationTypes: string[];
 
   //надо из бд подгружать
   vacations: Vacation[] = [
 
   ];
 
-  constructor() { }
+  constructor(private fb: FormBuilder) { }
 
   ngOnInit() {
+    this.vacationTypes = ['Отпуск', 'Больничный'];
+    this.initForm();
+  }
+  private initForm(): void {
+    this.vacationForm = this.fb.group({
+      type: 'Отпуск',
+      start: [null, [Validators.required]],
+      end: [null, [Validators.required]],
+    });
   }
 
-  add(type: string, start: string, end: string): void {
-    //метод добавления
-  }
   delete(vacation: Vacation): void {
     //написать метод удаления
+    this.vacations.splice(this.vacations.indexOf(vacation),1);
   }
+  
   onSubmit() {
-    console.warn(this.vacationForm.value);
+    const controls = this.vacationForm.controls;
+
+    /** Проверяем форму на валидность */
+    if (this.vacationForm.invalid) {
+      /** Если форма не валидна, то помечаем все контролы как touched*/
+      Object.keys(controls)
+        .forEach(controlName => controls[controlName].markAsTouched());
+
+      /** Прерываем выполнение метода*/
+      return;
+    }
+
+    /** TODO: Обработка данных формы */
+  //  console.log(this.vacationForm.value);
+   this.vacations.push(this.vacationForm.value)
   }
 }
