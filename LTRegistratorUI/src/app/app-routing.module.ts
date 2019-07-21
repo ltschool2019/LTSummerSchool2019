@@ -11,6 +11,7 @@ import { EmployeeComponent } from './employee/employee.component';
 
 const userRoutes: Routes = [
   { path: 'timesheet', component: TimesheetComponent },
+  { path: '', redirectTo: 'timesheet', pathMatch: 'full' },
   { path: 'vacation', component: VacationComponent },
   { path: 'timesheet/edit', component: EmployeeComponent }//позже  сделать children
 ]
@@ -18,7 +19,6 @@ const userRoutes: Routes = [
 const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
-  { path: 'user', component: UserComponent },
   { path: 'user', component: UserComponent, children: userRoutes },
   { path: '**', component: NotFoundComponent }
 ];
