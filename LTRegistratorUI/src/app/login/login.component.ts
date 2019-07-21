@@ -17,10 +17,7 @@ export class LoginComponent {
   constructor(private login_service: LoginService) {};
 
   login(){
-    this.login_service.getUser(this.email,this.password).subscribe((token:string)=>{
-      //this.data = token;
-      console.log(token);
-    })
+    this.login_service.getUser(this.email,this.password);
   }
 
   // ngOnInit(): void{

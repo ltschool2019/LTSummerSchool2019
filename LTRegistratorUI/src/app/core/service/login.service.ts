@@ -11,16 +11,17 @@ export class LoginService {
   public token = new Object(); 
   public token_Json = new String;
   constructor(private http: HttpClient) {}
+
+ 
   getUser(email:string, password:string) {
-    return this.http.post<any>('http://localhost:53634/api/account/login', {email, password}).pipe(map(res => this.setSession) )
-    // return this.http.get('http://localhost:3000/token')
-    // .pipe(catchError(this.handleError('login', hero))
-    // );
+    return this.http.post<any>('http://localhost:53635/api/account/login', {email, password}).subscribe((token) => this.setSession(token));
   }
   private setSession(authResult) {
-    const expiresAt = moment().add(authResult.expiresIn,'second');
-
-    localStorage.setItem('id_token', authResult.idToken);
+    this.token_Json = (JSON.parse(atob(authResult.token.split('.')[1])));
+    console.log(this.token_Json);
+    
+    const expiresAt = moment().add(authResult.exp,'second');
+    localStorage.setItem('id_token', authResult.token);
     localStorage.setItem("expires_at", JSON.stringify(expiresAt.valueOf()) );
 }          
 }
