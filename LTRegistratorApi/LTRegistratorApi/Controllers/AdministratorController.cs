@@ -47,19 +47,14 @@ namespace LTRegistratorApi.Controllers
         }
 
         // PUT: api/Administrator/UpdateProject
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProject([FromRoute] int id, [FromBody] Project project)
+        [HttpPut]
+        public async Task<IActionResult> UpdateProject([FromBody] Project project)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            if (id != project.ProjectId)
-            {
-                return BadRequest();
-            }
-
+            
             _context.Entry(project).State = EntityState.Modified;
 
             try
@@ -68,7 +63,7 @@ namespace LTRegistratorApi.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ProjectExists(id))
+                if (!ProjectExists(project.ProjectId))
                 {
                     return NotFound();
                 }
@@ -78,7 +73,7 @@ namespace LTRegistratorApi.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok();
         }
 
         // POST: api/Administrator/AddProject
@@ -115,6 +110,49 @@ namespace LTRegistratorApi.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(project);
+        }
+
+        // POST: api/Administrator/SetManager
+        [HttpPost]
+        public async Task<IActionResult> SetManager([FromBody] ProjectEmployee projectemployee)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _context.ProjectEmployee.Add(projectemployee);
+            await _context.SaveChangesAsync();
+
+            return Ok();
+        }
+
+        // DELETE: api/Administrator/DeleteManager
+        [HttpDelete]
+        public async Task<IActionResult> DeleteManager([FromBody] ProjectEmployee projectemployee)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var pe = _context.ProjectEmployee
+                .SingleOrDefault(V => V.ProjectId == projectemployee.ProjectId 
+                && V.EmployeeId == projectemployee.EmployeeId 
+                && V.Role == projectemployee.Role);
+
+            if (pe != null)
+            {
+                _context.ProjectEmployee.Remove(pe);
+                await _context.SaveChangesAsync();
+
+
+                return Ok();
+            }
+            else
+            {
+                return NotFound();
+            }
         }
 
         private bool ProjectExists(int id)
