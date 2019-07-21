@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 
-
 namespace LTRegistratorApi.Model
 {
     /// <summary>
-    /// Describes employee entity.
+    /// Basic information about the employee.
     /// </summary>
-    public class Employee
+    public class EmployeeDto
     {
         public int EmployeeId { get; set; }
         public string FirstName { get; set; }
@@ -14,8 +13,6 @@ namespace LTRegistratorApi.Model
         public string Mail { get; set; }
         public string MaxRole { get; set; }
 
-        public ICollection<ProjectEmployee> ProjectEmployee { get; set; }
-        public virtual ApplicationUser ApplicationUser { get; set; }
-        public ICollection<Leave> Leave { get; set; }
+        public ICollection<ProjectDto> Projects { get; set; }
     }
 }
