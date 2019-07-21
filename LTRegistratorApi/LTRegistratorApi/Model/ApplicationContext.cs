@@ -39,13 +39,10 @@ namespace LTTimeRegistrator.Models
                 .HasForeignKey(pe => pe.ProjectId);
 
             //Configuring one-to-one relationships between AspNetUser and Employee 
-            modelBuilder.Entity<ApplicationUser>()
-                .HasOne(au => au.Employee)
-                .WithOne(e => e.ApplicationUser);
             modelBuilder.Entity<Employee>()
-                .HasOne(e => e.ApplicationUser)
-                .WithOne(au => au.Employee)
-                .HasForeignKey<ApplicationUser>(u => u.EmployeeId);
+               .HasOne(e => e.ApplicationUser)
+               .WithOne(au => au.Employee)
+               .HasForeignKey<ApplicationUser>(e => e.EmployeeId);               
         }
     }
 }
