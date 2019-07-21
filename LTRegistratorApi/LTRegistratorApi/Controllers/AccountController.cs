@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using LTRegistratorApi.Model;
+using LTTimeRegistrator.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -46,13 +47,11 @@ namespace LTRegistratorApi.Controllers
         [HttpPost]
         public async Task<object> Login([FromBody] LoginDto model)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, false);
 
             if (result.Succeeded)
-            {
-                var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.Email);
-                return GenerateJwtToken(appUser);
-            }
+                return GenerateJwtToken(user);
 
             throw new ApplicationException("INVALID_LOGIN_ATTEMPT");
         }
@@ -67,8 +66,8 @@ namespace LTRegistratorApi.Controllers
         {
             var user = new ApplicationUser
             {
-                UserName = model.Email, //for PasswordSignInAsync
-                Email = model.Email,
+                UserName = model.Name,
+                Email = model.Email
             };
 
             /* Passwords must be at least 6 characters.
@@ -78,9 +77,8 @@ namespace LTRegistratorApi.Controllers
              * Passwords must have at least one uppercase ('A'-'Z').*/
             var result = _userManager.CreateAsync(user, model.Password).Result;
             var resultAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, model.Role)).Result;
-            var resultAddName = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, model.Name)).Result;
 
-            if (result.Succeeded && resultAddRole.Succeeded && resultAddName.Succeeded)
+            if (result.Succeeded && resultAddRole.Succeeded)
             {
                 await _signInManager.SignInAsync(user, false);
                 return GenerateJwtToken(user);
