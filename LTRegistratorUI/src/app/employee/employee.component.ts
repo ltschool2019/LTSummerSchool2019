@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-//import { Days } from 'src/app/days';
-//import { DAYS } from 'src/app/days-of-week';
 
 @Component({
   selector: 'app-employee',

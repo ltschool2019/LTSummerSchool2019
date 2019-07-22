@@ -1,0 +1,34 @@
+<div class="admin-projects">
+  <div class="checkboxes">
+    <ul class="main-check">
+      <li>
+        <input type="checkbox" [(ngModel)]="selectedAll" (change)="selectAll();" />
+      </li>
+    </ul>
+    <ul class="check">
+      <li *ngFor="let n of checkboxes">
+        <input type="checkbox" [(ngModel)]="n.selected" (change)="checkIfAllSelected();">
+        {{n.name}}
+      </li>
+    </ul>
+  </div>
+  <table class="employee">
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+    </tr>
+    <tr>
+      <td>Name1</td>
+      <td>email1</td>
+    </tr>
+    <tr>
+      <td>Name2</td>
+      <td>email2</td>
+    </tr>
+    <tr>
+      <td>Name3</td>
+      <td>email3</td>
+    </tr>
+  </table>
+
+</div>

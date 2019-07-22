@@ -30,16 +30,16 @@ header {
 }
 
 section {
+  display: flex;
+  justify-content: flex-end;
+ // margin-right: 80px;
+
   .container {
     position: absolute;
-    z-index: 100;
+    z-index: 1000;
     margin-top: -50px;
-    margin-left: 1100px;
 
     ul {
-      display: flex;
-      justify-content: center;
-
       li {
         ul {
           height: auto;
@@ -53,7 +53,12 @@ section {
           width: 80px;
 
           li {
-            padding: 5px 5px 5px 5px;
+            border: 1px solid $background-color;
+
+            a {
+              display: block;
+              text-align: center;
+            }
           }
         }
       }
@@ -67,25 +72,17 @@ section {
         ul {
           display: block;
           opacity: 1;
-
-          li {
-            border: 1px solid $background-color;
-
-            a {
-              display: block;
-              text-align: center;
-            }
-          }
         }
       }
     }
   }
 }
 
-ul {
-  list-style: none;
-}
 
-a {
-  text-decoration: none;
-}
+  ul {
+    list-style: none;
+  }
+
+  a {
+    text-decoration: none;
+  }
