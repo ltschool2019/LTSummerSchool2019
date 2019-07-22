@@ -1,5 +1,7 @@
 $background-color: #f8f8f8;
-$font-stack: "PT Sans Narrow", Arial, sans-serif;
+$font-stack: "PT Sans Narrow",
+Arial,
+sans-serif;
 $f-size: 18px;
 
 ul {
@@ -48,7 +50,8 @@ a {
         background: #efb023;
       }
 
-      .save, .cancel {
+      .save,
+      .cancel {
         padding: 8px 5px 8px 5px;
         margin-right: 3px;
         border-radius: 3px;
@@ -106,4 +109,3 @@ a {
     }
   }
 }
-

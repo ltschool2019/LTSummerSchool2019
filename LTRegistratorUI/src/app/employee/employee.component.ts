@@ -13,7 +13,6 @@ export class EmployeeComponent implements OnInit {
 
   ngOnInit() {
   }
-  days = [ "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
- // days = DAYS;
-  
+  days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  // days = DAYS;
 }
