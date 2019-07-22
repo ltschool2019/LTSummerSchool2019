@@ -13,7 +13,7 @@ export class VacationComponent implements OnInit {
   vacationForm: FormGroup;
   vacationTypes: string[];
 
-  //надо из бд подгружать
+  //TODO: из бд подгружать
   vacations: Vacation[] = [
 
   ];
@@ -33,10 +33,10 @@ export class VacationComponent implements OnInit {
   }
 
   delete(vacation: Vacation): void {
-    //написать метод удаления
-    this.vacations.splice(this.vacations.indexOf(vacation),1);
+    //TODO: метод удаления под сервис
+    this.vacations.splice(this.vacations.indexOf(vacation), 1);
   }
-  
+
   onSubmit() {
     const controls = this.vacationForm.controls;
 
@@ -51,7 +51,6 @@ export class VacationComponent implements OnInit {
     }
 
     /** TODO: Обработка данных формы */
-  //  console.log(this.vacationForm.value);
-   this.vacations.push(this.vacationForm.value)
+    this.vacations.push(this.vacationForm.value)
   }
 }

@@ -13,9 +13,9 @@ const userRoutes: Routes = [
   { path: 'timesheet', component: TimesheetComponent },
   { path: '', redirectTo: 'timesheet', pathMatch: 'full' },
   { path: 'vacation', component: VacationComponent },
-  { path: 'timesheet/edit', component: EmployeeComponent }//позже  сделать children
+  { path: 'timesheet/edit', component: EmployeeComponent }//FIXME:  сделать children
 ]
-//не удается прописать перенапрвление с user/ на user/timesheet хз, почему
+
 const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },

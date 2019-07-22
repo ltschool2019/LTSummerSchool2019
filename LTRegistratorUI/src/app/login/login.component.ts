@@ -18,28 +18,28 @@ export class LoginComponent implements OnInit {
 
   initForm() {
     this.loginForm = this.fb.group({
-      email: ['',[
-        Validators.required,Validators.email
+      email: ['', [
+        Validators.required, Validators.email
       ]],
-      password: ['',[
+      password: ['', [
         Validators.required
       ]]
     });
   }
   onSubmit() {
     const controls = this.loginForm.controls;
-    
-     /** Проверяем форму на валидность */ 
-     if (this.loginForm.invalid) {
+
+    /** Проверяем форму на валидность */
+    if (this.loginForm.invalid) {
       /** Если форма не валидна, то помечаем все контролы как touched*/
       Object.keys(controls)
-       .forEach(controlName => controls[controlName].markAsTouched());
-       
-       /** Прерываем выполнение метода*/
-       return;
-      }
-    
-     /** TODO: Обработка данных формы */
-     console.log(this.loginForm.value);
+        .forEach(controlName => controls[controlName].markAsTouched());
+
+      /** Прерываем выполнение метода*/
+      return;
     }
+
+    /** TODO: Обработка данных формы */
+    console.log(this.loginForm.value);
+  }
 }
