@@ -10,6 +10,8 @@ import * as moment from "moment";
 export class LoginService {
   public token = new Object(); 
   public token_Json = new String;
+  public role = new String;
+  public user = new User;
   constructor(private http: HttpClient) {}
 
  
@@ -18,8 +20,7 @@ export class LoginService {
   }
   private setSession(authResult) {
     this.token_Json = (JSON.parse(atob(authResult.token.split('.')[1])));
-    console.log(this.token_Json);
-    
+    this.user.role = this.token_Json['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
     const expiresAt = moment().add(authResult.exp,'second');
     localStorage.setItem('id_token', authResult.token);
     localStorage.setItem("expires_at", JSON.stringify(expiresAt.valueOf()) );
