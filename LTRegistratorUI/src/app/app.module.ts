@@ -2,7 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
-//компоненты
+
 import { EmployeeComponent } from './employee/employee.component';
 import { SideMenuComponent } from './side-menu/side-menu.component';
 import { HeaderComponent } from './header/header.component';
@@ -13,6 +13,7 @@ import { TimesheetComponent } from './timesheet/timesheet.component';
 
 import { AppRoutingModule } from './app-routing.module';
 import { UserComponent } from './user/user.component';
+
 
 
 @NgModule({
