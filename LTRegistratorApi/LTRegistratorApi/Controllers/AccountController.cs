@@ -52,7 +52,6 @@ namespace LTRegistratorApi.Controllers
 
             if (result.Succeeded)
                 return GenerateJwtToken(user);
-
             throw new ApplicationException("INVALID_LOGIN_ATTEMPT");
         }
 

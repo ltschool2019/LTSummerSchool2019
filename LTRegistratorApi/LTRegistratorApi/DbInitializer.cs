@@ -79,7 +79,6 @@ namespace LTRegistratorApi
 
                 context.SaveChanges();
             }
-
         }
     }
 }
