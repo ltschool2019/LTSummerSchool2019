@@ -13,6 +13,7 @@ const userRoutes: Routes = [
   { path: 'timesheet', component: TimesheetComponent },
   { path: '', redirectTo: 'timesheet', pathMatch: 'full' },
   { path: 'vacation', component: VacationComponent },
+
   { path: 'timesheet/edit', component: EmployeeComponent }//FIXME:  сделать children
 ]
 
