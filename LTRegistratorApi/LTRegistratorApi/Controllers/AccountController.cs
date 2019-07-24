@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using LTRegistratorApi.Model;
+using LTTimeRegistrator.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +21,11 @@ namespace LTRegistratorApi.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
+        ApplicationContext context;
+        public AccountController(ApplicationContext db)
+        {
+            context = db;
+        }
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
@@ -46,14 +52,11 @@ namespace LTRegistratorApi.Controllers
         [HttpPost]
         public async Task<object> Login([FromBody] LoginDto model)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, false);
 
             if (result.Succeeded)
-            {
-                var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.Email);
-                return GenerateJwtToken(appUser);
-            }
-
+                return GenerateJwtToken(user);
             throw new ApplicationException("INVALID_LOGIN_ATTEMPT");
         }
 
@@ -62,33 +65,51 @@ namespace LTRegistratorApi.Controllers
         /// </summary>
         /// <param name="model">User</param>
         /// <returns>JWT-token</returns>
-        [HttpPost]
-        public async Task<object> Register([FromBody] RegisterDto model)
-        {
-            var user = new ApplicationUser
-            {
-                UserName = model.Email, //for PasswordSignInAsync
-                Email = model.Email,
-            };
-
             /* Passwords must be at least 6 characters.
              * Passwords must have at least one non alphanumeric character.
              * Passwords must have at least one digit ('0'-'9').
              * Passwords must have at least one lowercase ('a'-'z').
              * Passwords must have at least one uppercase ('A'-'Z').*/
-            var result = _userManager.CreateAsync(user, model.Password).Result;
-            var resultAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, model.Role)).Result;
-            var resultAddName = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, model.Name)).Result;
-
-            if (result.Succeeded && resultAddRole.Succeeded && resultAddName.Succeeded)
+        [HttpPost]
+        public async Task<object> Register([FromBody] RegisterDto model)
+        {
+            using (var transaction = context.Database.BeginTransaction())
             {
-                await _signInManager.SignInAsync(user, false);
-                return GenerateJwtToken(user);
+                try
+                {
+                    Employee employee = new Employee
+                    {
+                        FirstName = model.FirstName,
+                        SecondName = model.SecondName,
+                        Mail = model.Email,
+                        MaxRole = model.Role
+                    };
+                    context.Employee.Add(employee);
+                    context.SaveChanges();
+                    ApplicationUser user = new ApplicationUser
+                    {
+                        UserName = model.Email,
+                        Email = model.Email,
+                        EmployeeId = employee.EmployeeId
+                    };
+                    context.Users.Add(user);
+                    context.SaveChanges();
+                    transaction.Commit();
+                    var res = _userManager.CreateAsync(user, model.Password).Result;
+                    var resAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, model.Role)).Result;
+                    if (res.Succeeded && resAddRole.Succeeded)
+                    {
+                        await _signInManager.SignInAsync(user, false);
+                        return GenerateJwtToken(user);
+                    }                   
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                }               
+                throw new ApplicationException("ERROR_REGISTER"); 
             }
-
-            throw new ApplicationException("ERROR_REGISTER");
         }
-
         /// <summary>
         /// Method generates JWT-token for user.
         /// </summary>
