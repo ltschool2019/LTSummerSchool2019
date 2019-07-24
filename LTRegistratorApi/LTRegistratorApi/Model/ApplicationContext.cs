@@ -18,9 +18,6 @@ namespace LTTimeRegistrator.Models
         public DbSet<ProjectEmployee> ProjectEmployee { get; set; }
         public DbSet<Project> Project { get; set; }
 
-        public DbSet<DepartmentEmployee> DepartmentEmployee { get; set; }
-        public DbSet<Department> Department { get; set; }
-
         public DbSet<Leave> Leave { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -38,18 +35,6 @@ namespace LTTimeRegistrator.Models
                 .HasOne(pe => pe.Project)
                 .WithMany(p => p.ProjectEmployee)
                 .HasForeignKey(pe => pe.ProjectId);
-
-            // Configuring many-to-many relationships between Department and Employee 
-            modelBuilder.Entity<DepartmentEmployee>()
-                .HasKey(pe => new { pe.EmployeeId, pe.DepartmentId });
-            modelBuilder.Entity<DepartmentEmployee>()
-                .HasOne(pe => pe.Department)
-                .WithMany(e => e.DepartmentEmployee)
-                .HasForeignKey(pe => pe.DepartmentId);
-            modelBuilder.Entity<DepartmentEmployee>()
-                .HasOne(pe => pe.Department)
-                .WithMany(p => p.DepartmentEmployee)
-                .HasForeignKey(pe => pe.DepartmentId);
 
             // Configuring one-to-one relationships between AspNetUser and Employee 
             modelBuilder.Entity<ApplicationUser>()

@@ -82,27 +82,6 @@ namespace LTRegistratorApi
 
                 context.SaveChanges();
             }
-
-            if (!context.Department.Any())
-            {
-                context.Department.Add(new Department() { Name = "Good" });
-                context.Department.Add(new Department() { Name = "Evil" });
-                context.SaveChanges();
-            }
-
-            if (!context.DepartmentEmployee.Any())
-            {
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 1 });
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 2 });
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 3 });
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 4 });
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 5 });
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 2, EmployeeId = 5 });
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 6 });
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 2, EmployeeId = 6 });
-
-                context.SaveChanges();
-            }
         }
     }
 }
