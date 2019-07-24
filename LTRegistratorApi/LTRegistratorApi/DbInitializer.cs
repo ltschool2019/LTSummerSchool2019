@@ -1,12 +1,9 @@
 ﻿using LTRegistratorApi.Model;
 using LTTimeRegistrator.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace LTRegistratorApi
 {
@@ -48,7 +45,7 @@ namespace LTRegistratorApi
                 {
                     var user = new ApplicationUser
                     {
-                        UserName = employee.Mail, //for PasswordSignInAsync
+                        UserName = employee.FirstName + "_" + employee.SecondName,
                         Email = employee.Mail,
                         EmployeeId = employee.EmployeeId
                     };

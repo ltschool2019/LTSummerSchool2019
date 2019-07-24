@@ -6,7 +6,7 @@ $lightblue:rgb(0, 174, 214);
 .login-form {
   display: flex;
   flex-direction: column;
-  
+
   padding: 30px;
   margin-top: 250px;
   margin-left: auto;
@@ -57,6 +57,7 @@ $lightblue:rgb(0, 174, 214);
       background: $gray;
       pointer-events: none;
     }
+
     &:hover,
     &:focus {
       color: $darkgray;
@@ -93,3 +94,7 @@ $lightblue:rgb(0, 174, 214);
   height: 1px;
   margin: 1px;
 } */
+//неправильно введенные данные
+input.ng-touched.ng-invalid{
+  border-color: red;
+ }
