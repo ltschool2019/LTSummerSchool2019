@@ -50,6 +50,7 @@ namespace LTRegistratorApi.Model
                     SecondName = employee.SecondName,
                     Mail = employee.Mail,
                     MaxRole = employee.MaxRole,
+                    Rate = employee.Rate,
                     Projects = ToProjectDto(ToProject(employee.ProjectEmployee.ToList()))
                 });
             }
