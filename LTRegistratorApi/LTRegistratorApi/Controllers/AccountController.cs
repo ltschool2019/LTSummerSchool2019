@@ -6,7 +6,6 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using LTRegistratorApi.Model;
-using LTTimeRegistrator.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -40,6 +39,7 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
+        /// POST api/account/login
         /// The method tries to authorize the user and return the JWT-token.
         /// </summary>
         /// <param name="model">LoginDto (user)</param>
@@ -56,6 +56,7 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
+        /// POST api/account/register
         /// The method attempts to register a user and return the JWT-token.
         /// </summary>
         /// <param name="model">User</param>
@@ -95,14 +96,14 @@ namespace LTRegistratorApi.Controllers
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //generate almost unique identifier for token
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //Generate almost unique identifier for token.
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                _userManager.GetClaimsAsync(user).Result.Single(claim => claim.Type == ClaimTypes.Role) //role
+                _userManager.GetClaimsAsync(user).Result.Single(claim => claim.Type == ClaimTypes.Role)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256); //signing algorithm
-            var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["JwtExpireDays"])); //how many days is the token valid
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256); //Signing algorithm
+            var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["JwtExpireDays"])); //How many days is the token valid.
 
             var token = new JwtSecurityToken(
                 _configuration["JwtIssuer"],
