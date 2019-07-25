@@ -39,6 +39,7 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
+        /// POST api/account/login
         /// The method tries to authorize the user and return the JWT-token.
         /// </summary>
         /// <param name="model">LoginDto (user)</param>
@@ -46,18 +47,16 @@ namespace LTRegistratorApi.Controllers
         [HttpPost]
         public async Task<object> Login([FromBody] LoginDto model)
         {
-            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+            var user = await _userManager.FindByEmailAsync(model.Email);
+            var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, false);
 
             if (result.Succeeded)
-            {
-                var appUser = _userManager.Users.SingleOrDefault(r => r.Email == model.Email);
-                return GenerateJwtToken(appUser);
-            }
-
+                return GenerateJwtToken(user);
             throw new ApplicationException("INVALID_LOGIN_ATTEMPT");
         }
 
         /// <summary>
+        /// POST api/account/register
         /// The method attempts to register a user and return the JWT-token.
         /// </summary>
         /// <param name="model">User</param>
@@ -67,8 +66,8 @@ namespace LTRegistratorApi.Controllers
         {
             var user = new ApplicationUser
             {
-                UserName = model.Email, //for PasswordSignInAsync
-                Email = model.Email,
+                UserName = model.Name,
+                Email = model.Email
             };
 
             /* Passwords must be at least 6 characters.
@@ -78,9 +77,8 @@ namespace LTRegistratorApi.Controllers
              * Passwords must have at least one uppercase ('A'-'Z').*/
             var result = _userManager.CreateAsync(user, model.Password).Result;
             var resultAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, model.Role)).Result;
-            var resultAddName = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Name, model.Name)).Result;
 
-            if (result.Succeeded && resultAddRole.Succeeded && resultAddName.Succeeded)
+            if (result.Succeeded && resultAddRole.Succeeded)
             {
                 await _signInManager.SignInAsync(user, false);
                 return GenerateJwtToken(user);
@@ -98,14 +96,14 @@ namespace LTRegistratorApi.Controllers
         {
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //generate almost unique identifier for token
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //Generate almost unique identifier for token.
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
-                _userManager.GetClaimsAsync(user).Result.Single(claim => claim.Type == ClaimTypes.Role) //role
+                _userManager.GetClaimsAsync(user).Result.Single(claim => claim.Type == ClaimTypes.Role)
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtKey"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256); //signing algorithm
-            var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["JwtExpireDays"])); //how many days is the token valid
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256); //Signing algorithm
+            var expires = DateTime.Now.AddDays(Convert.ToDouble(_configuration["JwtExpireDays"])); //How many days is the token valid.
 
             var token = new JwtSecurityToken(
                 _configuration["JwtIssuer"],
