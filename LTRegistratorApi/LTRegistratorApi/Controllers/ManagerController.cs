@@ -51,7 +51,7 @@ namespace LTRegistratorApi.Controllers
             var user = await db.Employee.FindAsync(EmployeeId);
             var project = await db.Project.FindAsync(ProjectId);
             var userproject = await db.ProjectEmployee.SingleOrDefaultAsync(V => V.ProjectId == ProjectId && V.EmployeeId == EmployeeId);
-            if (user != null && project != null && userproject!= null)
+            if (user != null && project != null && userproject == null)
             {
                 ProjectEmployee projectEmployee = new ProjectEmployee
                 {
@@ -61,9 +61,9 @@ namespace LTRegistratorApi.Controllers
                 };
                 db.ProjectEmployee.Add(projectEmployee);
                 await db.SaveChangesAsync();
+                return Ok();
             }
-            else NotFound();
-            return Ok();
+            else  return NotFound(); 
         }
         /// <summary>
         /// DELETE api/manager/project/{projectId}/reassign/{EmployeeId}

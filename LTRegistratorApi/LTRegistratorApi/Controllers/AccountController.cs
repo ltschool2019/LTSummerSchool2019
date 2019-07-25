@@ -22,10 +22,6 @@ namespace LTRegistratorApi.Controllers
     public class AccountController : ControllerBase
     {
         ApplicationContext context;
-        public AccountController(ApplicationContext db)
-        {
-            context = db;
-        }
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
@@ -34,6 +30,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="signInManager">Provides the APIs for user sign in</param>
         /// <param name="configuration">To use the file setting</param>
         public AccountController(
+            ApplicationContext db,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IConfiguration configuration
@@ -42,6 +39,8 @@ namespace LTRegistratorApi.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            context = db;
+
         }
 
         /// <summary>
@@ -85,15 +84,12 @@ namespace LTRegistratorApi.Controllers
                         MaxRole = model.Role
                     };
                     context.Employee.Add(employee);
-                    context.SaveChanges();
                     ApplicationUser user = new ApplicationUser
                     {
-                        UserName = model.Email,
+                        UserName = model.FirstName + "_" + model.SecondName,
                         Email = model.Email,
                         EmployeeId = employee.EmployeeId
                     };
-                    context.Users.Add(user);
-                    context.SaveChanges();
                     transaction.Commit();
                     var res = _userManager.CreateAsync(user, model.Password).Result;
                     var resAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, model.Role)).Result;
@@ -101,13 +97,13 @@ namespace LTRegistratorApi.Controllers
                     {
                         await _signInManager.SignInAsync(user, false);
                         return GenerateJwtToken(user);
-                    }                   
+                    }
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                }               
-                throw new ApplicationException("ERROR_REGISTER"); 
+                }
+                throw new ApplicationException("ERROR_REGISTER");
             }
         }
         /// <summary>
