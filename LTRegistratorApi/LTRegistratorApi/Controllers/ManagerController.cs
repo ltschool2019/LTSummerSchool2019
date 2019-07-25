@@ -33,7 +33,7 @@ namespace LTRegistratorApi.Controllers
             var projects = DtoConverter.ToProjectDto(db.ProjectEmployee.Join(db.Project,
                                      p => p.ProjectId,
                                      pe => pe.ProjectId,
-                                     (pe, p) => new { pe, p }).Where(w => w.pe.EmployeeId == EmployeeId && w.pe.RoleType == RoleType.Manager).Select(name => name.p).ToList());
+                                     (pe, p) => new { pe, p }).Where(w => w.pe.EmployeeId == EmployeeId && w.pe.Role == RoleType.Manager).Select(name => name.p).ToList());
             if (!projects.Any())
                 return NotFound();
             return Ok(projects);
@@ -57,7 +57,7 @@ namespace LTRegistratorApi.Controllers
                 {
                     ProjectId = ProjectId,
                     EmployeeId = EmployeeId,
-                    RoleType = RoleType.Employee
+                    Role = RoleType.Employee
                 };
                 db.ProjectEmployee.Add(projectEmployee);
                 await db.SaveChangesAsync();
@@ -103,7 +103,7 @@ namespace LTRegistratorApi.Controllers
             var employee = DtoConverter.ToEmployeeDto(db.ProjectEmployee.Join(db.Employee,
                                e => e.EmployeeId,
                                pe => pe.EmployeeId,
-                               (pe, e) => new { pe, e }).Where(w => w.pe.ProjectId == ProjectId && w.pe.RoleType == RoleType.Employee).Select(user => user.e).OrderByDescending(o => o.ManagerId == EmployeeId).ToList());                          
+                               (pe, e) => new { pe, e }).Where(w => w.pe.ProjectId == ProjectId && w.pe.Role == RoleType.Employee).Select(user => user.e).OrderByDescending(o => o.ManagerId == EmployeeId).ToList());                          
             if (!employee.Any())
                 return NotFound();
             return Ok(employee);
