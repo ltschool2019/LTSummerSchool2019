@@ -16,7 +16,7 @@ namespace LTRegistratorApi.Controllers
     /// Controller providing basic employee operations
     /// </summary>
     [Route("api/[controller]")]
-    [Authorize, ApiController]
+    [ApiController, Authorize]
     public class EmployeeController : ControllerBase
     {
         private readonly ApplicationContext db;
@@ -36,15 +36,14 @@ namespace LTRegistratorApi.Controllers
         public async Task<ActionResult<EmployeeDto>> GetInfoAsync()
         {
             var user = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            return db.Employee.Select(e => new EmployeeDto
-            {
-                EmployeeId = e.EmployeeId,
-                FirstName = e.FirstName,
-                SecondName = e.SecondName,
-                Mail = e.Mail,
-                MaxRole = e.MaxRole,
-                Projects = DtoConverter.ToProjectDto(e.ProjectEmployee.Select(ep => ep.Project).ToList())
-            }).SingleOrDefault(V => V.EmployeeId == user.EmployeeId);
+            var employee = new List<Employee>() {
+                db.Employee
+                .Include(e => e.ProjectEmployee)
+                    .ThenInclude(pe => pe.Project)
+                .SingleOrDefault(e => e.EmployeeId == user.EmployeeId)
+            }.First();
+
+            return DtoConverter.ToEmployeeDto(employee);
         }
 
         /// <summary>
@@ -56,16 +55,19 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("{id}/leaves")]
         public async Task<ActionResult<List<Leave>>> GetLeavesAsync(int id)
         {
-            var authorizedUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var authorizedUser = await db.Employee.SingleOrDefaultAsync(e => e.EmployeeId == thisUser.EmployeeId);
+            var maxRole = authorizedUser.MaxRole;
 
-            var user = db.Employee
+            if (authorizedUser.EmployeeId != id && maxRole != RoleType.Manager && maxRole != RoleType.Administrator)
+                return BadRequest();
+
+            var user = await db.Employee
                 .Include(e => e.Leaves)
-                .SingleOrDefault(V => V.EmployeeId == id);
+                .SingleOrDefaultAsync(e => e.EmployeeId == id);
 
             if (user == null)
                 return NotFound();
-            if (user.EmployeeId != authorizedUser.EmployeeId || authorizedUser.Employee.MaxRole != RoleType.Manager)
-                return BadRequest();
 
             return user.Leaves.ToList();
         }
@@ -80,21 +82,24 @@ namespace LTRegistratorApi.Controllers
         [HttpPost("{id}/leaves")]
         public async Task<ActionResult> SetLeavesAsync(int id, [FromBody] List<LeaveDto> leavesDto)
         {
-            var authorizedUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            if (authorizedUser.Employee.EmployeeId != id || authorizedUser.Employee.MaxRole != RoleType.Manager)
+            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var authorizedUser = await db.Employee.SingleOrDefaultAsync(e => e.EmployeeId == thisUser.EmployeeId);
+            var maxRole = authorizedUser.MaxRole;
+
+            if (authorizedUser.EmployeeId != id && maxRole != RoleType.Manager && maxRole != RoleType.Administrator)
                 return BadRequest();
 
-            var user = db.Employee
+            var user = await db.Employee
                 .Include(e => e.Leaves)
-                .SingleOrDefault(V => V.EmployeeId == id);
+                .SingleOrDefaultAsync(V => V.EmployeeId == id);
 
-            if (ModelState.IsValid && user != null)
+            if (leavesDto != null && user != null && ModelState.IsValid)
             {
                 var leaves = new List<Leave>();
                 foreach (var leave in leavesDto)
                     leaves.Add(new Leave { TypeLeave = leave.TypeLeave, StartDate = leave.StartDate, EndDate = leave.EndDate });
 
-                if (ValidatorLeaveLists.MergingListsValidly(leaves, user.Leaves.ToList()))
+                if (LeavesValidator.TryMergLeaves(leaves, user.Leaves.ToList()))
                     foreach (var leave in leaves)
                         user.Leaves.Add(leave);
                 else return BadRequest();
@@ -115,15 +120,18 @@ namespace LTRegistratorApi.Controllers
         [HttpPut("{id}/leaves")]
         public async Task<ActionResult> UpdateLeavesAsync(int id, [FromBody] List<Leave> leaves)
         {
-            var authorizedUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            if (authorizedUser.Employee.EmployeeId != id || authorizedUser.Employee.MaxRole != RoleType.Manager)
+            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var authorizedUser = await db.Employee.SingleOrDefaultAsync(e => e.EmployeeId == thisUser.EmployeeId);
+            var maxRole = authorizedUser.MaxRole;
+
+            if (authorizedUser.EmployeeId != id && maxRole != RoleType.Manager && maxRole != RoleType.Administrator)
                 return BadRequest();
 
-            var user = db.Employee
+            var user = await db.Employee
                 .Include(e => e.Leaves)
-                .Single(V => V.EmployeeId == id);
+                .SingleAsync(e => e.EmployeeId == id);
 
-            if (ModelState.IsValid && user != null)
+            if (leaves != null && user != null && ModelState.IsValid)
             {
                 foreach (var leave in leaves)
                 {
@@ -138,7 +146,7 @@ namespace LTRegistratorApi.Controllers
                     else return BadRequest();
                 }
 
-                if (!ValidatorLeaveLists.ValidateLeaves(user.Leaves.ToList()))
+                if (!LeavesValidator.ValidateLeaves(user.Leaves.ToList()))
                     return BadRequest();
             }
             else return NotFound();
@@ -157,15 +165,18 @@ namespace LTRegistratorApi.Controllers
         [HttpDelete("{id}/leaves")]
         public async Task<ActionResult> DeleteLeaveAsync(int id, [FromBody] List<Leave> leaves)
         {
-            var authorizedUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            if (authorizedUser.Employee.EmployeeId != id || authorizedUser.Employee.MaxRole != RoleType.Manager)
+            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var authorizedUser = await db.Employee.SingleOrDefaultAsync(e => e.EmployeeId == thisUser.EmployeeId);
+            var maxRole = authorizedUser.MaxRole;
+            
+            if (authorizedUser.EmployeeId != id && maxRole != RoleType.Manager && maxRole != RoleType.Administrator)
                 return BadRequest();
 
-            var user = db.Employee
-                .Include(l => l.Leaves)
-                .SingleOrDefault(E => E.EmployeeId == id);
+            var user = await db.Employee
+                .Include(e => e.Leaves)
+                .SingleOrDefaultAsync(e => e.EmployeeId == id);
 
-            if (ModelState.IsValid && user != null)
+            if (leaves != null && user != null && ModelState.IsValid)
                 foreach (var leave in leaves)
                 {
                     var temp = user.Leaves.SingleOrDefault(li => li.LeaveId == leave.LeaveId);

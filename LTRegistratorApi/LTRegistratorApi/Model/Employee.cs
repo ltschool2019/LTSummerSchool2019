@@ -16,7 +16,6 @@ namespace LTRegistratorApi.Model
         public RoleType MaxRole { get; set; }
 
         public ICollection<ProjectEmployee> ProjectEmployee { get; set; }
-        public ICollection<DepartmentEmployee> DepartmentEmployee { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
         public ICollection<Leave> Leaves { get; set; }
     }

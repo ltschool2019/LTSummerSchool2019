@@ -8,7 +8,7 @@ namespace LTRegistratorApi.Validators
     /// <summary>
     /// Verifies that the dates in the List<Leave>('s) are correct.
     /// </summary>
-    public static class ValidatorLeaveLists
+    public static class LeavesValidator
     {
         /// <summary>
         /// Check intersection of DateTime periods in lists.
@@ -16,7 +16,7 @@ namespace LTRegistratorApi.Validators
         /// <param name="first">First list</param>
         /// <param name="second">Second list</param>
         /// <returns>Periods do not overlap and are the time periods correct?</returns>
-        public static bool MergingListsValidly(List<Leave> first, List<Leave> second)
+        public static bool TryMergLeaves(List<Leave> first, List<Leave> second)
             => ValidateLeaves(first.Concat(second).ToList());
 
         /// <summary>

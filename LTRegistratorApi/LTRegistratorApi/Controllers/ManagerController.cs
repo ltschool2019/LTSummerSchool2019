@@ -11,8 +11,7 @@ namespace LTRegistratorApi.Controllers
     /// Output of all projects of the manager. 
     /// </summary>
     [Route("api/[controller]")]
-    [Authorize(Policy = "IsManager")]
-    [ApiController]
+    [ApiController, Authorize(Policy = "IsManagerOrAdministrator")]
     public class ManagerController : ControllerBase
     {
         ApplicationContext db;
