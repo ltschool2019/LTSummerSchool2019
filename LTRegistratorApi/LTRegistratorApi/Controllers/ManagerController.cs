@@ -85,18 +85,25 @@ namespace LTRegistratorApi.Controllers
             return Ok();
         }
         /// <summary>
-        /// Get api/manager/project/{ProjectId}/employees
+        /// Get api/manager/{EmployeeId}/project/{ProjectId}/employees
         /// Get employees in the project
+        /// First the manager people are displayed, then the rest
         /// </summary>
         /// <param name="ProjectId">ProjectId</param>
+        /// <param name="EmployeeId">EmployeeId of manager</param>
         /// <returns>Employee list</returns>
-        [HttpGet("project/{ProjectId}/employees")]
-        public ActionResult<List<EmployeeDto>> GetEmployees(int ProjectId)
-        {          
+        [HttpGet("{EmployeeId}/project/{ProjectId}/employees")]
+        public ActionResult<List<EmployeeDto>> GetEmployees(int ProjectId, int EmployeeId)
+        {
+            var userproject = db.ProjectEmployee.SingleOrDefault(V => V.ProjectId == ProjectId && V.EmployeeId == EmployeeId);
+            if (userproject == null)
+            {
+                return NotFound();
+            }
             var employee = DtoConverter.ToEmployeeDto(db.ProjectEmployee.Join(db.Employee,
-                                     e => e.EmployeeId,
-                                     pe => pe.EmployeeId,
-                                     (pe, e) => new { pe, e }).Where(w => w.pe.ProjectId == ProjectId && w.pe.RoleType == RoleType.Employee).Select(user => user.e).ToList());
+                               e => e.EmployeeId,
+                               pe => pe.EmployeeId,
+                               (pe, e) => new { pe, e }).Where(w => w.pe.ProjectId == ProjectId && w.pe.RoleType == RoleType.Employee).Select(user => user.e).OrderByDescending(o => o.ManagerId == EmployeeId).ToList());                          
             if (!employee.Any())
                 return NotFound();
             return Ok(employee);

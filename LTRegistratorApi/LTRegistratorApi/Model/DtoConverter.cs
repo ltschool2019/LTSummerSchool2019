@@ -22,7 +22,8 @@ namespace LTRegistratorApi.Model
                     FirstName = employee.FirstName,
                     SecondName = employee.SecondName,
                     Mail = employee.Mail,
-                    MaxRole = employee.MaxRole
+                    MaxRole = employee.MaxRole,
+                    ManagerId = employee.ManagerId
                 });
             return result;
         }
