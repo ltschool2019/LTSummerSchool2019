@@ -1,17 +1,16 @@
-﻿using LTRegistratorApi.Model;
-using Microsoft.AspNetCore.Identity;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+using LTRegistrator.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace LTTimeRegistrator.Models
+namespace LTRegistrator.DAL
 {
-    /// <summary>
-    /// Creating database entities and configuring relationships with the Fluent API.
-    /// </summary>
-    public class ApplicationContext : IdentityDbContext<ApplicationUser>
+    public class LTRegistratorDbContext : IdentityDbContext<User, Role, Guid>
     {
-        public ApplicationContext(DbContextOptions<ApplicationContext> options)
-          : base(options)
+        public LTRegistratorDbContext(DbContextOptions<LTRegistratorDbContext> options)
+            : base(options)
         {
         }
 
@@ -26,7 +25,6 @@ namespace LTTimeRegistrator.Models
         {
             base.OnModelCreating(modelBuilder);
 
-            //Configuring many-to-many relationships between Project and Employee 
             modelBuilder.Entity<ProjectEmployee>()
                 .HasKey(pe => new { pe.EmployeeId, pe.ProjectId });
             modelBuilder.Entity<ProjectEmployee>()
@@ -39,13 +37,13 @@ namespace LTTimeRegistrator.Models
                 .HasForeignKey(pe => pe.ProjectId);
 
             //Configuring one-to-one relationships between AspNetUser and Employee 
-            modelBuilder.Entity<ApplicationUser>()
+            modelBuilder.Entity<User>()
                 .HasOne(au => au.Employee)
-                .WithOne(e => e.ApplicationUser);
+                .WithOne(e => e.User);
             modelBuilder.Entity<Employee>()
-                .HasOne(e => e.ApplicationUser)
+                .HasOne(e => e.User)
                 .WithOne(au => au.Employee)
-                .HasForeignKey<ApplicationUser>(u => u.EmployeeId);
+                .HasForeignKey<User>(u => u.EmployeeId);
         }
     }
 }

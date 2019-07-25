@@ -1,13 +1,11 @@
-﻿using LTRegistratorApi.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using LTRegistrator.Domain.Entities;
 
-namespace LTRegistratorApi.Validators
+namespace LTRegistrator.BLL.Services.Services
 {
-    /// <summary>
-    /// Verifies that the dates in the List<Leave>('s) are correct.
-    /// </summary>
     public static class ValidatorLeaveLists
     {
         /// <summary>

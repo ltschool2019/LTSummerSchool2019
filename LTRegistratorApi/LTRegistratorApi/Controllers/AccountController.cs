@@ -5,8 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using LTRegistratorApi.Model;
-using LTTimeRegistrator.Models;
+using LTRegistrator.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -21,16 +20,16 @@ namespace LTRegistratorApi.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
 
         /// <param name="userManager">Allows you to manage users</param>
         /// <param name="signInManager">Provides the APIs for user sign in</param>
         /// <param name="configuration">To use the file setting</param>
         public AccountController(
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
             IConfiguration configuration
             )
         {
@@ -63,7 +62,7 @@ namespace LTRegistratorApi.Controllers
         [HttpPost]
         public async Task<object> Register([FromBody] RegisterDto model)
         {
-            var user = new ApplicationUser
+            var user = new User
             {
                 UserName = model.Name,
                 Email = model.Email
@@ -91,12 +90,12 @@ namespace LTRegistratorApi.Controllers
         /// </summary>
         /// <param name="user">The ApplicationUser who has mail</param>
         /// <returns>JWT-token</returns>
-        private object GenerateJwtToken(ApplicationUser user)
+        private object GenerateJwtToken(User user)
         {
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //generate almost unique identifier for token
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 _userManager.GetClaimsAsync(user).Result.Single(claim => claim.Type == ClaimTypes.Role) //role
             };
 

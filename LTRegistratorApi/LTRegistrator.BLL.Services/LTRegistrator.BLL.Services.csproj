@@ -1,24 +1,20 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-    <NoWin32Manifest>true</NoWin32Manifest>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <Folder Include="Mappings\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="8.1.1" />
-    <PackageReference Include="Microsoft.AspNet.Identity.Core" Version="2.2.2" />
-    <PackageReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\LTRegistrator.BLL.Contracts\LTRegistrator.BLL.Contracts.csproj" />
     <ProjectReference Include="..\LTRegistrator.DAL\LTRegistrator.DAL.csproj" />
-    <ProjectReference Include="..\LTRegistrator.Domain\LTRegistrator.Domain.csproj" />
   </ItemGroup>
 
 </Project>

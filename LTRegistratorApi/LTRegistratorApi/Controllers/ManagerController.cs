@@ -1,10 +1,10 @@
-﻿using LTTimeRegistrator.Models;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using LTRegistratorApi.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LTRegistrator.DAL;
 using Microsoft.EntityFrameworkCore;
 
 namespace LTRegistratorApi.Controllers
@@ -16,19 +16,19 @@ namespace LTRegistratorApi.Controllers
     [ApiController]
     public class ManagerController : ControllerBase
     {
-        ApplicationContext db;
-        public ManagerController(ApplicationContext context)
+        readonly LTRegistratorDbContext _db;
+        public ManagerController(LTRegistratorDbContext context)
         {
-            db = context;
+            _db = context;
         }
         //GET api/manager/1/projects
         [HttpGet("{EmployeeId}/projects")]
-        public ActionResult<string> Get(int EmployeeId)
+        public ActionResult<string> Get(Guid employeeId)
         {
-            var result = db.ProjectEmployee.Join(db.Project,
+            var result = _db.ProjectEmployee.Join(_db.Project,
                                      p => p.ProjectId,
-                                     pe => pe.ProjectId,
-                                     (pe, p) => new { pe, p }).Where(w => w.pe.EmployeeId == EmployeeId && w.pe.Role == "Manager").Select(name => new { name.p.Name });
+                                     pe => pe.Id,
+                                     (pe, p) => new { pe, p }).Where(w => w.pe.EmployeeId == employeeId && w.pe.Role == "Manager").Select(name => new { name.p.Name });
             if (User == null)
             {
                 return BadRequest();

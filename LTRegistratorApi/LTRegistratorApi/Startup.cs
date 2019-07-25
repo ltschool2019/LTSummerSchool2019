@@ -2,13 +2,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using LTRegistratorApi.Model;
-using LTTimeRegistrator.Models;
+using LTRegistrator.DAL;
+using LTRegistrator.Domain.Entities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,9 +28,9 @@ namespace LTRegistratorApi
         public void ConfigureServices(IServiceCollection services)
         {
             string connectionString = "Server=(localdb)\\mssqllocaldb;Database=productsdb;Trusted_Connection=True;";
-            services.AddDbContext<ApplicationContext>(options => options.UseSqlServer(connectionString));
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-              .AddEntityFrameworkStores<ApplicationContext>()
+            services.AddDbContext<LTRegistratorDbContext>(options => options.UseSqlServer(connectionString));
+            services.AddIdentity<User, Role>()
+              .AddEntityFrameworkStores<LTRegistratorDbContext>()
               .AddDefaultTokenProviders();
 
             services.AddCors(options =>
@@ -73,7 +72,7 @@ namespace LTRegistratorApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ApplicationContext dbContext)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, LTRegistratorDbContext dbContext)
         {
             if (env.IsDevelopment())
             {
