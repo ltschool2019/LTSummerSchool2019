@@ -15,7 +15,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { UserComponent } from './user/user.component';
 
 
-
 @NgModule({
   declarations: [
     AppComponent,

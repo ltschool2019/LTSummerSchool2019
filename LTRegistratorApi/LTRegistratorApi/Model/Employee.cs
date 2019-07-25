@@ -14,7 +14,7 @@ namespace LTRegistratorApi.Model
         public string SecondName { get; set; }
         public string Mail { get; set; }
         public RoleType MaxRole { get; set; }
-
+      
         public ICollection<ProjectEmployee> ProjectEmployee { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
         public ICollection<Leave> Leaves { get; set; }
