@@ -1,5 +1,4 @@
 ﻿using LTRegistratorApi.Model;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,18 +14,20 @@ namespace LTTimeRegistrator.Models
         {
         }
 
-        public DbSet<Value> Values { get; set; }
-
         public DbSet<Employee> Employee { get; set; }
-        public DbSet<Project> Project { get; set; }
-        public DbSet<Leave> Leave { get; set; }
         public DbSet<ProjectEmployee> ProjectEmployee { get; set; }
+        public DbSet<Project> Project { get; set; }
+
+        public DbSet<DepartmentEmployee> DepartmentEmployee { get; set; }
+        public DbSet<Department> Department { get; set; }
+
+        public DbSet<Leave> Leave { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
-            //Configuring many-to-many relationships between Project and Employee 
+            // Configuring many-to-many relationships between Project and Employee 
             modelBuilder.Entity<ProjectEmployee>()
                 .HasKey(pe => new { pe.EmployeeId, pe.ProjectId });
             modelBuilder.Entity<ProjectEmployee>()
@@ -38,7 +39,22 @@ namespace LTTimeRegistrator.Models
                 .WithMany(p => p.ProjectEmployee)
                 .HasForeignKey(pe => pe.ProjectId);
 
-            //Configuring one-to-one relationships between AspNetUser and Employee 
+            // Configuring many-to-many relationships between Department and Employee 
+            modelBuilder.Entity<DepartmentEmployee>()
+                .HasKey(pe => new { pe.EmployeeId, pe.DepartmentId });
+            modelBuilder.Entity<DepartmentEmployee>()
+                .HasOne(pe => pe.Department)
+                .WithMany(e => e.DepartmentEmployee)
+                .HasForeignKey(pe => pe.DepartmentId);
+            modelBuilder.Entity<DepartmentEmployee>()
+                .HasOne(pe => pe.Department)
+                .WithMany(p => p.DepartmentEmployee)
+                .HasForeignKey(pe => pe.DepartmentId);
+
+            // Configuring one-to-one relationships between AspNetUser and Employee 
+            modelBuilder.Entity<ApplicationUser>()
+                .HasOne(au => au.Employee)
+                .WithOne(e => e.ApplicationUser);
             modelBuilder.Entity<Employee>()
                .HasOne(e => e.ApplicationUser)
                .WithOne(au => au.Employee)

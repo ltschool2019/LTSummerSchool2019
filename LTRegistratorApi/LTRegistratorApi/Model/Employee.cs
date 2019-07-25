@@ -3,6 +3,7 @@
 
 namespace LTRegistratorApi.Model
 {
+    public enum RoleType { Employee, Manager, Administrator };
     /// <summary>
     /// Describes employee entity.
     /// </summary>
@@ -13,10 +14,11 @@ namespace LTRegistratorApi.Model
         public string FirstName { get; set; }
         public string SecondName { get; set; }
         public string Mail { get; set; }
-        public string MaxRole { get; set; }
-      
+        public RoleType MaxRole { get; set; }
+
         public ICollection<ProjectEmployee> ProjectEmployee { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
+        public ICollection<DepartmentEmployee> DepartmentEmployee { get; set; }
         public ICollection<Leave> Leave { get; set; }
         public Employee Manager { get; set; }
     }

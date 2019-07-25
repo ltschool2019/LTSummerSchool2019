@@ -4,8 +4,11 @@ using LTRegistratorApi.Model;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
-using System;
 using LTRegistratorApi.Validators;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
+using System.Security.Claims;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -13,42 +16,36 @@ namespace LTRegistratorApi.Controllers
     /// Controller providing basic employee operations
     /// </summary>
     [Route("api/[controller]")]
-    [ApiController]
+    [Authorize, ApiController]
     public class EmployeeController : ControllerBase
     {
-        ApplicationContext db;
-        public EmployeeController(ApplicationContext context)
+        private readonly ApplicationContext db;
+        private readonly UserManager<ApplicationUser> _userManager;
+        public EmployeeController(ApplicationContext context, UserManager<ApplicationUser> userManager)
         {
             db = context;
-        }
-
-        //List<Project> to List<ProjectDto>
-        private static List<ProjectDto> ToProjectDto(List<Project> projects)
-        {
-            var result = new List<ProjectDto>();
-            foreach (var project in projects)
-                result.Add(new ProjectDto { ProjectId = project.ProjectId, Name = project.Name });
-
-            return result;
+            _userManager = userManager;
         }
 
         /// <summary>
-        /// GET api/employee/{id}/info
-        /// Sends user information.
+        /// GET api/employee/info
+        /// Sends this user information.
         /// </summary>
-        /// <param name="id">UserId</param>
         /// <returns>Basic Employee information</returns>
-        [HttpGet("{id}/info")]
-        public ActionResult<EmployeeDto> GetInfo(int id) 
-            => db.Employee.Select(e => new EmployeeDto
+        [HttpGet("info")]
+        public async Task<ActionResult<EmployeeDto>> GetInfoAsync()
+        {
+            var user = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            return db.Employee.Select(e => new EmployeeDto
             {
                 EmployeeId = e.EmployeeId,
                 FirstName = e.FirstName,
                 SecondName = e.SecondName,
                 Mail = e.Mail,
                 MaxRole = e.MaxRole,
-                Projects = ToProjectDto(e.ProjectEmployee.Select(ep => ep.Project).ToList())
-            }).SingleOrDefault(V => V.EmployeeId == id);
+                Projects = DtoConverter.ToProjectDto(e.ProjectEmployee.Select(ep => ep.Project).ToList())
+            }).SingleOrDefault(V => V.EmployeeId == user.EmployeeId);
+        }
 
         /// <summary>
         /// GET api/employee/{id}/leaves
@@ -57,15 +54,20 @@ namespace LTRegistratorApi.Controllers
         /// <param name="id">UserId</param>
         /// <returns>User's leave list</returns>
         [HttpGet("{id}/leaves")]
-        public ActionResult<List<Leave>> GetLeaves(int id)
+        public async Task<ActionResult<List<Leave>>> GetLeavesAsync(int id)
         {
+            var authorizedUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
             var user = db.Employee
-                .Include(e => e.Leave)
+                .Include(e => e.Leaves)
                 .SingleOrDefault(V => V.EmployeeId == id);
 
-            if (user == null) return NotFound();
+            if (user == null)
+                return NotFound();
+            if (user.EmployeeId != authorizedUser.EmployeeId || authorizedUser.Employee.MaxRole != RoleType.Manager)
+                return BadRequest();
 
-            return user.Leave.ToList();
+            return user.Leaves.ToList();
         }
 
         /// <summary>
@@ -76,21 +78,25 @@ namespace LTRegistratorApi.Controllers
         /// <param name="leavesDto">List of LeaveDto that is added to the user</param>
         /// <returns>Was the operation successful?</returns>
         [HttpPost("{id}/leaves")]
-        public ActionResult SetLeaves(int id, [FromBody] List<LeaveDto> leavesDto)
+        public async Task<ActionResult> SetLeavesAsync(int id, [FromBody] List<LeaveDto> leavesDto)
         {
+            var authorizedUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (authorizedUser.Employee.EmployeeId != id || authorizedUser.Employee.MaxRole != RoleType.Manager)
+                return BadRequest();
+
             var user = db.Employee
-                .Include(e => e.Leave)
+                .Include(e => e.Leaves)
                 .SingleOrDefault(V => V.EmployeeId == id);
 
-            if (leavesDto != null && user != null)
+            if (ModelState.IsValid && user != null)
             {
                 var leaves = new List<Leave>();
                 foreach (var leave in leavesDto)
                     leaves.Add(new Leave { TypeLeave = leave.TypeLeave, StartDate = leave.StartDate, EndDate = leave.EndDate });
 
-                if (ValidatorLeaveLists.MergingListsValidly(leaves, user.Leave.ToList()))
+                if (ValidatorLeaveLists.MergingListsValidly(leaves, user.Leaves.ToList()))
                     foreach (var leave in leaves)
-                        user.Leave.Add(leave);
+                        user.Leaves.Add(leave);
                 else return BadRequest();
             }
             else return NotFound();
@@ -107,17 +113,21 @@ namespace LTRegistratorApi.Controllers
         /// <param name="leaves">List of leaves that updated</param>
         /// <returns>Was the operation successful?</returns>
         [HttpPut("{id}/leaves")]
-        public ActionResult UpdateLeaves(int id, [FromBody] List<Leave> leaves)
+        public async Task<ActionResult> UpdateLeavesAsync(int id, [FromBody] List<Leave> leaves)
         {
+            var authorizedUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (authorizedUser.Employee.EmployeeId != id || authorizedUser.Employee.MaxRole != RoleType.Manager)
+                return BadRequest();
+
             var user = db.Employee
-                .Include(e => e.Leave)
+                .Include(e => e.Leaves)
                 .Single(V => V.EmployeeId == id);
 
-            if (leaves != null && user != null)
+            if (ModelState.IsValid && user != null)
             {
                 foreach (var leave in leaves)
                 {
-                    var temp = user.Leave.SingleOrDefault(li => li.LeaveId == leave.LeaveId);
+                    var temp = user.Leaves.SingleOrDefault(li => li.LeaveId == leave.LeaveId);
                     if (temp != null)
                     {
                         temp.StartDate = leave.StartDate;
@@ -128,7 +138,7 @@ namespace LTRegistratorApi.Controllers
                     else return BadRequest();
                 }
 
-                if (!ValidatorLeaveLists.ValidateLeaves(user.Leave.ToList()))
+                if (!ValidatorLeaveLists.ValidateLeaves(user.Leaves.ToList()))
                     return BadRequest();
             }
             else return NotFound();
@@ -145,16 +155,20 @@ namespace LTRegistratorApi.Controllers
         /// <param name="leaves">List of leaves that is deleted to the user</param>
         /// <returns>Was the operation successful?</returns>
         [HttpDelete("{id}/leaves")]
-        public ActionResult DeleteLeave(int id, [FromBody] List<Leave> leaves)
+        public async Task<ActionResult> DeleteLeaveAsync(int id, [FromBody] List<Leave> leaves)
         {
+            var authorizedUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (authorizedUser.Employee.EmployeeId != id || authorizedUser.Employee.MaxRole != RoleType.Manager)
+                return BadRequest();
+
             var user = db.Employee
-                .Include(l => l.Leave)
+                .Include(l => l.Leaves)
                 .SingleOrDefault(E => E.EmployeeId == id);
 
-            if (leaves != null && user != null)
+            if (ModelState.IsValid && user != null)
                 foreach (var leave in leaves)
                 {
-                    var temp = user.Leave.SingleOrDefault(li => li.LeaveId == leave.LeaveId);
+                    var temp = user.Leaves.SingleOrDefault(li => li.LeaveId == leave.LeaveId);
                     if (temp != null)
                         db.Leave.Remove(temp);
                     else return BadRequest();

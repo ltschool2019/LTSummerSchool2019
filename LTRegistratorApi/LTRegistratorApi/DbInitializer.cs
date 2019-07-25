@@ -51,7 +51,10 @@ namespace LTRegistratorApi
                     };
 
                     var result = userManager.CreateAsync(user, employee.Mail + "Password1").Result;
-                    var resultAddRole = userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, employee.MaxRole)).Result;
+                    //Retrieves the name of the constant in the specified enumeration that has the specified value.
+                    var role = Enum.GetName(typeof(RoleType), employee.MaxRole);
+
+                    var resultAddRole = userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
                     if (!(result.Succeeded && resultAddRole.Succeeded))
                         throw new ApplicationException("ERROR_INITIALIZE_DB");
                 }
@@ -67,15 +70,36 @@ namespace LTRegistratorApi
 
             if (!context.ProjectEmployee.Any())
             {
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1, RoleType = RoleType.Employee });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2, RoleType = RoleType.Manager });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2, RoleType = RoleType.Employee });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3, RoleType = RoleType.Employee });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 3, RoleType = RoleType.Employee });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 3, RoleType = RoleType.Manager });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4, RoleType = RoleType.Manager });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5, RoleType = RoleType.Employee });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6, RoleType = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2, Role = RoleType.Manager });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 3, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 3, Role = RoleType.Manager });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4, Role = RoleType.Manager });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6, Role = RoleType.Employee });
+
+                context.SaveChanges();
+            }
+
+            if (!context.Department.Any())
+            {
+                context.Department.Add(new Department() { Name = "Good" });
+                context.Department.Add(new Department() { Name = "Evil" });
+                context.SaveChanges();
+            }
+
+            if (!context.DepartmentEmployee.Any())
+            {
+                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 1 });
+                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 2 });
+                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 3 });
+                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 4 });
+                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 5 });
+                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 2, EmployeeId = 5 });
+                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 6 });
+                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 2, EmployeeId = 6 });
 
                 context.SaveChanges();
             }
