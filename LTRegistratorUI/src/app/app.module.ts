@@ -9,8 +9,8 @@ import { HeaderComponent } from './header/header.component';
 import { LoginComponent } from './login/login.component';
 import { HttpClientModule, HTTP_INTERCEPTORS  } from '@angular/common/http';
 import { LoginService } from 'src/app/core/service/login.service';
-import {FormsModule} from '@angular/forms';
-import { JwtInterceptor} from 'src/app/helpers/jwt_interceptors.service';
+import { FormsModule } from '@angular/forms';
+import { JwtInterceptor } from 'src/app/helpers/jwt_interceptors.service';
 
 
 

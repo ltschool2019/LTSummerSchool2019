@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from 'src/app/shared/models/user.model';
-import {LoginService} from 'src/app/core/service/login.service'
+import { LoginService } from 'src/app/core/service/login.service'
 
 @Component({
   selector: 'app-login',
@@ -9,15 +9,15 @@ import {LoginService} from 'src/app/core/service/login.service'
 })
 export class LoginComponent {
 
-  private email: string ='';
-  private password : string ='';
+  private email: string;
+  private password: string;
 
   public data: any = [];
-  public user:User;
-  constructor(private login_service: LoginService) {};
+  public user: User;
+  constructor(private login_service: LoginService) {}
 
-  login(){
-    this.login_service.getUser(this.email,this.password);
+  login() {
+    this.login_service.getUser(this.email, this.password);
   }
 
   // ngOnInit(): void{

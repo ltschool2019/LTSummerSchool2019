@@ -1,5 +1,3 @@
-import {HttpClient} from "@angular/common/http";
-import {HttpErrorResponse} from "@angular/common/http";
 import 'rxjs/add/operator/catch';
 // private handleError(error: HttpErrorResponse) {
 //     if (error.error instanceof ErrorEvent) {
