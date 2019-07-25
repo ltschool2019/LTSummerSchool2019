@@ -15,8 +15,13 @@ export class VacationComponent implements OnInit {
   vacationForm: FormGroup;
   vacationTypes: string[];
 
+<<<<<<< HEAD
   // надо из бд подгружать
   vacations: Vacation[] = [];
+=======
+  //TODO: из бд подгружать
+  vacations: Vacation[] = [
+>>>>>>> master
 
   constructor(
     private fb: FormBuilder,
@@ -36,6 +41,7 @@ export class VacationComponent implements OnInit {
     });
   }
 
+<<<<<<< HEAD
   response: any;
   private id = 2;
   private vacationsUrl = `http://localhost:52029/api/employee/${this.id}/leaves`;
@@ -45,12 +51,22 @@ export class VacationComponent implements OnInit {
       this.response = response;
       console.log(this.response);
     }))
+=======
+  delete(vacation: Vacation): void {
+    //TODO: метод удаления под сервис
+    this.vacations.splice(this.vacations.indexOf(vacation), 1);
+  }
+
+  onSubmit() {
+    const controls = this.vacationForm.controls;
+>>>>>>> master
 
     delete (vacation: Vacation): void {
       //написать метод удаления
       this.vacations.splice(this.vacations.indexOf(vacation), 1);
     }
 
+<<<<<<< HEAD
     onSubmit(type: string, start: string, end: string) {
       const controls = this.vacationForm.controls;
 
@@ -68,4 +84,8 @@ export class VacationComponent implements OnInit {
        this.vacations.push(this.vacationForm.value)
 
     }
+=======
+    /** TODO: Обработка данных формы */
+    this.vacations.push(this.vacationForm.value)
+>>>>>>> master
   }

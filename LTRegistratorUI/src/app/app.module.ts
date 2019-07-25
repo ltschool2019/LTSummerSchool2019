@@ -17,7 +17,6 @@ import { HttpClientModule } from '@angular/common/http';
 import { VacationService } from './vacation.service';
 
 
-
 @NgModule({
   declarations: [
     AppComponent,
