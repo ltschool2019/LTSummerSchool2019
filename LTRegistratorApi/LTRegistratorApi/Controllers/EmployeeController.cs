@@ -28,6 +28,20 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
+        /// The method returns true if the user tries to change his data or he is a manager or administrator.
+        /// </summary>
+        /// <param name="id">Changeable User id</param>
+        /// <returns>Is it possible to change the data</returns>
+        private async Task<bool> ChangeAvailableAsync(int id)
+        {
+            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier)); //We are looking for an authorized user.
+            var authorizedUser = await db.Employee.SingleOrDefaultAsync(e => e.EmployeeId == thisUser.EmployeeId); //We load Employee table.
+            var maxRole = authorizedUser.MaxRole;
+
+            return authorizedUser.EmployeeId == id || maxRole == RoleType.Manager || maxRole == RoleType.Administrator;
+        }
+
+        /// <summary>
         /// GET api/employee/info
         /// Sends this user information.
         /// </summary>
@@ -55,11 +69,7 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("{id}/leaves")]
         public async Task<ActionResult<List<Leave>>> GetLeavesAsync(int id)
         {
-            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var authorizedUser = await db.Employee.SingleOrDefaultAsync(e => e.EmployeeId == thisUser.EmployeeId);
-            var maxRole = authorizedUser.MaxRole;
-
-            if (authorizedUser.EmployeeId != id && maxRole != RoleType.Manager && maxRole != RoleType.Administrator)
+            if (!ChangeAvailableAsync(id).Result)
                 return BadRequest();
 
             var user = await db.Employee
@@ -82,11 +92,7 @@ namespace LTRegistratorApi.Controllers
         [HttpPost("{id}/leaves")]
         public async Task<ActionResult> SetLeavesAsync(int id, [FromBody] List<LeaveDto> leavesDto)
         {
-            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var authorizedUser = await db.Employee.SingleOrDefaultAsync(e => e.EmployeeId == thisUser.EmployeeId);
-            var maxRole = authorizedUser.MaxRole;
-
-            if (authorizedUser.EmployeeId != id && maxRole != RoleType.Manager && maxRole != RoleType.Administrator)
+            if (!ChangeAvailableAsync(id).Result)
                 return BadRequest();
 
             var user = await db.Employee
@@ -120,11 +126,7 @@ namespace LTRegistratorApi.Controllers
         [HttpPut("{id}/leaves")]
         public async Task<ActionResult> UpdateLeavesAsync(int id, [FromBody] List<Leave> leaves)
         {
-            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var authorizedUser = await db.Employee.SingleOrDefaultAsync(e => e.EmployeeId == thisUser.EmployeeId);
-            var maxRole = authorizedUser.MaxRole;
-
-            if (authorizedUser.EmployeeId != id && maxRole != RoleType.Manager && maxRole != RoleType.Administrator)
+            if (!ChangeAvailableAsync(id).Result)
                 return BadRequest();
 
             var user = await db.Employee
@@ -165,11 +167,7 @@ namespace LTRegistratorApi.Controllers
         [HttpDelete("{id}/leaves")]
         public async Task<ActionResult> DeleteLeaveAsync(int id, [FromBody] List<Leave> leaves)
         {
-            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var authorizedUser = await db.Employee.SingleOrDefaultAsync(e => e.EmployeeId == thisUser.EmployeeId);
-            var maxRole = authorizedUser.MaxRole;
-            
-            if (authorizedUser.EmployeeId != id && maxRole != RoleType.Manager && maxRole != RoleType.Administrator)
+            if (!ChangeAvailableAsync(id).Result)
                 return BadRequest();
 
             var user = await db.Employee

@@ -12,10 +12,10 @@ namespace LTRegistratorApi.Model
         /// List<ProjectEmployee> to List<Project>
         /// </summary>
         /// <returns>List<Project>, which contains basic information about the List<ProjectEmployee></returns>
-        public static List<Project> ToProject(List<ProjectEmployee> pEmployees)
+        public static List<Project> ToProject(List<ProjectEmployee> listOfPE)
         {
             var result = new List<Project>();
-            foreach (var pe in pEmployees)
+            foreach (var pe in listOfPE)
                 result.Add(new Project { ProjectId = pe.ProjectId, Name = pe.Project.Name });
 
             return result;
