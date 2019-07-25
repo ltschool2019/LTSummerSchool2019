@@ -10,9 +10,11 @@ import { LoginComponent } from './login/login.component';
 import { VacationComponent } from './vacation/vacation.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { TimesheetComponent } from './timesheet/timesheet.component';
+import { UserComponent } from './user/user.component';
 
 import { AppRoutingModule } from './app-routing.module';
-import { UserComponent } from './user/user.component';
+import { HttpClientModule } from '@angular/common/http';
+import { VacationService } from './vacation.service';
 
 
 
@@ -32,9 +34,10 @@ import { UserComponent } from './user/user.component';
   imports: [
     BrowserModule,
     AppRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule
   ],
-  providers: [],
+  providers: [VacationService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

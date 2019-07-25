@@ -1,22 +1,22 @@
 <section class="vacation">
-  <form [formGroup]="vacationForm" (submit)="onSubmit()" class="vacation-form">
+  <form [formGroup]="vacationForm" (submit)="onSubmit(type.value,start.value,end.value)" class="vacation-form">
     <button type="submit" [disabled]="!vacationForm.valid" class="vacation-form__add">+</button>
-    <select formControlName="type" id="vacation-type" class="vacation-form__type" [value]="'Отпуск'">
+    <select formControlName="type" id="vacation-type" class="vacation-form__type" [value]="'Отпуск'" #type>
       <option disabled value="null">Выберите</option>
       <option *ngFor='let vacationType of vacationTypes'>{{vacationType}}</option>
     </select>
     <label for="vacation-start"> С </label>
-    <input type="date" id="vacation-start" formControlName="start" class='vacation-form__start'>
+    <input type="date" id="vacation-start" formControlName="start" class='vacation-form__start' #start>
     <label id="vacation-end"> По </label>
-    <input type="date" id="vacation-end" formControlName="end" class="vacation-form__end">
+    <input type="date" id="vacation-end" formControlName="end" class="vacation-form__end" #end>
   </form>
 
-
+ 
   <ul class="vacation-list">
     <li *ngFor="let vacation of vacations">
-      <p class="vacation-list__vacation"> {{vacation.type}} с {{vacation.start}} по {{vacation.end}}</p>
+      <p class="vacation-list__vacation"> {{vacation.TypeLeave}} с {{vacation.StartDate}} по {{vacation.EndDate}}</p>
       <button class="vacation-list__delete" title="delete vacation" (click)="delete(vacation)"
         id="vacation-delete-button" name="delete-button">x</button>
     </li>
-  </ul>
+  </ul> 
 </section>
