@@ -63,7 +63,7 @@ namespace LTRegistratorApi.Tests.Validators
             var second = new List<Leave>() {
                 new Leave { StartDate = new DateTime(2019, 1, start3), EndDate = new DateTime(2019, 1, end3) }
             };
-            Assert.Equal(expected, LeavesValidator.TryMergLeaves(first, second));
+            Assert.Equal(expected, LeavesValidator.TryMergeLeaves(first, second));
         }
     }
 }

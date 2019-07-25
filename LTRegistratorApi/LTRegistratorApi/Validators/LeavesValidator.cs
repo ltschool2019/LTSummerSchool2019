@@ -16,7 +16,7 @@ namespace LTRegistratorApi.Validators
         /// <param name="first">First list</param>
         /// <param name="second">Second list</param>
         /// <returns>Periods do not overlap and are the time periods correct?</returns>
-        public static bool TryMergLeaves(List<Leave> first, List<Leave> second)
+        public static bool TryMergeLeaves(List<Leave> first, List<Leave> second)
             => ValidateLeaves(first.Concat(second).ToList());
 
         /// <summary>

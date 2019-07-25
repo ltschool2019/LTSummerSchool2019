@@ -105,7 +105,7 @@ namespace LTRegistratorApi.Controllers
                 foreach (var leave in leavesDto)
                     leaves.Add(new Leave { TypeLeave = leave.TypeLeave, StartDate = leave.StartDate, EndDate = leave.EndDate });
 
-                if (LeavesValidator.TryMergLeaves(leaves, user.Leaves.ToList()))
+                if (LeavesValidator.TryMergeLeaves(leaves, user.Leaves.ToList()))
                     foreach (var leave in leaves)
                         user.Leaves.Add(leave);
                 else return BadRequest();
