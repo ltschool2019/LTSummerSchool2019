@@ -39,6 +39,7 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
+        /// POST api/account/login
         /// The method tries to authorize the user and return the JWT-token.
         /// </summary>
         /// <param name="model">LoginDto (user)</param>
@@ -55,6 +56,7 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
+        /// POST api/account/register
         /// The method attempts to register a user and return the JWT-token.
         /// </summary>
         /// <param name="model">User</param>
