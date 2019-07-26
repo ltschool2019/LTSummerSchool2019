@@ -6,30 +6,23 @@ namespace LTRegistrator.BLL.Contracts.Dtos
 {
     public class EmployeeDto
     {
+        public Guid Id { get; set; }
         public string FirstName { get; set; }
         public string SecondName { get; set; }
         public string Mail { get; set; }
         public string MaxRole { get; set; }
 
-        public ICollection<EmployeeProjectEmployeeDto> ProjectEmployee { get; set; }
-        public virtual EmployeeUserDto User { get; set; }
-        public ICollection<EmployeeLeaveDto> Leave { get; set; }
+        public ICollection<ProjectEmployeeDto> ProjectEmployees { get; set; }
+        public ICollection<LeaveDto> Leaves { get; set; }
     }
 
-    public class EmployeeUserDto
+    public class ProjectEmployeeDto
     {
-    }
+        public Guid ProjectId { get; set; }
+        public Guid EmployeeId { get; set; }
+        public string Role { get; set; }
 
-    public class EmployeeLeaveDto
-    {
-        public TypeLeaveDto TypeLeave { get; set; }
-        public DateTime StartDate { get; set; } //new DateTime(year, month, day);
-        public DateTime EndDate { get; set; }
-    }
-
-    public class EmployeeProjectEmployeeDto
-    {
-
+        public ProjectDto Project { get; set; }
     }
 
     public enum TypeLeaveDto

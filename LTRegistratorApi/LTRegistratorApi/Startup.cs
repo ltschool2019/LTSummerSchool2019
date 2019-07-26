@@ -2,8 +2,15 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AutoMapper;
+using LTRegistrator.BLL.Contracts.Contracts;
+using LTRegistrator.BLL.Services.Mappings;
+using LTRegistrator.BLL.Services.Services;
 using LTRegistrator.DAL;
+using LTRegistrator.DAL.Contracts;
+using LTRegistrator.DAL.Repositories;
 using LTRegistrator.Domain.Entities;
+using LTRegistratorApi.Mappings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -30,6 +37,7 @@ namespace LTRegistratorApi
             //string connectionString = "Server=(localdb)\\mssqllocaldb;Database=productsdb;Trusted_Connection=True;";
             string connectionString = "Server=.\\SQLExpress;Database=productsdb.Project;Trusted_Connection=True;MultipleActiveResultSets=true";
             services.AddDbContext<LTRegistratorDbContext>(options => options.UseSqlServer(connectionString));
+            services.AddScoped<DbContext, LTRegistratorDbContext>();
             services.AddIdentity<User, Role>()
               .AddEntityFrameworkStores<LTRegistratorDbContext>()
               .AddDefaultTokenProviders();
@@ -68,7 +76,19 @@ namespace LTRegistratorApi
                 options.AddPolicy("IsManager", policy => policy.RequireClaim(ClaimTypes.Role, "Manager")); 
                 options.AddPolicy("IsAdministrator", policy => policy.RequireClaim(ClaimTypes.Role, "Administrator"));
             });
-          
+
+            services.AddTransient(typeof(IBaseRepository<>), typeof(EntityRepository<>));
+            services.AddTransient(typeof(IUnitOfWork), typeof(UnitOfWork));
+            services.AddTransient(typeof(IEmployeeService), typeof(EmployeeService));
+
+            var mappingConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile<DataMappingProfile>();
+                mc.AddProfile<DataMappingProfileWeb>();
+            });
+            IMapper mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
+
             services.AddMvc();
         }
 

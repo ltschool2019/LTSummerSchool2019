@@ -18,13 +18,15 @@ namespace LTRegistrator.BLL.Services.Services
         {
         }
 
-        public async Task<EmployeeDto> GetByIdAsync(Guid id)
+        public async Task<Response<EmployeeDto>> GetByIdAsync(Guid id)
         {
             var employee = await UnitOfWork.GetRepository<Employee>().FindByIdAsync(id);
-            return Mapper.Map<EmployeeDto>(employee);
+            return employee == null 
+                ? new Response<EmployeeDto>(HttpStatusCode.NotFound, $"Employee with id = {id} not found") 
+                : new Response<EmployeeDto>(Mapper.Map<EmployeeDto>(employee));
         }
 
-        public async Task<Response<EmployeeDto>> AddLeavesAsync(Guid userId, ICollection<EmployeeLeaveDto> leaves)
+        public async Task<Response<EmployeeDto>> AddLeavesAsync(Guid userId, ICollection<LeaveDto> leaves)
         {
             var employee = await UnitOfWork.GetRepository<Employee>().FindByIdAsync(userId);
             if (employee == null)
