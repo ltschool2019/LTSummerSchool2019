@@ -1,5 +1,5 @@
 <section class="vacation">
-  <form [formGroup]="vacationForm" (submit)="onSubmit(type.value,start.value,end.value)" class="vacation-form">
+  <form [formGroup]="vacationForm" (submit)="onSubmit()" class="vacation-form">
     <button type="submit" [disabled]="!vacationForm.valid" class="vacation-form__add">+</button>
     <select formControlName="type" id="vacation-type" class="vacation-form__type" [value]="'Отпуск'" #type>
       <option disabled value="null">Выберите</option>
@@ -14,7 +14,7 @@
  
   <ul class="vacation-list">
     <li *ngFor="let vacation of vacations">
-      <p class="vacation-list__vacation"> {{vacation.TypeLeave}} с {{vacation.StartDate}} по {{vacation.EndDate}}</p>
+      <p class="vacation-list__vacation"> {{vacation.type}} с {{vacation.start}} по {{vacation.end}}</p>
       <button class="vacation-list__delete" title="delete vacation" (click)="delete(vacation)"
         id="vacation-delete-button" name="delete-button">x</button>
     </li>
