@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 
 namespace LTRegistratorApi.Model
 {
@@ -16,15 +16,15 @@ namespace LTRegistratorApi.Model
         public string SecondName { get; set; }
         public string Mail { get; set; }
         public RoleType MaxRole { get; set; }
+        private static readonly double[] ValidRateValues = new[] { 0.25, 0.5, 0.75, 1, 1.25, 1.5 };
         private double rate;
         public double Rate
         {
             get { return rate; }
             set
             {
-                if (value != 0.25 && value != 0.5 && value != 0.75 && value != 1 && value != 1.25 && value != 1.5)
+                if (!ValidRateValues.Contains(value))
                     throw new ApplicationException("INVALID_RATE");
-
                 rate = value;
             }
         }
