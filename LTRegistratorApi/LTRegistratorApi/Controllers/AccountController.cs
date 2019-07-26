@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using LTRegistratorApi.Model;
+using LTTimeRegistrator.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -20,6 +21,7 @@ namespace LTRegistratorApi.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
+        ApplicationContext context;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
@@ -28,6 +30,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="signInManager">Provides the APIs for user sign in</param>
         /// <param name="configuration">To use the file setting</param>
         public AccountController(
+            ApplicationContext db,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IConfiguration configuration
@@ -36,6 +39,7 @@ namespace LTRegistratorApi.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
+            context = db;
         }
 
         /// <summary>
@@ -56,35 +60,53 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// POST api/account/register
         /// The method attempts to register a user and return the JWT-token.
         /// </summary>
         /// <param name="model">User</param>
         /// <returns>JWT-token</returns>
-        [HttpPost]
-        public async Task<object> Register([FromBody] RegisterDto model)
-        {
-            var user = new ApplicationUser
-            {
-                UserName = model.Name,
-                Email = model.Email
-            };
-
             /* Passwords must be at least 6 characters.
              * Passwords must have at least one non alphanumeric character.
              * Passwords must have at least one digit ('0'-'9').
              * Passwords must have at least one lowercase ('a'-'z').
              * Passwords must have at least one uppercase ('A'-'Z').*/
-            var result = _userManager.CreateAsync(user, model.Password).Result;
-            var resultAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, model.Role)).Result;
-
-            if (result.Succeeded && resultAddRole.Succeeded)
+        [HttpPost]
+        public async Task<object> Register([FromBody] RegisterDto model)
+        {
+            using (var transaction = context.Database.BeginTransaction())
             {
-                await _signInManager.SignInAsync(user, false);
-                return GenerateJwtToken(user);
+                try
+                {
+                    Employee employee = new Employee
+                    {
+                        FirstName = model.FirstName,
+                        SecondName = model.SecondName,
+                        Mail = model.Email,
+                        MaxRole = model.Role
+                    };
+                    context.Employee.Add(employee);
+                    ApplicationUser user = new ApplicationUser
+                    {
+                        UserName = model.FirstName + "_" + model.SecondName,
+                        Email = model.Email,
+                        EmployeeId = employee.EmployeeId
+                    };
+                    transaction.Commit();
+                    var res = _userManager.CreateAsync(user, model.Password).Result;
+                    //Retrieves the name of the constant in the specified enumeration that has the specified value.
+                    var role = Enum.GetName(typeof(RoleType), employee.MaxRole);
+                    var resAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
+                    if (res.Succeeded && resAddRole.Succeeded)
+                    {
+                        await _signInManager.SignInAsync(user, false);
+                        return GenerateJwtToken(user);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                }
+                throw new ApplicationException("ERROR_REGISTER");
             }
-
-            throw new ApplicationException("ERROR_REGISTER");
         }
 
         /// <summary>
