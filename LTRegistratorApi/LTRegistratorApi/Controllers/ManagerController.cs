@@ -51,8 +51,7 @@ namespace LTRegistratorApi.Controllers
             var user = await db.Employee.FindAsync(EmployeeId);
             var project = await db.Project.FindAsync(ProjectId);
             var userproject = await db.ProjectEmployee.SingleOrDefaultAsync(V => V.ProjectId == ProjectId && V.EmployeeId == EmployeeId);
-            var mangernull = await db.Employee.SingleOrDefaultAsync(w => w.EmployeeId == EmployeeId && w.ManagerId != null);
-            if (user != null && project != null && userproject == null && mangernull != null)
+            if (user != null && project != null && userproject == null && user.ManagerId != null)
             {
                 ProjectEmployee projectEmployee = new ProjectEmployee
                 {
