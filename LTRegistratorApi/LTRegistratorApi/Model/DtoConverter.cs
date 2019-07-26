@@ -15,6 +15,7 @@ namespace LTRegistratorApi.Model
         public static List<Project> ToProject(List<ProjectEmployee> listOfPE)
         {
             var result = new List<Project>();
+            if (listOfPE == null) return null;
             foreach (var pe in listOfPE)
                 result.Add(new Project { ProjectId = pe.ProjectId, Name = pe.Project.Name });
 
@@ -28,6 +29,7 @@ namespace LTRegistratorApi.Model
         public static List<ProjectDto> ToProjectDto(List<Project> projects)
         {
             var result = new List<ProjectDto>();
+            if (projects == null) return null;
             foreach (var project in projects)
                 result.Add(new ProjectDto { ProjectId = project.ProjectId, Name = project.Name });
 
@@ -51,10 +53,10 @@ namespace LTRegistratorApi.Model
                     Mail = employee.Mail,
                     MaxRole = employee.MaxRole,
                     Rate = employee.Rate,
-                    Projects = ToProjectDto(ToProject(employee.ProjectEmployee.ToList()))
+                    ManagerId = employee.ManagerId,
+                    Projects  = ToProjectDto(ToProject(employee.ProjectEmployee?.ToList()))
                 });
             }
-
             return result;
         }
 

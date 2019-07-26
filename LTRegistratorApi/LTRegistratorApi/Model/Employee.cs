@@ -12,6 +12,7 @@ namespace LTRegistratorApi.Model
     public class Employee
     {
         public int EmployeeId { get; set; }
+        public int? ManagerId { get; set; }
         public string FirstName { get; set; }
         public string SecondName { get; set; }
         public string Mail { get; set; }
@@ -30,7 +31,8 @@ namespace LTRegistratorApi.Model
         }
 
         public ICollection<ProjectEmployee> ProjectEmployee { get; set; }
-        public virtual ApplicationUser ApplicationUser { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
         public ICollection<Leave> Leaves { get; set; }
+        public Employee Manager { get; set; }
     }
 }
