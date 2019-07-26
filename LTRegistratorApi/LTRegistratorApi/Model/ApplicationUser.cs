@@ -7,7 +7,7 @@ namespace LTRegistratorApi.Model
     /// </summary>
     public class ApplicationUser : IdentityUser
     {
-        public virtual Employee Employee { get; set; }
+        public Employee Employee { get; set; }
         public int EmployeeId { get; set; }
     }
 }
