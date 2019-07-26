@@ -33,9 +33,9 @@ namespace LTRegistrator.BLL.Services.Services
             }
             var newLeaves = Mapper.Map<ICollection<Leave>>(leaves).ToList();
 
-            if (ValidatorLeaveLists.MergingListsValidly(employee.Leave.ToList(), newLeaves))
+            if (ValidatorLeaveLists.MergingListsValidly(employee.Leaves.ToList(), newLeaves))
             {
-                employee.Leave = employee.Leave.Concat(newLeaves).ToList();
+                employee.Leaves = employee.Leaves.Concat(newLeaves).ToList();
                 await UnitOfWork.CommitAsync();
 
                 return new Response<EmployeeDto>(Mapper.Map<EmployeeDto>(employee));
@@ -85,7 +85,7 @@ namespace LTRegistrator.BLL.Services.Services
             }
 
             var leaveIds = leaves.Select(l => l.Id);
-            var selectedLeaves = (from leave in employee.Leave
+            var selectedLeaves = (from leave in employee.Leaves
                                   where leaveIds.Contains(leave.Id)
                                   select leaves).ToList();
             if (selectedLeaves.Count != leaves.Count)

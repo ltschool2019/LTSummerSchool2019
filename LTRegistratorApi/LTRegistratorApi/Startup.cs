@@ -27,7 +27,8 @@ namespace LTRegistratorApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            string connectionString = "Server=(localdb)\\mssqllocaldb;Database=productsdb;Trusted_Connection=True;";
+            //string connectionString = "Server=(localdb)\\mssqllocaldb;Database=productsdb;Trusted_Connection=True;";
+            string connectionString = "Server=.\\SQLExpress;Database=productsdb.Project;Trusted_Connection=True;MultipleActiveResultSets=true";
             services.AddDbContext<LTRegistratorDbContext>(options => options.UseSqlServer(connectionString));
             services.AddIdentity<User, Role>()
               .AddEntityFrameworkStores<LTRegistratorDbContext>()

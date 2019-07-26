@@ -14,8 +14,8 @@ namespace LTRegistrator.Domain.Entities
 
         public Guid UserId { get; set; }
 
-        public virtual ICollection<ProjectEmployee> ProjectEmployee { get; set; }
+        public virtual ICollection<ProjectEmployee> ProjectEmployees { get; set; }
         public virtual User User { get; set; }
-        public virtual ICollection<Leave> Leave { get; set; }
+        public virtual ICollection<Leave> Leaves { get; set; }
     }
 }
