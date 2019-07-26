@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using LTRegistratorApi.Model;
 
 /// <summary>
 /// Data required during registration.
@@ -10,16 +11,14 @@ public class RegisterDto
     public string FirstName { get; set; }
     [Required]
     public string SecondName { get; set; }
-
-    private string role;
-
+    private RoleType role;
     [Required]
-    public string Role
+    public RoleType Role
     {
         get { return role; }
         set
         {
-            if (value != "Employee" && value != "Manager" && value != "Administrator")
+            if (value != RoleType.Employee && value != RoleType.Manager && value != RoleType.Administrator)
             {
                 throw new ApplicationException("INVALID_ROLE");
             }

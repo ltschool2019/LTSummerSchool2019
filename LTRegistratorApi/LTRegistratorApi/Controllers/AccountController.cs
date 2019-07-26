@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using LTRegistratorApi.Model;
+using LTTimeRegistrator.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -39,10 +40,10 @@ namespace LTRegistratorApi.Controllers
             _signInManager = signInManager;
             _configuration = configuration;
             context = db;
-
         }
 
         /// <summary>
+        /// POST api/account/login
         /// The method tries to authorize the user and return the JWT-token.
         /// </summary>
         /// <param name="model">LoginDto (user)</param>
@@ -91,7 +92,9 @@ namespace LTRegistratorApi.Controllers
                     };
                     transaction.Commit();
                     var res = _userManager.CreateAsync(user, model.Password).Result;
-                    var resAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, model.Role)).Result;
+                    //Retrieves the name of the constant in the specified enumeration that has the specified value.
+                    var role = Enum.GetName(typeof(RoleType), employee.MaxRole);
+                    var resAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
                     if (res.Succeeded && resAddRole.Succeeded)
                     {
                         await _signInManager.SignInAsync(user, false);
@@ -105,6 +108,7 @@ namespace LTRegistratorApi.Controllers
                 throw new ApplicationException("ERROR_REGISTER");
             }
         }
+
         /// <summary>
         /// Method generates JWT-token for user.
         /// </summary>
@@ -131,7 +135,7 @@ namespace LTRegistratorApi.Controllers
                 signingCredentials: creds
             );
 
-            return Content("{'token' : '" + (new JwtSecurityTokenHandler().WriteToken(token)) + "'}", "application/json");
+            return Content("{\"token\" : \"" + (new JwtSecurityTokenHandler().WriteToken(token)) + "\"}", "application/json");
         }
     }
 }

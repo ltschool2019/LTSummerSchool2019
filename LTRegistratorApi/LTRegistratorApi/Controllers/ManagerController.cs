@@ -20,7 +20,7 @@ namespace LTRegistratorApi.Controllers
         public ManagerController(ApplicationContext context)
         {
             db = context;
-        }       
+        }
         /// <summary>
         /// GET api/manager/{EmployeeId}/projects
         /// Output of all projects of the manager. 
@@ -63,7 +63,7 @@ namespace LTRegistratorApi.Controllers
                 await db.SaveChangesAsync();
                 return Ok();
             }
-            else  return NotFound(); 
+            else return NotFound();
         }
         /// <summary>
         /// DELETE api/manager/project/{projectId}/reassign/{EmployeeId}
@@ -103,11 +103,10 @@ namespace LTRegistratorApi.Controllers
             var employee = DtoConverter.ToEmployeeDto(db.ProjectEmployee.Join(db.Employee,
                                e => e.EmployeeId,
                                pe => pe.EmployeeId,
-                               (pe, e) => new { pe, e }).Where(w => w.pe.ProjectId == ProjectId && w.pe.Role == RoleType.Employee).Select(user => user.e).OrderByDescending(o => o.ManagerId == EmployeeId).ToList());                          
+                               (pe, e) => new { pe, e }).Where(w => w.pe.ProjectId == ProjectId && w.pe.Role == RoleType.Employee).Select(user => user.e).OrderByDescending(o => o.ManagerId == EmployeeId).ToList());
             if (!employee.Any())
                 return NotFound();
             return Ok(employee);
         }
     }
 }
-

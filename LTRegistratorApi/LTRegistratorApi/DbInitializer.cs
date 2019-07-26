@@ -18,7 +18,7 @@ namespace LTRegistratorApi
 
             if (!context.Employee.Any())
             {
-                var leaveEve = new Leave[]
+                var leaveBob = new Leave[]
                 {
                     new Leave() { StartDate = new DateTime(2019, 1, 1), EndDate = new DateTime(2019, 1, 13), TypeLeave = TypeLeave.Vacation },
                     new Leave() { StartDate = new DateTime(2019, 2, 10), EndDate = new DateTime(2019, 2, 13), TypeLeave = TypeLeave.SickLeave }
@@ -32,12 +32,12 @@ namespace LTRegistratorApi
                 {
                     new Leave() { StartDate = new DateTime(2019, 1, 1), EndDate = new DateTime(2019, 1, 13), TypeLeave = TypeLeave.Vacation }
                 };
-                context.Employee.Add(new Employee() { FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", MaxRole = "Administrator"});
-                context.Employee.Add(new Employee() { FirstName = "Bob", SecondName = "Johnson", Mail = "b0b@yandex.ru", MaxRole = "Manager", Leave = leaveEve });
-                context.Employee.Add(new Employee() { FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", MaxRole = "Employee", ManagerId = 2});
-                context.Employee.Add(new Employee() { FirstName = "Carol", SecondName = "Smith", Mail = "car0l@mail.ru", MaxRole = "Manager", Leave = leaveCarol });
-                context.Employee.Add(new Employee() { FirstName = "Dave", SecondName = "Jones", Mail = "dave.99@mail.ru", MaxRole = "Employee", ManagerId = 2});
-                context.Employee.Add(new Employee() { FirstName = "Frank", SecondName = "Florence", Mail = "frank.99@mail.ru", MaxRole = "Employee", Leave = leaveFrank, ManagerId = 4 });
+                context.Employee.Add(new Employee() { FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", MaxRole = RoleType.Administrator });
+                context.Employee.Add(new Employee() { FirstName = "Bob", SecondName = "Johnson", Mail = "b0b@yandex.ru", MaxRole = RoleType.Manager, Leaves = leaveBob });
+                context.Employee.Add(new Employee() { FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", MaxRole = RoleType.Employee, ManagerId = 2 });
+                context.Employee.Add(new Employee() { FirstName = "Carol", SecondName = "Smith", Mail = "car0l@mail.ru", MaxRole = RoleType.Manager, Leaves = leaveCarol });
+                context.Employee.Add(new Employee() { FirstName = "Dave", SecondName = "Jones", Mail = "dave.99@mail.ru", MaxRole = RoleType.Employee, ManagerId = 2 });
+                context.Employee.Add(new Employee() { FirstName = "Frank", SecondName = "Florence", Mail = "frank.99@mail.ru", MaxRole = RoleType.Employee, Leaves = leaveFrank, ManagerId = 4 });
 
                 context.SaveChanges();
 
@@ -79,27 +79,6 @@ namespace LTRegistratorApi
                 context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4, Role = RoleType.Manager });
                 context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5, Role = RoleType.Employee });
                 context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6, Role = RoleType.Employee });
-
-                context.SaveChanges();
-            }
-
-            if (!context.Department.Any())
-            {
-                context.Department.Add(new Department() { Name = "Good" });
-                context.Department.Add(new Department() { Name = "Evil" });
-                context.SaveChanges();
-            }
-
-            if (!context.DepartmentEmployee.Any())
-            {
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 1 });
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 2 });
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 3 });
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 4 });
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 5 });
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 2, EmployeeId = 5 });
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 1, EmployeeId = 6 });
-                context.DepartmentEmployee.Add(new DepartmentEmployee() { DepartmentId = 2, EmployeeId = 6 });
 
                 context.SaveChanges();
             }

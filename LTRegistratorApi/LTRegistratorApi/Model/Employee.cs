@@ -15,11 +15,10 @@ namespace LTRegistratorApi.Model
         public string SecondName { get; set; }
         public string Mail { get; set; }
         public RoleType MaxRole { get; set; }
-
+      
         public ICollection<ProjectEmployee> ProjectEmployee { get; set; }
         public ApplicationUser ApplicationUser { get; set; }
-        public ICollection<DepartmentEmployee> DepartmentEmployee { get; set; }
-        public ICollection<Leave> Leave { get; set; }
+        public ICollection<Leave> Leaves { get; set; }
         public Employee Manager { get; set; }
     }
 }

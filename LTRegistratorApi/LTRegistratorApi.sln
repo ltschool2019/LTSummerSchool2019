@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29009.5
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LTRegistratorApi", "LTRegistratorApi\LTRegistratorApi.csproj", "{538E883A-1293-47DD-A615-D50166010C4E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LTRegistratorApi.Tests", "LTRegistratorApi.Tests\LTRegistratorApi.Tests.csproj", "{9639F2AD-8D62-40E0-BB51-75ED26F795D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LTRegistratorApi.Tests", "LTRegistratorApi.Tests\LTRegistratorApi.Tests.csproj", "{9639F2AD-8D62-40E0-BB51-75ED26F795D2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
