@@ -8,6 +8,7 @@ import { VacationComponent } from './vacation/vacation.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { TimesheetComponent } from './timesheet/timesheet.component';
 import { EmployeeComponent } from './employee/employee.component';
+import { AdminComponent } from './admin/admin.component';
 
 const userRoutes: Routes = [
   { path: 'timesheet', component: TimesheetComponent },
@@ -20,6 +21,7 @@ const appRoutes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'user', component: UserComponent, children: userRoutes },
+  { path: 'em_table', component: AdminComponent },
   { path: '**', component: NotFoundComponent }
 ];
 

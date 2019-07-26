@@ -17,6 +17,7 @@ ul {
     border-collapse: collapse;
     border: 2px solid $background-color;
     margin-left: 80px;
+    margin-top: 50px;
 
     tr {
 
@@ -27,7 +28,7 @@ ul {
     }
   }
 
-  .checkboxes {
+  .employee-list {
     margin-top: 30px;
     width: 50px;
 
@@ -35,6 +36,13 @@ ul {
       position: absolute;
       float: left;
       margin-top: 20px;
+      display: flex;
+      li{
+        margin-right: 50px;
+      }
+      li:first-child{
+        margin-right: 30px;
+      }
     }
 
     .check {
@@ -44,6 +52,10 @@ ul {
 
       li {
         margin-top: 25px;
+        margin-right: 50px;
+      }
+      li:first-child {
+        margin-right: 30px;
       }
     }
   }
