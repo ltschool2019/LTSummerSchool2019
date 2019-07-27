@@ -108,5 +108,27 @@ namespace LTRegistratorApi.Controllers
                 return NotFound();
             return Ok(employee);
         }
+
+        /// <summary>
+        /// adding a new project
+        /// POST: api/Administrator/AddProject
+        /// </summary>
+        /// <param name="project">json {Name}</param>
+        /// <returns>"201 created" and json {ProjectId, "Name", "projectEmployee"}</returns>
+        [HttpPost]
+        public async Task<IActionResult> AddProject([FromBody] Project project)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            project.
+
+            db.Project.Add(project);
+            await db.SaveChangesAsync();
+
+            return CreatedAtAction("GetProject", new { id = project.ProjectId }, project);
+        }
     }
 }

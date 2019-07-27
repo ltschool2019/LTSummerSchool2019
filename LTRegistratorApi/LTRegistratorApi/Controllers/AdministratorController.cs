@@ -25,26 +25,18 @@ namespace LTRegistratorApi.Controllers
 
         /// <summary>
         /// method for getting the project by id
-        /// GET: api/Administrator/GetProject/{id}
+        /// GET: api/Administrator/GetProjects
         /// </summary>
-        /// <param name="id">id of project</param>
-        /// <returns>json {ProjectId, Name}</returns>
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetProject([FromRoute] int id)
+        /// <returns>list of projects in json {ProjectId, Name}</returns>
+        [HttpGet]
+        public async Task<IActionResult> GetProjects()
         {
-            if (!ModelState.IsValid)
+            using(_context)
             {
-                return BadRequest(ModelState);
+                _context.Project.Load();
+                var projects = _context.Project.Local.ToList();
+                return Ok(projects);
             }
-
-            var project = await _context.Project.FindAsync(id);
-
-            if (project == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(project);
         }
 
         /// <summary>
