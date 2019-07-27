@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 namespace LTTimeRegistrator.Models
 {
     /// <summary>
-    ///   Creating database entities and configuring relationships with the Fluent API.
+    /// Creating database entities and configuring relationships with the Fluent API.
     /// </summary>
     public class ApplicationContext : IdentityDbContext<ApplicationUser>
     {
@@ -19,6 +19,7 @@ namespace LTTimeRegistrator.Models
 
         public DbSet<Employee> Employee { get; set; }
         public DbSet<Project> Project { get; set; }
+        public DbSet<Leave> Leave { get; set; }
         public DbSet<ProjectEmployee> ProjectEmployee { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

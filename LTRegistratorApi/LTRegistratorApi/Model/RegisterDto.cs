@@ -1,6 +1,9 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
+/// <summary>
+/// Data required during registration.
+/// </summary>
 public class RegisterDto
 {
     [Required]
