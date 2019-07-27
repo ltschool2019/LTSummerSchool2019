@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
-/// <summary>
-/// Data required for authorization.
-/// </summary>
 public class LoginDto
 {
     [Required]

@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 
 namespace LTRegistratorApi.Model
@@ -13,9 +16,8 @@ namespace LTRegistratorApi.Model
         public string SecondName { get; set; }
         public string Mail { get; set; }
         public string MaxRole { get; set; }
-
         public ICollection<ProjectEmployee> ProjectEmployee { get; set; }
+
         public virtual ApplicationUser ApplicationUser { get; set; }
-        public ICollection<Leave> Leave { get; set; }
     }
 }
