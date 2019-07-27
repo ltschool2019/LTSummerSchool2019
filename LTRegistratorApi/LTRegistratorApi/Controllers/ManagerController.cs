@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using System.Collections.Generic;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -17,9 +20,11 @@ namespace LTRegistratorApi.Controllers
     public class ManagerController : ControllerBase
     {
         ApplicationContext db;
-        public ManagerController(ApplicationContext context)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public ManagerController(ApplicationContext context, UserManager<ApplicationUser> userManager)
         {
             db = context;
+            _userManager = userManager;
         }
         /// <summary>
         /// GET api/manager/{EmployeeId}/projects
@@ -111,11 +116,11 @@ namespace LTRegistratorApi.Controllers
 
         /// <summary>
         /// adding a new project
-        /// POST: api/Administrator/AddProject
+        /// POST: api/Manager/AddProject
         /// </summary>
         /// <param name="project">json {Name}</param>
-        /// <returns>"201 created" and json {ProjectId, "Name", "projectEmployee"}</returns>
-        [HttpPost]
+        /// <returns>"201 created" and json {ProjectId, "Name"}</returns>
+        [HttpPost("AddProject")]
         public async Task<IActionResult> AddProject([FromBody] Project project)
         {
             if (!ModelState.IsValid)
@@ -123,12 +128,79 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            project.
+            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (thisUser != null && project != null)
+            {
+                db.Project.Add(project);
+                ProjectEmployee projectEmployee = new ProjectEmployee
+                {
+                    ProjectId = project.ProjectId,
+                    EmployeeId = thisUser.EmployeeId,
+                    Role = RoleType.Manager
+                };
+                db.ProjectEmployee.Add(projectEmployee);
 
-            db.Project.Add(project);
-            await db.SaveChangesAsync();
+                await db.SaveChangesAsync();
 
-            return CreatedAtAction("GetProject", new { id = project.ProjectId }, project);
+                var resp = db.ProjectEmployee
+                    .Where(p => p.ProjectId == project.ProjectId)
+                    .Select(x => new ProjectEmployee
+                    {
+                        ProjectId = x.ProjectId,
+                        EmployeeId = x.EmployeeId
+                    }).Single();
+
+                return Ok(resp);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        /// <summary>
+        /// deleting project by id
+        /// DELETE: api/Manager/DeleteProject/{id}
+        /// </summary>
+        /// <param name="id">id of project</param>
+        /// <returns>"200 ok" or "404 not found"</returns>
+        [HttpDelete("deleteProject/{id}")]
+        public async Task<IActionResult> DeleteProject([FromRoute] int id)
+        {
+            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+            var project = await db.Project.FindAsync(id);
+
+
+            if (thisUser == null)
+            {
+                return Ok("sdsdsdsd");
+            }
+            var managerEmployee = db.ProjectEmployee
+                .Where(pd => pd.ProjectId == id && pd.EmployeeId == thisUser.EmployeeId && pd.Role == RoleType.Manager)
+                .FirstOrDefault();
+
+            if (project == null)
+            {
+                return NotFound("No project");
+            }
+            else if (managerEmployee == null)
+            {
+                return NotFound("It's not your project");
+            }
+            else
+            {
+                var listEmployees = db.ProjectEmployee.Where(pe => pe.ProjectId == id).ToList();
+                foreach (ProjectEmployee employee in listEmployees)
+                {
+                    db.ProjectEmployee.Remove(employee);
+                }
+
+                db.Project.Remove(project);
+                await db.SaveChangesAsync();
+
+                return Ok(project);
+            }
         }
     }
 }

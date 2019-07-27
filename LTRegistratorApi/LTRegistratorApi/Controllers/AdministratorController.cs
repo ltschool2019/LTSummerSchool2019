@@ -8,19 +8,23 @@ using Microsoft.EntityFrameworkCore;
 using LTRegistratorApi.Model;
 using LTTimeRegistrator.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace LTRegistratorApi.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/[controller]")]
     [Authorize(Policy = "IsAdministrator")]
     [ApiController]
     public class AdministratorController : ControllerBase
     {
         private readonly ApplicationContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public AdministratorController(ApplicationContext context)
+        public AdministratorController(ApplicationContext context, UserManager<ApplicationUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         /// <summary>
@@ -28,7 +32,7 @@ namespace LTRegistratorApi.Controllers
         /// GET: api/Administrator/GetProjects
         /// </summary>
         /// <returns>list of projects in json {ProjectId, Name}</returns>
-        [HttpGet]
+        [HttpGet("GetProjects")]
         public async Task<IActionResult> GetProjects()
         {
             using(_context)
@@ -46,7 +50,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="project">json {ProjectId, Name, projectEmployee}
         /// Name and projectEmployee not obligatory</param>
         /// <returns> "OK" or "bad request" or "not found"</returns>
-        [HttpPut]
+        [HttpPut("UpdateProject")]
         public async Task<IActionResult> UpdateProject([FromBody] Project project)
         {
             if (!ModelState.IsValid)
@@ -81,7 +85,7 @@ namespace LTRegistratorApi.Controllers
         /// </summary>
         /// <param name="project">json {Name}</param>
         /// <returns>"201 created" and json {ProjectId, "Name", "projectEmployee"}</returns>
-        [HttpPost]
+        [HttpPost("AddProject")]
         public async Task<IActionResult> AddProject([FromBody] Project project)
         {
             if (!ModelState.IsValid)
@@ -101,7 +105,7 @@ namespace LTRegistratorApi.Controllers
         /// </summary>
         /// <param name="id">id of project</param>
         /// <returns>"200 ok" or "404 not found"</returns>
-        [HttpDelete("{id}")]
+        [HttpDelete("DeleteProject/{id}")]
         public async Task<IActionResult> DeleteProject([FromRoute] int id)
         {
             if (!ModelState.IsValid)
@@ -114,11 +118,20 @@ namespace LTRegistratorApi.Controllers
             {
                 return NotFound();
             }
+            else
+            {
+                var listEmployees = _context.ProjectEmployee.Where(pe => pe.ProjectId == id).ToList();
+                foreach (ProjectEmployee employee in listEmployees)
+                {
+                    _context.ProjectEmployee.Remove(employee);
+                }
 
-            _context.Project.Remove(project);
-            await _context.SaveChangesAsync();
+                _context.Project.Remove(project);
+                await _context.SaveChangesAsync();
 
-            return Ok(project);
+                return Ok();
+            }
+
         }
 
         /// <summary>
@@ -126,43 +139,34 @@ namespace LTRegistratorApi.Controllers
         /// POST: api/Administrator/SetManager
         /// </summary>
         /// <param name="projectemployee">json {ProjectId, EmployeeId, Role}</param>
-        /// <returns>"200 ok" or "401 bad request"</returns>
-        [HttpPost]
-        public async Task<IActionResult> SetManager([FromBody] ProjectEmployee projectemployee)
+        /// <returns>"200 ok" or "404 not found"</returns>
+        [HttpPost("setmanager/project/{projectId}/manager/{managerId}")]
+        public async Task<IActionResult> SetManager([FromRoute] int projectid, int managerid)
         {
-            if (!ModelState.IsValid)
+            var currentManager = _context.ProjectEmployee.Where(p => p.ProjectId == projectid && p.Role == RoleType.Manager).FirstOrDefault();
+            var oldemployee = _context.ProjectEmployee.Where(p => p.ProjectId == projectid && p.EmployeeId == managerid && p.Role == RoleType.Employee).FirstOrDefault();
+
+            if (currentManager != null)
             {
-                return BadRequest(ModelState);
-            }
+                _context.ProjectEmployee.Remove(currentManager);
+                if (oldemployee != null)
+                {
+                    _context.ProjectEmployee.Remove(oldemployee);
+                }
 
-            _context.ProjectEmployee.Add(projectemployee);
-            await _context.SaveChangesAsync();
+                ProjectEmployee projectManager = new ProjectEmployee
+                {
+                    ProjectId = projectid,
+                    EmployeeId = managerid,
+                    Role = RoleType.Manager
+                };
+                _context.ProjectEmployee.Add(projectManager);
 
-            return Ok();
-        }
-
-        /// <summary>
-        /// method for removing the manager from the project
-        /// DELETE: api/Administrator/DeleteManager
-        /// </summary>
-        /// <param name="projectemployee">json {ProjectId, EmployeeId, Role}</param>
-        /// <returns>"200 ok" or "401 bad request" or "404 not found"</returns>
-        [HttpDelete]
-        public async Task<IActionResult> DeleteManager([FromBody] ProjectEmployee projectemployee)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var pe = _context.ProjectEmployee
-                .SingleOrDefault(V => V.ProjectId == projectemployee.ProjectId 
-                && V.EmployeeId == projectemployee.EmployeeId 
-                && V.Role == projectemployee.Role);
-
-            if (pe != null)
-            {
-                _context.ProjectEmployee.Remove(pe);
+                var managerEmployee = _context.Employee.Where(e => e.EmployeeId == managerid).FirstOrDefault();
+                if (managerEmployee.MaxRole == RoleType.Employee)
+                {
+                    managerEmployee.MaxRole = RoleType.Manager;
+                }
                 await _context.SaveChangesAsync();
 
                 return Ok();
@@ -173,6 +177,36 @@ namespace LTRegistratorApi.Controllers
             }
         }
 
+        /// <summary>
+        /// method for removing the manager from the project
+        /// DELETE: api/Administrator/DeleteManager
+        /// </summary>
+        /// <param name="projectemployee">json {ProjectId, EmployeeId, Role}</param>
+        /// <returns>"200 ok" or "404 not found"</returns>
+        [HttpDelete("DeleteManager/project/{projectId}")]
+        public async Task<IActionResult> DeleteManager([FromRoute] int projectid)
+        {
+            var currentManager = _context.ProjectEmployee.Where(p => p.ProjectId == projectid && p.Role == RoleType.Manager).FirstOrDefault();
+            if (currentManager != null)
+            {
+                var otherProjectsManager = _context.ProjectEmployee.Where(p => p.Role == RoleType.Manager && p.EmployeeId == currentManager.EmployeeId).ToList();
+                if (otherProjectsManager.Count() == 1)
+                {
+                    var managerEmployee = _context.Employee.Where(e => e.EmployeeId == currentManager.EmployeeId).FirstOrDefault();
+                    managerEmployee.MaxRole = RoleType.Employee;
+                }
+
+                _context.ProjectEmployee.Remove(currentManager);
+
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+        
         private bool ProjectExists(int id)
         {
             return _context.Project.Any(e => e.ProjectId == id);
