@@ -1,19 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 
+import { User } from 'src/app/shared/models/user.model';
+import { LoginService } from 'src/app/core/service/login.service'
+
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit {
-
+export class LoginComponent {
+  
   loginForm: FormGroup;
 
-  constructor(private fb: FormBuilder) { }
+  constructor(private fb: FormBuilder, private loginService: LoginService) { }
 
   ngOnInit() {
     this.initForm();
+    
+  //   this.api.getUser().subscribe((x:any) => {
+  //     this.data = x;
+  //     this.user = (JSON.parse(atob(this.data.token.split('.')[1])));
+  //     console.log(this.user);
+  //   });
   }
 
   initForm() {
@@ -26,6 +35,7 @@ export class LoginComponent implements OnInit {
       ]]
     });
   }
+  
   onSubmit() {
     const controls = this.loginForm.controls;
     /** Проверяем форму на валидность */
@@ -38,7 +48,8 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    /** TODO: Обработка данных формы */
-    console.log(this.loginForm.value);
+    /** TODO: Обработка данных формы */    
+    this.login_service.getUser(this.loginForm.get('email').value, this.loginForm.get('password').value);
+    // console.log(this.loginForm.value);
   }
 }
