@@ -1,13 +1,13 @@
 export class Vacation {
-    id: number;
-    type: string;
-    start: string;
-    end: string;
-
-    constructor(leaveId: number, typeLeave: number, startDate: string, endDate: string) {
-        this.id = leaveId;
-        this.type = typeLeave ? 'Болезнь' : 'Отпуск';
-        this.start = startDate.substring(0,10);
-        this.end = endDate.substring(0,10);
+    // id: number;
+    type: any;
+    start: Date;
+    end: Date;
+    constructor(typeLeave: any, startDate: Date, endDate: Date) {
+        //  this.id = leaveId;
+        this.type = typeLeave ? 'Больничный' : 'Отпуск';
+        this.start = startDate;
+        this.end = endDate;
     }
+
 }

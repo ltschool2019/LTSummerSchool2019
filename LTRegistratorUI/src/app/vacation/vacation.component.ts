@@ -3,7 +3,6 @@ import { Vacation } from '../vacation.model';
 import { VacationService } from '../vacation.service';
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { catchError, map, tap, first } from 'rxjs/operators';
 
 @Component({
   selector: 'app-vacation',
@@ -38,7 +37,7 @@ export class VacationComponent implements OnInit {
     this.vacationService.getVacations().subscribe((vacations: Vacation[]) => {
       this.vacations = vacations.map(
         (vacation: any) =>
-          new Vacation(vacation.leaveId, vacation.typeLeave, vacation.startDate, vacation.endDate));
+          new Vacation(+vacation.typeLeave, vacation.startDate, vacation.endDate));
     })
     /* this.vacationService.getVacations().pipe(first()).subscribe((vacations: Vacation[]) => {
        this.vacations = vacations;
@@ -63,6 +62,16 @@ export class VacationComponent implements OnInit {
 
     /** TODO: Обработка данных формы */
     console.log(this.vacationForm.value);
+    this.vacationService.addVacation(
+      new Vacation(
+        this.vacationForm.value.type,
+        this.vacationForm.value.start,
+        this.vacationForm.value.end))
+      .subscribe(vacation => {
+        this.vacations.push(vacation);
+        console.log(this.vacation);
+      })
   }
+
 
 }

@@ -28,7 +28,6 @@ export class LoginComponent implements OnInit {
   }
   onSubmit() {
     const controls = this.loginForm.controls;
-
     /** Проверяем форму на валидность */
     if (this.loginForm.invalid) {
       /** Если форма не валидна, то помечаем все контролы как touched*/
