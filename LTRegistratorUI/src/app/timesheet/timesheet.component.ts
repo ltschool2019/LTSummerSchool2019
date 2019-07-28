@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+
 import { Project } from '../project.model';
+
+import { ProjectService } from '../project.service';
 
 @Component({
   selector: 'app-timesheet',
@@ -7,13 +10,19 @@ import { Project } from '../project.model';
   styleUrls: ['./timesheet.component.scss']
 })
 export class TimesheetComponent implements OnInit {
-  projects: Project[] = [
-    { name: 'Project A', hours: 45, id: 1 },
-    { name: 'Project B', hours: 65, id: 2 }
-  ];
-  constructor() { }
 
-  ngOnInit() {
-  }
+  projects: Project[];
+
+  constructor(private projectService: ProjectService) { }
+
+  ngOnInit() { 
+   // this.getProjects();
+  }/*
+  getProjects(): void {
+    this.projectService.getProjects().subscribe((projects: Project[]) => {
+      this.projects = projects.map(
+        (vacation: any) =>
+          new Project(+vacation.typeLeave, vacation.startDate, vacation.endDate));
+  }*/
 
 }
