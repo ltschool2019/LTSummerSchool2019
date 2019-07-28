@@ -167,26 +167,18 @@ namespace LTRegistratorApi.Controllers
         [HttpDelete("deleteProject/{id}")]
         public async Task<IActionResult> DeleteProject([FromRoute] int id)
         {
-            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var thisUser = await _userManager.GetUserAsync(HttpContext.User);
 
             var project = await db.Project.FindAsync(id);
 
-
-            if (thisUser == null)
-            {
-                return Ok("sdsdsdsd");
-            }
+            
             var managerEmployee = db.ProjectEmployee
                 .Where(pd => pd.ProjectId == id && pd.EmployeeId == thisUser.EmployeeId && pd.Role == RoleType.Manager)
                 .FirstOrDefault();
 
-            if (project == null)
+            if (project == null && managerEmployee == null)
             {
-                return NotFound("No project");
-            }
-            else if (managerEmployee == null)
-            {
-                return NotFound("It's not your project");
+                return NotFound();
             }
             else
             {
