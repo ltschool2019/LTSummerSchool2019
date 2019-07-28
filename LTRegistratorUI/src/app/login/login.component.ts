@@ -49,7 +49,7 @@ export class LoginComponent {
     }
 
     /** TODO: Обработка данных формы */    
-    this.login_service.getUser(this.loginForm.get('email').value, this.loginForm.get('password').value);
+    this.loginService.getUser(this.loginForm.get('email').value, this.loginForm.get('password').value);
     // console.log(this.loginForm.value);
   }
 }
