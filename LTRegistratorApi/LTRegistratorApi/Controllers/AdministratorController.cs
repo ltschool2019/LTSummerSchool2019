@@ -37,7 +37,7 @@ namespace LTRegistratorApi.Controllers
         {
             using(_context)
             {
-                _context.Project.Load();
+                await _context.Project.LoadAsync();
                 var projects = _context.Project.Local.ToList();
                 return Ok(projects);
             }
@@ -136,9 +136,10 @@ namespace LTRegistratorApi.Controllers
 
         /// <summary>
         /// method for assigning a project manager
-        /// POST: api/Administrator/SetManager
+        /// POST: api/Administrator/setmanager/project/{projectId}/manager/{managerId}
         /// </summary>
-        /// <param name="projectemployee">json {ProjectId, EmployeeId, Role}</param>
+        /// <param name="projectid">id of project</param>
+        /// <param name="managerid">id of manager</param>
         /// <returns>"200 ok" or "404 not found"</returns>
         [HttpPost("setmanager/project/{projectId}/manager/{managerId}")]
         public async Task<IActionResult> SetManager([FromRoute] int projectid, int managerid)
@@ -181,7 +182,7 @@ namespace LTRegistratorApi.Controllers
         /// method for removing the manager from the project
         /// DELETE: api/Administrator/DeleteManager
         /// </summary>
-        /// <param name="projectemployee">json {ProjectId, EmployeeId, Role}</param>
+        /// <param name="projectid"> id of the project whose manager should be deleted</param>
         /// <returns>"200 ok" or "404 not found"</returns>
         [HttpDelete("DeleteManager/project/{projectId}")]
         public async Task<IActionResult> DeleteManager([FromRoute] int projectid)

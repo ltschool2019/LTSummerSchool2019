@@ -119,7 +119,7 @@ namespace LTRegistratorApi.Controllers
         /// POST: api/Manager/AddProject
         /// </summary>
         /// <param name="project">json {Name}</param>
-        /// <returns>"201 created" and json {ProjectId, "Name"}</returns>
+        /// <returns>"201 created" and json {ProjectId, EmployeeId}</returns>
         [HttpPost("AddProject")]
         public async Task<IActionResult> AddProject([FromBody] Project project)
         {
@@ -162,7 +162,7 @@ namespace LTRegistratorApi.Controllers
         /// deleting project by id
         /// DELETE: api/Manager/DeleteProject/{id}
         /// </summary>
-        /// <param name="id">id of project</param>
+        /// <param name="id">id of project to be deleted</param>
         /// <returns>"200 ok" or "404 not found"</returns>
         [HttpDelete("deleteProject/{id}")]
         public async Task<IActionResult> DeleteProject([FromRoute] int id)
@@ -170,7 +170,6 @@ namespace LTRegistratorApi.Controllers
             var thisUser = await _userManager.GetUserAsync(HttpContext.User);
 
             var project = await db.Project.FindAsync(id);
-
             
             var managerEmployee = db.ProjectEmployee
                 .Where(pd => pd.ProjectId == id && pd.EmployeeId == thisUser.EmployeeId && pd.Role == RoleType.Manager)
