@@ -15,7 +15,7 @@
   <ul class="vacation-list">
     <li *ngFor="let vacation of vacations">
       <p class="vacation-list__vacation"> {{vacation.type}} с {{vacation.start}} по {{vacation.end}}</p>
-      <button class="vacation-list__delete" title="delete vacation" 
+      <button class="vacation-list__delete" title="delete vacation" (click)="delete(vacation)"
         id="vacation-delete-button" name="delete-button">x</button>
     </li>
   </ul> 

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpRequest } from '@angular/common/http';
 
 import { Observable, of } from 'rxjs';
 import { catchError, map, tap, first } from 'rxjs/operators';
@@ -32,14 +32,46 @@ export class VacationService {
 
   //post
   addVacation(vacation: Vacation): Observable<Vacation> {
-    const body = {//vacation.type === 'Больничный' ? 0 : 1
-      TypeLeave: 1,
+    const body = {
+      TypeLeave: vacation.type === 'Больничный' ? 0 : 1,
       StartDate: `${vacation.start}T00:00:00`,
       EndDate: `${vacation.end}T00:00:00`
       //.toISOString()
     };
     console.log(body);
-    return this.http.post<Vacation>(this.vacationsUrl, body);
+    return this.http.post<Vacation>(this.vacationsUrl, [body]);
   }
   //delete
+
+  deleteVacation(vacation: Vacation): Observable<Vacation> {
+    const body = {
+      LeaveId: vacation.id,
+      TypeLeave: vacation.type === 'Больничный' ? 0 : 1,
+      StartDate: vacation.start,
+      EndDate: vacation.end
+    };
+    let headers = new Headers({
+      'Content-Type': 'application/json'
+    });
+    /*
+    let options = new HttpRequest({
+      this.headers:headers,
+      url: this.vacationsUrl,
+      body: {
+        LeaveId: vacation.id,
+        TypeLeave: vacation.type === 'Больничный' ? 0 : 1,
+        StartDate: vacation.start,
+        EndDate: vacation.end
+      },
+      RequestMethod: HttpClient.delete
+    });*/
+    //FIXME: заставь меня работать
+    const req = new HttpRequest('DELETE', this.vacationsUrl, body: {
+      LeaveId: vacation.id,
+      TypeLeave: vacation.type === 'Больничный' ? 0 : 1,
+      StartDate: vacation.start,
+      EndDate: vacation.end
+    });
+    return this.http.request<Vacation>(req);
+  }
 }

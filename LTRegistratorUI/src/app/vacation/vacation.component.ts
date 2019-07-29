@@ -15,7 +15,6 @@ export class VacationComponent implements OnInit {
   vacationTypes: string[];
 
   vacations: Vacation[] = [];
-  vacation: Vacation;
   constructor(
     private fb: FormBuilder,
     private vacationService: VacationService) { }
@@ -37,20 +36,10 @@ export class VacationComponent implements OnInit {
     this.vacationService.getVacations().subscribe((vacations: Vacation[]) => {
       this.vacations = vacations.map(
         (vacation: any) =>
-          new Vacation(+vacation.typeLeave, vacation.startDate, vacation.endDate));
+          new Vacation(+vacation.id, +vacation.typeLeave, vacation.startDate, vacation.endDate));
     })
-    /* this.vacationService.getVacations().pipe(first()).subscribe((vacations: Vacation[]) => {
-       this.vacations = vacations;
-       console.log(this.vacations);
-     })*/
-    /*
-        this.vacationService.getVacations().subscribe(vacations => {
-          this.vacations = vacations;
-          console.log(vacations);
-        }
-        );*/
   }
-
+  //post
   onSubmit() {
     const controls = this.vacationForm.controls;
 
@@ -63,15 +52,19 @@ export class VacationComponent implements OnInit {
     /** TODO: Обработка данных формы */
     console.log(this.vacationForm.value);
     this.vacationService.addVacation(
-      new Vacation(
+      new Vacation(0,
         this.vacationForm.value.type,
         this.vacationForm.value.start,
         this.vacationForm.value.end))
       .subscribe(vacation => {
         this.vacations.push(vacation);
-        console.log(this.vacation);
       })
   }
+  //delete
 
+  delete(vacation: Vacation): void {
+    this.vacations = this.vacations.filter(v => v !== vacation);
+    this.vacationService.deleteVacation(vacation).subscribe();
+  }
 
 }
