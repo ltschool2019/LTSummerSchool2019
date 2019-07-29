@@ -2,7 +2,7 @@
 
 namespace LTRegistratorApi.Model
 {
-    public enum TypeLeave { SickLeave, Vacation };
+    public enum TypeLeave { SickLeave, Vacation, Training, Idle };
     /// <summary>
     /// Describes employee leave.
     /// </summary>
