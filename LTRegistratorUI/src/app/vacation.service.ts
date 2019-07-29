@@ -32,10 +32,11 @@ export class VacationService {
 
   //post
   addVacation(vacation: Vacation): Observable<Vacation> {
-    const body = {
-      type: vacation.type === 'Больничный' ? 0 : 1,
-      start: vacation.start.toISOString(),
-      end: vacation.end.toISOString()
+    const body = {//vacation.type === 'Больничный' ? 0 : 1
+      TypeLeave: 1,
+      StartDate: `${vacation.start}T00:00:00`,
+      EndDate: `${vacation.end}T00:00:00`
+      //.toISOString()
     };
     console.log(body);
     return this.http.post<Vacation>(this.vacationsUrl, body);
