@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { User } from '../../shared/models/user.model';
 import * as moment from 'moment';
 
-
 @Injectable()
 export class LoginService {
   private token = new Object();
