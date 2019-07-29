@@ -15,8 +15,8 @@ export class TimesheetComponent implements OnInit {
 
   constructor(private projectService: ProjectService) { }
 
-  ngOnInit() { 
-   // this.getProjects();
+  ngOnInit() {
+    this.getProjects();
   }/*
   getProjects(): void {
     this.projectService.getProjects().subscribe((projects: Project[]) => {
@@ -24,5 +24,7 @@ export class TimesheetComponent implements OnInit {
         (vacation: any) =>
           new Project(+vacation.typeLeave, vacation.startDate, vacation.endDate));
   }*/
-
+  getProjects() {
+    this.projectService.getProjects().subscribe(data => this.projects = data["projects"]);
+  }
 }
