@@ -1,5 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 
+export class Employee {
+  name: string;
+  email: string;
+
+  constructor(name: string, email: string) {
+    this.name = name;
+    this.email = email;
+  }
+}
+
+export class EmployeeItem {
+  employee: Employee;
+  selected: boolean;
+
+  constructor(name: string, email: string) {
+    this.employee = new Employee(name, email);
+  }
+}
+
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.component.html',
@@ -10,35 +29,28 @@ export class AdminComponent implements OnInit {
   ngOnInit() {
   }
 
- selectedAll: any;
- checkboxes: any;
-
- employees: any;
+  areAllSelected: boolean;
+  employees: EmployeeItem[];
+  searchTerm: string;
 
  constructor() {
-   this.checkboxes = [
-     { name: '', selected: false },
-     { name: '', selected: false },
-     { name: '', selected: false },
-   ]
-
    this.employees = [
-     { name: '1', email: 'a@b' },
-     { name: '2', email: 'b@c' },
-     { name: '3', email: 'c@d' },
-    ]
+     new EmployeeItem('Ann', 'a@b'),
+     new EmployeeItem('Bob', 'b@c'),
+     new EmployeeItem('Elle', 'c@d')
+   ]
  }
 
 
-  selectAll() {
-    for (var i = 0; i < this.checkboxes.length; i++) {
-      this.checkboxes[i].selected = this.selectedAll;
-    }
-  }
-  checkIfAllSelected() {
-    this.selectedAll = this.checkboxes.every(function (item: any) {
-      return item.selected == true;
-    })
-  } 
+ selectAll() {
+   for (let emp of this.employees) {
+     emp.selected = this.areAllSelected;
+   }
+ }
+ checkIfAllSelected() {
+   this.areAllSelected = this.employees.every(function (item: any) {
+     return item.selected == true;
+   })
+ }
 
 }

@@ -13,7 +13,7 @@ import { TimesheetComponent } from './timesheet/timesheet.component';
 import { AppRoutingModule } from './app-routing.module';
 import { UserComponent } from './user/user.component';
 import { AdminComponent } from './admin/admin.component';
-
+import { EmployeeFilterPipe } from './admin/employee-filter.pipe';
 
 @NgModule({
   declarations: [
@@ -28,6 +28,7 @@ import { AdminComponent } from './admin/admin.component';
     LoginComponent,
     UserComponent,
     AdminComponent,
+    EmployeeFilterPipe,
   ],
   imports: [
     BrowserModule,
