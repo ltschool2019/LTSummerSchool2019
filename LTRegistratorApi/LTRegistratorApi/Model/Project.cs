@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace LTRegistratorApi.Model
 {
@@ -12,7 +9,7 @@ namespace LTRegistratorApi.Model
     {
         public int ProjectId { get; set; }
         public string Name { get; set; }
+
         public ICollection<ProjectEmployee> ProjectEmployee { get; set; }
     }
 }
-
