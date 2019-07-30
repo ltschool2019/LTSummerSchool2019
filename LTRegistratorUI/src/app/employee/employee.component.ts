@@ -6,11 +6,9 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./employee.component.scss']
 })
 export class EmployeeComponent implements OnInit {
-
+  days = [ 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   constructor() { }
 
   ngOnInit() {
   }
-  days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  // days = DAYS;
 }

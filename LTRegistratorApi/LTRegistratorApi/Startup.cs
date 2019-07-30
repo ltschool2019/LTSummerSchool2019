@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,10 +64,15 @@ namespace LTRegistratorApi
             services.AddAuthorization(options =>
             {
                 options.AddPolicy("IsEmployee", policy => policy.RequireClaim(ClaimTypes.Role, "Employee"));
-                options.AddPolicy("IsManager", policy => policy.RequireClaim(ClaimTypes.Role, "Manager")); 
+                options.AddPolicy("IsManager", policy => policy.RequireClaim(ClaimTypes.Role, "Manager"));
                 options.AddPolicy("IsAdministrator", policy => policy.RequireClaim(ClaimTypes.Role, "Administrator"));
+
+                options.AddPolicy("IsManagerOrAdministrator", policy => 
+                    policy.RequireAssertion(context => 
+                        context.User.HasClaim(c => 
+                            (c.Type == ClaimTypes.Role && (c.Value == "Manager" || c.Value == "Administrator")))));
             });
-          
+
             services.AddMvc();
         }
 

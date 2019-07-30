@@ -123,13 +123,11 @@
     "directive-selector": [
       true,
       "attribute",
-      "nurse",
       "camelCase"
     ],
     "component-selector": [
       true,
       "element",
-      "nurse",
       "kebab-case"
     ],
     "no-output-on-prefix": true,
