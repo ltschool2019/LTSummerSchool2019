@@ -14,6 +14,8 @@ import { AppRoutingModule } from './app-routing.module';
 import { UserComponent } from './user/user.component';
 import { AdminComponent } from './admin/admin.component';
 import { EmployeeFilterPipe } from './admin/employee-filter.pipe';
+import { SelectionModel } from '@angular/cdk/collections';
+import { MatTableDataSource } from '@angular/material/table';
 
 @NgModule({
   declarations: [
@@ -34,7 +36,9 @@ import { EmployeeFilterPipe } from './admin/employee-filter.pipe';
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
-    FormsModule
+    FormsModule,
+    SelectionModel,
+    MatTableDataSource
   ],
   providers: [],
   bootstrap: [AppComponent]

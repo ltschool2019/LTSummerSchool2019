@@ -1,9 +1,5 @@
 $background-color: #f8f8f8;
 
-ul {
-  list-style: none;
-}
-
 .admin-projects {
   margin-top: 30px;
   float: left;
@@ -18,6 +14,7 @@ ul {
     border: 2px solid $background-color;
     margin-left: 80px;
     margin-top: 50px;
+    width: 100%;
 
     tr {
 
@@ -28,35 +25,8 @@ ul {
     }
   }
 
-  .employee-list {
-    margin-top: 30px;
-    width: 50px;
-
-    .main-check {
-      position: absolute;
-      float: left;
-      margin-top: 20px;
-      display: flex;
-      li{
-        margin-right: 50px;
-      }
-      li:first-child{
-        margin-right: 30px;
-      }
-    }
-
-    .check {
-      position: absolute;
-      float: left;
-      margin-top: 50px;
-
-      li {
-        margin-top: 25px;
-        margin-right: 50px;
-      }
-      li:first-child {
-        margin-right: 30px;
-      }
-    }
+  .mat-form-field {
+    font-size: 14px;
+    width: 100%;
   }
 }

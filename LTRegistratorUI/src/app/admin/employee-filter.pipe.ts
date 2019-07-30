@@ -1,17 +1,18 @@
 import { PipeTransform, Pipe } from '@angular/core';
-import { Employee } from './admin.component';
+import { Employee, EmployeeItem } from './employee.model';
+import { EMPLOYEES } from './mock-employee';
 
 @Pipe({
   name: 'employeeFilter'
 })
 
 export class EmployeeFilterPipe implements PipeTransform {
-  transform(employees: Employee[], searchTerm: string): Employee[] {
-    if (!employees || !searchTerm) {
-      return employees;
+  transform(EMPLOYEES: EmployeeItem[], searchTerm: string): EmployeeItem[] {
+    if (!EMPLOYEES || !searchTerm) {
+      return EMPLOYEES;
     }
-    return employees.filter(employee =>
-      employee.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
+    return EMPLOYEES.filter(EmployeeItem =>
+      EmployeeItem.name.toLowerCase().indexOf(searchTerm.toLowerCase()) !== -1);
   }
 }
 
