@@ -4,12 +4,12 @@ using LTRegistrator.Domain.Entities.Base;
 namespace LTRegistrator.Domain.Entities
 {
     /// <summary>
-    /// Describes project entity.
+    /// Describes department entity.
     /// </summary>
-    public class Project : BaseEntity
+    public class Department : BaseEntity
     {
         public string Name { get; set; }
 
-        public virtual ICollection<ProjectEmployee> ProjectEmployees { get; set; }
+        public virtual ICollection<DepartmentEmployee> DepartmentEmployee { get; set; }
     }
 }

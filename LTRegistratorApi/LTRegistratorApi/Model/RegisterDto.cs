@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using LTRegistrator.Domain.Entities;
+using LTRegistrator.Domain.Enums;
 using LTRegistratorApi.Model;
 
 /// <summary>
@@ -11,18 +13,18 @@ public class RegisterDto
     public string FirstName { get; set; }
     [Required]
     public string SecondName { get; set; }
-    private RoleType role;
+    private RoleType _role;
     [Required]
     public RoleType Role
     {
-        get { return role; }
+        get { return _role; }
         set
         {
             if (value != RoleType.Employee && value != RoleType.Manager && value != RoleType.Administrator)
             {
                 throw new ApplicationException("INVALID_ROLE");
             }
-            role = value;
+            _role = value;
         }
     }
 

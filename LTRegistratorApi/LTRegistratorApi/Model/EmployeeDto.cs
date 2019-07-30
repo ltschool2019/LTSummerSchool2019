@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using LTRegistrator.Domain.Entities;
+using LTRegistrator.Domain.Enums;
 
 namespace LTRegistratorApi.Model
 {
@@ -7,13 +10,13 @@ namespace LTRegistratorApi.Model
     /// </summary>
     public class EmployeeDto
     {
-        public int EmployeeId { get; set; }
+        public Guid EmployeeId { get; set; }
         public string FirstName { get; set; }
         public string SecondName { get; set; }
         public string Mail { get; set; }
         public RoleType MaxRole { get; set; }
         public double Rate { get; set; }
-        public int? ManagerId { get; set; }
+        public Guid? ManagerId { get; set; }
 
 
         public ICollection<ProjectDto> Projects { get; set; }

@@ -4,8 +4,5 @@ using System.Text;
 
 namespace LTRegistrator.Domain.Enums
 {
-    public enum TypeLeave
-    {
-        SickLeave, Vacation, Training, Idle
-    }
+    public enum RoleType { Employee, Manager, Administrator };
 }

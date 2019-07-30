@@ -7,6 +7,7 @@ using AutoMapper;
 using LTRegistrator.BLL.Contracts.Contracts;
 using LTRegistrator.BLL.Contracts.Dtos;
 using LTRegistratorApi.Model.ResourceModels;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LTRegistratorApi.Controllers
 {

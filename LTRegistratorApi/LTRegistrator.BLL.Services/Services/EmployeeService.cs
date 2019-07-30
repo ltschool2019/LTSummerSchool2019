@@ -35,7 +35,7 @@ namespace LTRegistrator.BLL.Services.Services
             }
             var newLeaves = Mapper.Map<ICollection<Leave>>(leaves).ToList();
 
-            if (ValidatorLeaveLists.MergingListsValidly(employee.Leaves.ToList(), newLeaves))
+            if (LeavesValidator.TryMergeLeaves(employee.Leaves.ToList(), newLeaves))
             {
                 employee.Leaves = employee.Leaves.Concat(newLeaves).ToList();
                 await UnitOfWork.CommitAsync();

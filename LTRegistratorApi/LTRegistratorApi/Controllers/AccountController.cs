@@ -5,7 +5,9 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using LTRegistrator.DAL;
 using LTRegistrator.Domain.Entities;
+using LTRegistrator.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -20,25 +22,25 @@ namespace LTRegistratorApi.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        ApplicationContext context;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly LTRegistratorDbContext _context;
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
 
         /// <param name="userManager">Allows you to manage users</param>
         /// <param name="signInManager">Provides the APIs for user sign in</param>
         /// <param name="configuration">To use the file setting</param>
         public AccountController(
-            ApplicationContext db,
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
+            LTRegistratorDbContext db,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
             IConfiguration configuration
             )
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
-            context = db;
+            _context = db;
         }
 
         /// <summary>
@@ -71,7 +73,7 @@ namespace LTRegistratorApi.Controllers
         [HttpPost]
         public async Task<object> Register([FromBody] RegisterDto model)
         {
-            using (var transaction = context.Database.BeginTransaction())
+            using (var transaction = _context.Database.BeginTransaction())
             {
                 try
                 {
@@ -82,12 +84,12 @@ namespace LTRegistratorApi.Controllers
                         Mail = model.Email,
                         MaxRole = model.Role
                     };
-                    context.Employee.Add(employee);
-                    ApplicationUser user = new ApplicationUser
+                    _context.Employee.Add(employee);
+                    User user = new User
                     {
                         UserName = model.FirstName + "_" + model.SecondName,
                         Email = model.Email,
-                        EmployeeId = employee.EmployeeId
+                        EmployeeId = employee.Id
                     };
                     transaction.Commit();
                     var res = _userManager.CreateAsync(user, model.Password).Result;
@@ -118,7 +120,7 @@ namespace LTRegistratorApi.Controllers
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //Generate almost unique identifier for token.
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 _userManager.GetClaimsAsync(user).Result.Single(claim => claim.Type == ClaimTypes.Role)
             };
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using LTRegistrator.Domain.Entities;
 
 namespace LTRegistratorApi.Model
 {
@@ -17,7 +18,7 @@ namespace LTRegistratorApi.Model
             var result = new List<Project>();
             if (listOfPE == null) return null;
             foreach (var pe in listOfPE)
-                result.Add(new Project { ProjectId = pe.ProjectId, Name = pe.Project.Name });
+                result.Add(new Project { Id = pe.ProjectId, Name = pe.Project.Name });
 
             return result;
         }
@@ -31,7 +32,7 @@ namespace LTRegistratorApi.Model
             var result = new List<ProjectDto>();
             if (projects == null) return null;
             foreach (var project in projects)
-                result.Add(new ProjectDto { ProjectId = project.ProjectId, Name = project.Name });
+                result.Add(new ProjectDto { ProjectId = project.Id, Name = project.Name });
 
             return result;
         }
@@ -47,14 +48,14 @@ namespace LTRegistratorApi.Model
             {
                 result.Add(new EmployeeDto
                 {
-                    EmployeeId = employee.EmployeeId,
+                    EmployeeId = employee.Id,
                     FirstName = employee.FirstName,
                     SecondName = employee.SecondName,
                     Mail = employee.Mail,
                     MaxRole = employee.MaxRole,
                     Rate = employee.Rate,
                     ManagerId = employee.ManagerId,
-                    Projects  = ToProjectDto(ToProject(employee.ProjectEmployee?.ToList()))
+                    Projects  = ToProjectDto(ToProject(employee.ProjectEmployees?.ToList()))
                 });
             }
             return result;

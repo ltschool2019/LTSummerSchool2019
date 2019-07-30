@@ -6,7 +6,7 @@ using LTRegistrator.Domain.Entities;
 
 namespace LTRegistrator.BLL.Services.Services
 {
-    public static class ValidatorLeaveLists
+    public static class LeavesValidator
     {
         /// <summary>
         /// Check intersection of DateTime periods in lists.
@@ -14,7 +14,7 @@ namespace LTRegistrator.BLL.Services.Services
         /// <param name="first">First list</param>
         /// <param name="second">Second list</param>
         /// <returns>Periods do not overlap and are the time periods correct?</returns>
-        public static bool MergingListsValidly(List<Leave> first, List<Leave> second)
+        public static bool TryMergeLeaves(List<Leave> first, List<Leave> second)
             => ValidateLeaves(first.Concat(second).ToList());
 
         /// <summary>

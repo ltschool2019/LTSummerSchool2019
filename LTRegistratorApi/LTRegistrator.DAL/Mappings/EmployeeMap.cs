@@ -20,6 +20,10 @@ namespace LTRegistrator.DAL.Mappings
             builder.HasOne(e => e.User).WithOne(au => au.Employee).HasForeignKey<User>(u => u.EmployeeId);
 
             builder.HasMany(e => e.Leaves).WithOne(l => l.Employee).HasForeignKey(l => l.EmployeeId);
+
+            builder.HasMany(e => e.DepartmentEmployees).WithOne(de => de.Employee).HasForeignKey(de => de.EmployeeId);
+
+            builder.HasOne(e => e.Manager).WithMany().HasForeignKey(e => e.ManagerId);
         }
     }
 }

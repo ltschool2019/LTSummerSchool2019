@@ -14,22 +14,23 @@ namespace LTRegistrator.DAL
             : base(options)
         {
         }
-
-        public DbSet<Value> Values { get; set; }
         public DbSet<Employee> Employee { get; set; }
         public DbSet<Project> Project { get; set; }
         public DbSet<Leave> Leave { get; set; }
         public DbSet<ProjectEmployee> ProjectEmployee { get; set; }
+        public DbSet<Department> Departments { get; set; }
+        public DbSet<DepartmentEmployee> DepartmentEmployees { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfiguration(new DepartmentEmployeeMap());
+            modelBuilder.ApplyConfiguration(new DepartmentMap());
             modelBuilder.ApplyConfiguration(new EmployeeMap());
             modelBuilder.ApplyConfiguration(new LeaveMap());
             modelBuilder.ApplyConfiguration(new ProjectEmployeeMap());
             modelBuilder.ApplyConfiguration(new ProjectMap());
             modelBuilder.ApplyConfiguration(new RoleMap());
             modelBuilder.ApplyConfiguration(new UserMap());
-            modelBuilder.ApplyConfiguration(new ValueMap());
 
             base.OnModelCreating(modelBuilder);
         }
