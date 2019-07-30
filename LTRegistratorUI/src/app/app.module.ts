@@ -2,7 +2,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule, HTTP_INTERCEPTORS  } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { AppComponent } from './app.component';
 import { EmployeeComponent } from './employee/employee.component';
@@ -16,6 +17,7 @@ import { TimesheetComponent } from './timesheet/timesheet.component';
 import { AppRoutingModule } from './app-routing.module';
 import { UserComponent } from './user/user.component';
 import { LoginService } from 'src/app/core/service/login.service';
+import { MaterialModule } from "./material.module";
 
 
 @NgModule({
@@ -32,7 +34,9 @@ import { LoginService } from 'src/app/core/service/login.service';
     UserComponent
   ],
   imports: [
-    BrowserModule,    
+    BrowserModule,
+    MaterialModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     ReactiveFormsModule,
     HttpClientModule,
@@ -40,8 +44,9 @@ import { LoginService } from 'src/app/core/service/login.service';
   ],
   providers: [
     LoginService,
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+    {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true}
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}

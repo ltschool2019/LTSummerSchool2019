@@ -12,7 +12,9 @@ namespace LTRegistratorApi.Model
         public string SecondName { get; set; }
         public string Mail { get; set; }
         public RoleType MaxRole { get; set; }
+        public double Rate { get; set; }
         public int? ManagerId { get; set; }
+
 
         public ICollection<ProjectDto> Projects { get; set; }
     }
