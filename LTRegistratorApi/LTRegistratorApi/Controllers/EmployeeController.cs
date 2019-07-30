@@ -14,7 +14,7 @@ namespace LTRegistratorApi.Controllers
     /// Controller providing basic employee operations
     /// </summary>
     [Route("api/[controller]")]
-    [ApiController]
+    [ApiController, Authorize]
     public class EmployeeController : ControllerBase
     {
         private readonly IEmployeeService _employeeService;
@@ -26,10 +26,9 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// GET api/employee/{id}/info
-        /// Sends user information.
+        /// GET api/employee/info
+        /// Sends this user information.
         /// </summary>
-        /// <param name="id">UserId</param>
         /// <returns>Basic Employee information</returns>
         [HttpGet("{id}/info")]
         public async Task<ActionResult> GetInfoAsync(Guid id)
