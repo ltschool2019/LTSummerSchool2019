@@ -7,14 +7,15 @@ import { MatTableDataSource } from '@angular/material/table';
 
 
 export interface EmployeeItem {
+  position: number;
   name: string;
   email: string;
 }
 
 const EMPLOYEES: EmployeeItem[] = [
-  { name: 'Ann', email: 'a@a' },
-  { name: 'Bob', email: 'b@b' },
-  { name: 'Rick', email: 'c@c' },
+  { position: 1, name: 'Ann', email: 'a@a' },
+  { position: 2, name: 'Bob', email: 'b@b' },
+  { position: 3, name: 'Rick', email: 'c@c' },
 ];
 
 @Component({
@@ -29,7 +30,7 @@ export class AdminComponent implements OnInit {
 
  constructor() {}
 
- displayedColumns: string[] = ['name', 'email'];
+ displayedColumns: string[] = ['select', 'name', 'email'];
  dataSource = new MatTableDataSource<EmployeeItem>(EMPLOYEES);
  selection = new SelectionModel<EmployeeItem>(true, []);
 
