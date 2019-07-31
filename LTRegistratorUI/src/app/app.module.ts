@@ -41,7 +41,9 @@ import { MaterialModule } from "./material.module";
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
-    HttpClientModule
+    HttpClientModule,
+    BrowserAnimationsModule,
+    MaterialModule
   ],
   providers: [
     LoginService,
