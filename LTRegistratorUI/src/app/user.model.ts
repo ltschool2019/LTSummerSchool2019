@@ -1,30 +1,21 @@
+import { Project } from './project.model';
 export class User {
     id: number;
     name: string;
     surname: string;
-    mail: string
+    mail: string;
     role: any;
-    projects: {projectId:number, name:string};
+    projects: Project[];
+    roleTypes = ['', '(Manager)', '(Admin)'];
 
-    constructor(employeeId: number, firstName: string, secondName: string, mail: string, maxRole: number) {
+    constructor(employeeId: number, firstName: string, secondName: string,
+        mail: string, maxRole: number, projects: Project[]) {
         this.id = employeeId;
         this.name = firstName;
         this.surname = secondName;
         this.mail = mail;
         //this.role = maxRole;
-        switch (maxRole){
-            case(0):{
-                this.role='';
-                break;
-            }
-            case (1):{
-                this.role='(Менеджер)';
-                break;
-            }
-            case(2):{
-                this.role='(Администратор)';
-                break;
-            }
-        }
+        this.role = this.roleTypes[maxRole];
+        this.projects = projects;
     }
 }
