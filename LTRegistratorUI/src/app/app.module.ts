@@ -1,9 +1,9 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
-
+import { FormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppComponent } from './app.component';
 import { EmployeeComponent } from './employee/employee.component';
 import { SideMenuComponent } from './side-menu/side-menu.component';
@@ -20,6 +20,8 @@ import { LoginService } from 'src/app/core/service/login.service';
 
 import { AppRoutingModule } from './app-routing.module';
 
+import { EmployeesTable } from './admin/admin.component';
+import { MaterialModule } from "./material.module";
 
 @NgModule({
   declarations: [
@@ -32,7 +34,8 @@ import { AppRoutingModule } from './app-routing.module';
     SideMenuComponent,
     HeaderComponent,
     LoginComponent,
-    UserComponent
+    UserComponent,
+    EmployeesTable,
   ],
   imports: [
     BrowserModule,
@@ -45,8 +48,16 @@ import { AppRoutingModule } from './app-routing.module';
     VacationService,
     FormsModule,
     HttpClientModule,
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    MaterialModule,
+    BrowserAnimationsModule,
+    AppRoutingModule,
+    ReactiveFormsModule,
+    FormsModule,
+    HttpClientModule,
+    FormsModule,
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {
+}
