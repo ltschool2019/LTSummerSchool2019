@@ -18,12 +18,12 @@ namespace LTRegistratorApi.Controllers
     [ApiController]
     public class AdministratorController : ControllerBase
     {
-        private readonly ApplicationContext _context;
+        private readonly ApplicationContext db;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public AdministratorController(ApplicationContext context, UserManager<ApplicationUser> userManager)
         {
-            _context = context;
+            db = context;
             _userManager = userManager;
         }
 
@@ -35,11 +35,11 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("GetProjects")]
         public async Task<IActionResult> GetProjects()
         {
-            using(_context)
+            using(db)
             {
-                await _context.Project.LoadAsync();
-                var projects = _context.Project.Local.ToList();
-                return Ok(projects);
+                await db.Project.LoadAsync();
+                var projects = db.Project.Local.ToList();
+                return Ok(DtoConverter.ToProjectDto(projects));
             }
         }
 
@@ -51,32 +51,27 @@ namespace LTRegistratorApi.Controllers
         /// Name and projectEmployee not obligatory</param>
         /// <returns> "OK" or "bad request" or "not found"</returns>
         [HttpPut("UpdateProject")]
-        public async Task<IActionResult> UpdateProject([FromBody] Project project)
+        public async Task<IActionResult> UpdateProject([FromBody] ProjectDto projectdto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            
-            _context.Entry(project).State = EntityState.Modified;
 
-            try
+            var temp = db.Project.SingleOrDefault(p => p.ProjectId == projectdto.ProjectId);
+            if (temp != null)
             {
-                await _context.SaveChangesAsync();
+                temp.ProjectId = projectdto.ProjectId;
+                temp.Name = projectdto.Name;
+                db.Project.Update(temp);
+                db.SaveChanges();
+                return Ok();
             }
-            catch (DbUpdateConcurrencyException)
+            else
             {
-                if (!ProjectExists(project.ProjectId))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                return BadRequest();
             }
 
-            return Ok();
         }
 
         /// <summary>
@@ -86,17 +81,17 @@ namespace LTRegistratorApi.Controllers
         /// <param name="project">json {Name}</param>
         /// <returns>"201 created" and json {ProjectId, "Name", "projectEmployee"}</returns>
         [HttpPost("AddProject")]
-        public async Task<IActionResult> AddProject([FromBody] Project project)
+        public async Task<IActionResult> AddProject([FromBody] ProjectDto projectdto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
+            var project = new Project { ProjectId = projectdto.ProjectId, Name = projectdto.Name };
+            db.Project.Add(project);
+            await db.SaveChangesAsync();
 
-            _context.Project.Add(project);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetProject", new { id = project.ProjectId }, project);
+            return Ok(new ProjectDto {ProjectId = project.ProjectId, Name = project.Name });
         }
 
         /// <summary>
@@ -113,21 +108,21 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var project = await _context.Project.FindAsync(id);
+            var project = await db.Project.FindAsync(id);
             if (project == null)
             {
                 return NotFound();
             }
             else
             {
-                var listEmployees = _context.ProjectEmployee.Where(pe => pe.ProjectId == id).ToList();
+                var listEmployees = db.ProjectEmployee.Where(pe => pe.ProjectId == id).ToList();
                 foreach (ProjectEmployee employee in listEmployees)
                 {
-                    _context.ProjectEmployee.Remove(employee);
+                    db.ProjectEmployee.Remove(employee);
                 }
 
-                _context.Project.Remove(project);
-                await _context.SaveChangesAsync();
+                db.Project.Remove(project);
+                await db.SaveChangesAsync();
 
                 return Ok();
             }
@@ -144,15 +139,15 @@ namespace LTRegistratorApi.Controllers
         [HttpPost("setmanager/project/{projectId}/manager/{managerId}")]
         public async Task<IActionResult> SetManager([FromRoute] int projectid, int managerid)
         {
-            var currentManager = _context.ProjectEmployee.Where(p => p.ProjectId == projectid && p.Role == RoleType.Manager).FirstOrDefault();
-            var oldemployee = _context.ProjectEmployee.Where(p => p.ProjectId == projectid && p.EmployeeId == managerid && p.Role == RoleType.Employee).FirstOrDefault();
+            var currentManager = db.ProjectEmployee.Where(p => p.ProjectId == projectid && p.Role == RoleType.Manager).FirstOrDefault();
+            var oldemployee = db.ProjectEmployee.Where(p => p.ProjectId == projectid && p.EmployeeId == managerid && p.Role == RoleType.Employee).FirstOrDefault();
 
             if (currentManager != null)
             {
-                _context.ProjectEmployee.Remove(currentManager);
+                db.ProjectEmployee.Remove(currentManager);
                 if (oldemployee != null)
                 {
-                    _context.ProjectEmployee.Remove(oldemployee);
+                    db.ProjectEmployee.Remove(oldemployee);
                 }
 
                 ProjectEmployee projectManager = new ProjectEmployee
@@ -161,14 +156,14 @@ namespace LTRegistratorApi.Controllers
                     EmployeeId = managerid,
                     Role = RoleType.Manager
                 };
-                _context.ProjectEmployee.Add(projectManager);
+                db.ProjectEmployee.Add(projectManager);
 
-                var managerEmployee = _context.Employee.Where(e => e.EmployeeId == managerid).FirstOrDefault();
+                var managerEmployee = db.Employee.Where(e => e.EmployeeId == managerid).FirstOrDefault();
                 if (managerEmployee.MaxRole == RoleType.Employee)
                 {
                     managerEmployee.MaxRole = RoleType.Manager;
                 }
-                await _context.SaveChangesAsync();
+                await db.SaveChangesAsync();
 
                 return Ok();
             }
@@ -187,19 +182,19 @@ namespace LTRegistratorApi.Controllers
         [HttpDelete("DeleteManager/project/{projectId}")]
         public async Task<IActionResult> DeleteManager([FromRoute] int projectid)
         {
-            var currentManager = _context.ProjectEmployee.Where(p => p.ProjectId == projectid && p.Role == RoleType.Manager).FirstOrDefault();
+            var currentManager = db.ProjectEmployee.Where(p => p.ProjectId == projectid && p.Role == RoleType.Manager).FirstOrDefault();
             if (currentManager != null)
             {
-                var otherProjectsManager = _context.ProjectEmployee.Where(p => p.Role == RoleType.Manager && p.EmployeeId == currentManager.EmployeeId).ToList();
+                var otherProjectsManager = db.ProjectEmployee.Where(p => p.Role == RoleType.Manager && p.EmployeeId == currentManager.EmployeeId).ToList();
                 if (otherProjectsManager.Count() == 1)
                 {
-                    var managerEmployee = _context.Employee.Where(e => e.EmployeeId == currentManager.EmployeeId).FirstOrDefault();
+                    var managerEmployee = db.Employee.Where(e => e.EmployeeId == currentManager.EmployeeId).FirstOrDefault();
                     managerEmployee.MaxRole = RoleType.Employee;
                 }
 
-                _context.ProjectEmployee.Remove(currentManager);
+                db.ProjectEmployee.Remove(currentManager);
 
-                await _context.SaveChangesAsync();
+                await db.SaveChangesAsync();
                 return Ok();
             }
             else
@@ -210,7 +205,7 @@ namespace LTRegistratorApi.Controllers
         
         private bool ProjectExists(int id)
         {
-            return _context.Project.Any(e => e.ProjectId == id);
+            return db.Project.Any(e => e.ProjectId == id);
         }
     }
 }

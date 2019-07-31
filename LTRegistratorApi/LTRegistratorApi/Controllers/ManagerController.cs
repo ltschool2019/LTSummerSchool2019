@@ -121,7 +121,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="project">json {Name}</param>
         /// <returns>"201 created" and json {ProjectId, EmployeeId}</returns>
         [HttpPost("AddProject")]
-        public async Task<IActionResult> AddProject([FromBody] Project project)
+        public async Task<IActionResult> AddProject([FromBody] ProjectDto projectdto)
         {
             if (!ModelState.IsValid)
             {
@@ -129,8 +129,9 @@ namespace LTRegistratorApi.Controllers
             }
 
             var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            if (thisUser != null && project != null)
+            if (thisUser != null && projectdto != null)
             {
+                var project = new Project { ProjectId = projectdto.ProjectId, Name = projectdto.Name };
                 db.Project.Add(project);
                 ProjectEmployee projectEmployee = new ProjectEmployee
                 {
@@ -140,21 +141,12 @@ namespace LTRegistratorApi.Controllers
                 };
                 db.ProjectEmployee.Add(projectEmployee);
 
-                await db.SaveChangesAsync();
-
-                var resp = db.ProjectEmployee
-                    .Where(p => p.ProjectId == project.ProjectId)
-                    .Select(x => new ProjectEmployee
-                    {
-                        ProjectId = x.ProjectId,
-                        EmployeeId = x.EmployeeId
-                    }).Single();
-
-                return Ok(resp);
+                db.SaveChanges();
+                return Ok(new ProjectDto { ProjectId = project.ProjectId, Name = project.Name });
             }
             else
             {
-                return NotFound();
+                return BadRequest();
             }
         }
 
