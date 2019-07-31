@@ -92,14 +92,17 @@ namespace LTRegistratorApi.Controllers
                         EmployeeId = employee.Id
                     };
                     transaction.Commit();
-                    var res = _userManager.CreateAsync(user, model.Password).Result;
-                    //Retrieves the name of the constant in the specified enumeration that has the specified value.
-                    var role = Enum.GetName(typeof(RoleType), employee.MaxRole);
-                    var resAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
-                    if (res.Succeeded && resAddRole.Succeeded)
+                    var res = await _userManager.CreateAsync(user, model.Password);
+                    if (res.Succeeded)
                     {
-                        await _signInManager.SignInAsync(user, false);
-                        return GenerateJwtToken(user);
+                        //Retrieves the name of the constant in the specified enumeration that has the specified value.
+                        var role = Enum.GetName(typeof(RoleType), employee.MaxRole);
+                        var resAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
+                        if (resAddRole.Succeeded)
+                        {
+                            await _signInManager.SignInAsync(user, false);
+                            return GenerateJwtToken(user);
+                        }
                     }
                 }
                 catch (Exception ex)
