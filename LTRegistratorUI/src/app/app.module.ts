@@ -1,10 +1,9 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
 import { AppComponent } from './app.component';
 import { EmployeeComponent } from './employee/employee.component';
 import { SideMenuComponent } from './side-menu/side-menu.component';
@@ -16,9 +15,9 @@ import { NotFoundComponent } from './not-found/not-found.component';
 import { TimesheetComponent } from './timesheet/timesheet.component';
 import { AppRoutingModule } from './app-routing.module';
 import { UserComponent } from './user/user.component';
+import { EmployeesTable } from './admin/admin.component';
 import { LoginService } from 'src/app/core/service/login.service';
 import { MaterialModule } from "./material.module";
-
 
 @NgModule({
   declarations: [
@@ -31,7 +30,8 @@ import { MaterialModule } from "./material.module";
     SideMenuComponent,
     HeaderComponent,
     LoginComponent,
-    UserComponent
+    UserComponent,
+    EmployeesTable,
   ],
   imports: [
     BrowserModule,
@@ -39,8 +39,9 @@ import { MaterialModule } from "./material.module";
     BrowserAnimationsModule,
     AppRoutingModule,
     ReactiveFormsModule,
+    FormsModule,
     HttpClientModule,
-    FormsModule
+    FormsModule,
   ],
   providers: [
     LoginService,
