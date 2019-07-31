@@ -1,9 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { SelectionModel } from '@angular/cdk/collections';
-//import { MatTableDataSource } from '@angular/material/table';
 import { MaterialModule } from "src/app/material.module";
 import { MatTableDataSource } from '@angular/material/table';
-
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort } from '@angular/material/sort';
 
 
 export interface EmployeeItem {
@@ -13,9 +13,9 @@ export interface EmployeeItem {
 }
 
 const EMPLOYEES: EmployeeItem[] = [
-  { position: 1, name: 'Ann', email: 'a@a' },
-  { position: 2, name: 'Bob', email: 'b@b' },
-  { position: 3, name: 'Rick', email: 'c@c' },
+  { position: 1, name: 'Rick', email: 'c@c' },
+  { position: 2, name: 'Ann', email: 'a@a' },
+  { position: 3, name: 'Bob', email: 'b@b' },
 ];
 
 @Component({
@@ -23,9 +23,12 @@ const EMPLOYEES: EmployeeItem[] = [
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss']
 })
-export class AdminComponent implements OnInit {
+export class EmployeesTable implements OnInit {
+
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
 
   ngOnInit() {
+    this.dataSource.sort = this.sort;
   }
 
  constructor() {}
