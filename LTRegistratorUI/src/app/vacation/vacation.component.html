@@ -11,12 +11,34 @@
     <input type="date" id="vacation-end" formControlName="end" class="vacation-form__end" #end>
   </form>
 
- 
+
   <ul class="vacation-list">
     <li *ngFor="let vacation of vacations">
-      <p class="vacation-list__vacation"> {{vacation.type}} с {{vacation.start}} по {{vacation.end}}</p>
+      <p class="vacation-list__vacation"> {{vacation.type}} с {{vacation.start.substring(0,10)}} по
+        {{vacation.end.substring(0,10)}}</p>
+      <button class="vacation-list__edit" title="edit vacation" (click)="edit(vacation)" id="vacation-edit-button"
+        name="edit-button">Edit </button>
       <button class="vacation-list__delete" title="delete vacation" (click)="delete(vacation)"
         id="vacation-delete-button" name="delete-button">x</button>
     </li>
-  </ul> 
+  </ul>
+</section>
+<!-- EditModalForm -->
+<section class="edit-modal" *ngIf="isModalDialogVisible">
+  <form [formGroup]="editForm" (submit)="editVacation()" class="edit-form">
+    <select formControlName="editType" id="edit-type" class="edit-form__type" [value]="'Отпуск'" #editType>
+      <option disabled value="null">Выберите</option>
+      <option *ngFor='let vacationType of vacationTypes'>{{vacationType}}</option>
+    </select>
+    <p>
+      <label for="edit-vacation-start"> С </label>
+      <input type="date" id="edit-vacation-start" formControlName="editStart" class='edit-form__start' #editStart>
+    </p>
+    <p>
+      <label id="edit-vacation-end"> По </label>
+      <input type="date" id="edit-vacation-end" formControlName="editEnd" class="edit-form__end" #editEnd>
+    </p>
+    <button type="submit" [disabled]="!editForm.valid" class="vacation-form__add">Ok</button>
+    <button (click)='closeModal()'>Cancel</button>
+  </form>
 </section>

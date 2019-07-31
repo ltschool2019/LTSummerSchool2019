@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Vacation } from '../vacation.model';
 import { VacationService } from '../vacation.service';
-import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-vacation',
@@ -11,16 +10,20 @@ import { HttpClient } from '@angular/common/http';
 })
 
 export class VacationComponent implements OnInit {
+  isModalDialogVisible: boolean = false;
+  oldVacation: Vacation;
   vacationForm: FormGroup;
+  editForm: FormGroup;
   vacationTypes: string[];
 
   vacations: Vacation[] = [];
+
   constructor(
     private fb: FormBuilder,
     private vacationService: VacationService) { }
 
   ngOnInit() {
-    this.vacationTypes = ['Отпуск', 'Больничный'];
+    this.vacationTypes = ['Отпуск', 'Больничный', 'Обучение', 'Простой'];
     this.initForm();
     this.getVacations();
   }
@@ -30,18 +33,22 @@ export class VacationComponent implements OnInit {
       start: [null, [Validators.required]],
       end: [null, [Validators.required]],
     });
+    this.editForm = this.fb.group({
+      editType: '',
+      editStart: [null, [Validators.required]],
+      editEnd: [null, [Validators.required]],
+    })
   }
-
+  //get
   getVacations(): void {
     this.vacationService.getVacations().subscribe((vacations: Vacation[]) => {
       this.vacations = vacations.map(
         (vacation: any) =>
-          new Vacation(+vacation.id, +vacation.typeLeave, vacation.startDate, vacation.endDate));
+          new Vacation(+vacation.leaveId, +vacation.typeLeave, vacation.startDate, vacation.endDate));
     })
   }
   //post
   onSubmit() {
-    const controls = this.vacationForm.controls;
 
     /** Проверяем форму на валидность */
     if (this.vacationForm.invalid) {
@@ -49,22 +56,49 @@ export class VacationComponent implements OnInit {
       return;
     }
 
-    /** TODO: Обработка данных формы */
-    console.log(this.vacationForm.value);
-    this.vacationService.addVacation(
-      new Vacation(0,
-        this.vacationForm.value.type,
-        this.vacationForm.value.start,
-        this.vacationForm.value.end))
-      .subscribe(vacation => {
-        this.vacations.push(vacation);
-      })
+    let newVacation = new Vacation(0,
+      this.vacationForm.value.type,
+      this.vacationForm.value.start,
+      this.vacationForm.value.end)
+    this.vacationService.addVacation(newVacation)
+      .subscribe(() => {
+        this.vacations.push(newVacation);
+      });
   }
   //delete
-
+  //FIXME: не работает удаление. Пока что.
   delete(vacation: Vacation): void {
     this.vacations = this.vacations.filter(v => v !== vacation);
     this.vacationService.deleteVacation(vacation).subscribe();
   }
 
+  //FIXME: отпуск применяется только вторым запросом
+  edit(vacation: Vacation): void {
+    this.isModalDialogVisible = true;
+    this.editForm.setValue({
+      editType: vacation.type,
+      editStart: vacation.start.substring(0, 10),
+      editEnd: vacation.end.substring(0, 10)
+    });
+    this.oldVacation = vacation;
+  }
+
+  closeModal(): void {
+    this.isModalDialogVisible = false;
+  }
+  //put
+  editVacation() {
+    alert(this.editForm.value.editType);
+    let newVacation = new Vacation(
+      this.oldVacation.id,
+      this.editForm.value.editType,
+      this.editForm.value.editStart,
+      this.editForm.value.editEnd)
+    this.vacationService.editVacation(newVacation)
+      .subscribe(() => {
+        this.vacations = this.vacations.filter(v => v !== this.oldVacation);
+        this.vacations.push(newVacation);
+      });
+    this.isModalDialogVisible = false;
+  }
 }
