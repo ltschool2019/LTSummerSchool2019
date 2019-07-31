@@ -20,6 +20,7 @@ import { LoginService } from 'src/app/core/service/login.service';
 import { MaterialModule } from './material.module';
 import { AdminComponent } from './admin/admin.component';
 import { VacationEditDialogComponent } from './vacation/vacation-edit-dialog/vacation-edit-dialog.component';
+import { ManagerProjectsComponent } from './manager-projects/manager-projects.component';
 import { VacationService } from './core/service/vacation.service';
 import { TimesheetResolverService } from './timesheet/timesheet-resolver.service';
 
@@ -36,8 +37,10 @@ import { TimesheetResolverService } from './timesheet/timesheet-resolver.service
     HeaderComponent,
     UserComponent,
     VacationEditDialogComponent,
+    EmployeesTable,
     EmployeesTableComponent,
     AdminComponent,
+    ManagerProjectsComponent
   ],
   entryComponents: [VacationEditDialogComponent, EmployeesTableComponent],
   imports: [
