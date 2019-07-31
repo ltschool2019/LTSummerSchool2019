@@ -21,7 +21,7 @@ namespace LTRegistratorApi.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        ApplicationContext context;
+        ApplicationContext _context;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IConfiguration _configuration;
@@ -39,7 +39,7 @@ namespace LTRegistratorApi.Controllers
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
-            context = db;
+            _context = db;
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace LTRegistratorApi.Controllers
         [HttpPost]
         public async Task<object> Register([FromBody] RegisterDto model)
         {
-            using (var transaction = context.Database.BeginTransaction())
+            using (var transaction = _context.Database.BeginTransaction())
             {
                 try
                 {
@@ -83,7 +83,7 @@ namespace LTRegistratorApi.Controllers
                         Mail = model.Email,
                         MaxRole = model.Role
                     };
-                    context.Employee.Add(employee);
+                    _context.Employee.Add(employee);
                     ApplicationUser user = new ApplicationUser
                     {
                         UserName = model.FirstName + "_" + model.SecondName,
@@ -91,14 +91,17 @@ namespace LTRegistratorApi.Controllers
                         EmployeeId = employee.EmployeeId
                     };
                     transaction.Commit();
-                    var res = _userManager.CreateAsync(user, model.Password).Result;
-                    //Retrieves the name of the constant in the specified enumeration that has the specified value.
-                    var role = Enum.GetName(typeof(RoleType), employee.MaxRole);
-                    var resAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
-                    if (res.Succeeded && resAddRole.Succeeded)
+                    var res = await _userManager.CreateAsync(user, model.Password);
+                    if (res.Succeeded)
                     {
-                        await _signInManager.SignInAsync(user, false);
-                        return GenerateJwtToken(user);
+                        //Retrieves the name of the constant in the specified enumeration that has the specified value.
+                        var role = Enum.GetName(typeof(RoleType), employee.MaxRole);
+                        var resAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
+                        if (resAddRole.Succeeded)
+                        {
+                            await _signInManager.SignInAsync(user, false);
+                            return GenerateJwtToken(user);
+                        }
                     }
                 }
                 catch (Exception ex)

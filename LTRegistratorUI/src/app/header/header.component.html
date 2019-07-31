@@ -1,13 +1,17 @@
 <header>
-  <div class="box"><a routerLink='/user/timesheet'><img src="/assets/logo.svg" /></a></div>
-  <ul>
-    <li>
-      <p>TIME MANAGER</p>
-    </li>
-    <li>
-      <p>Hi {{user.name}}!  {{user.role}}</p>
-    </li>
-  </ul>
+  <div class="box">
+    <a routerLink='/user/timesheet'><img src="/assets/logo.svg" /></a>
+  </div>
+  <div class="texts">
+    <ul>
+      <li>
+        <p>TIME MANAGER</p>
+      </li>
+      <li>
+        <p>Hi {user.name}! {user.role}</p>
+      </li>
+    </ul>
+  </div>
 </header>
 <section>
   <div class="container">
@@ -21,4 +25,4 @@
       </li>
     </ul>
   </div>
-</section>
+</section> 
