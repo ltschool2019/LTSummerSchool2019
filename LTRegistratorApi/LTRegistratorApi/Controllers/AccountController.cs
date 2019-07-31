@@ -91,7 +91,6 @@ namespace LTRegistratorApi.Controllers
                         Email = model.Email,
                         EmployeeId = employee.Id
                     };
-                    transaction.Commit();
                     var res = await _userManager.CreateAsync(user, model.Password);
                     if (res.Succeeded)
                     {
@@ -100,6 +99,7 @@ namespace LTRegistratorApi.Controllers
                         var resAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
                         if (resAddRole.Succeeded)
                         {
+                            transaction.Commit();
                             await _signInManager.SignInAsync(user, false);
                             return GenerateJwtToken(user);
                         }

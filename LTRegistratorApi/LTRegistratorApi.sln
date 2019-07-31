@@ -19,23 +19,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LTRegistratorApi.Tests", "L
 		{C80BA1EE-2B12-4074-BE53-629C6470A8DD} = {C80BA1EE-2B12-4074-BE53-629C6470A8DD}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LTRegistrator.Domain", "LTRegistrator.Domain\LTRegistrator.Domain.csproj", "{5137CD2F-43A8-4EF4-A7D8-BD80230D0D97}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LTRegistrator.Domain", "LTRegistrator.Domain\LTRegistrator.Domain.csproj", "{5137CD2F-43A8-4EF4-A7D8-BD80230D0D97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LTRegistrator.DAL", "LTRegistrator.DAL\LTRegistrator.DAL.csproj", "{8DCB0930-1060-4BBE-A685-C317DA586EEF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LTRegistrator.DAL", "LTRegistrator.DAL\LTRegistrator.DAL.csproj", "{8DCB0930-1060-4BBE-A685-C317DA586EEF}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5137CD2F-43A8-4EF4-A7D8-BD80230D0D97} = {5137CD2F-43A8-4EF4-A7D8-BD80230D0D97}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LTRegistrator.BLL.Contracts", "LTRegistrator.BLL.Contracts\LTRegistrator.BLL.Contracts.csproj", "{F874FF9D-49CA-4F16-8CFE-7103FB4C72B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LTRegistrator.BLL.Contracts", "LTRegistrator.BLL.Contracts\LTRegistrator.BLL.Contracts.csproj", "{F874FF9D-49CA-4F16-8CFE-7103FB4C72B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LTRegistrator.BLL.Services", "LTRegistrator.BLL.Services\LTRegistrator.BLL.Services.csproj", "{C80BA1EE-2B12-4074-BE53-629C6470A8DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LTRegistrator.BLL.Services", "LTRegistrator.BLL.Services\LTRegistrator.BLL.Services.csproj", "{C80BA1EE-2B12-4074-BE53-629C6470A8DD}"
 	ProjectSection(ProjectDependencies) = postProject
 		{5137CD2F-43A8-4EF4-A7D8-BD80230D0D97} = {5137CD2F-43A8-4EF4-A7D8-BD80230D0D97}
 		{8DCB0930-1060-4BBE-A685-C317DA586EEF} = {8DCB0930-1060-4BBE-A685-C317DA586EEF}
 		{F874FF9D-49CA-4F16-8CFE-7103FB4C72B2} = {F874FF9D-49CA-4F16-8CFE-7103FB4C72B2}
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{BAB5AD63-6949-4EF1-AE4A-39E3A30998BC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

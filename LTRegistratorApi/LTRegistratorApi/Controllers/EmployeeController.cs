@@ -34,14 +34,11 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("{id}/info")]
         public async Task<ActionResult> GetInfoAsync(Guid id)
         {
-            var employee = await _employeeService.GetByIdAsync(id);
+            var response = await _employeeService.GetByIdAsync(id);
 
-            if (employee == null)
-            {
-                return NotFound($"Employee with Id = {id} not found");
-            }
-
-            return Ok(_mapper.Map<EmployeeResourceModel>(employee));
+            return response.Status == ResponseResult.Success 
+            ? Ok(_mapper.Map<EmployeeResourceModel>(response.Result)) 
+            : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
         /// <summary>
@@ -112,7 +109,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="leaves">List of leaves that is deleted to the user</param>
         /// <returns>Was the operation successful?</returns>
         [HttpDelete("{id}/leaves")]
-        public async Task<ActionResult> DeleteLeave(Guid id, [FromBody] List<LeaveResourceModel> leaves)
+        public async Task<ActionResult> DeleteLeave(Guid id, [FromBody] List<Guid> leaves)
         {
             if (id == Guid.Empty || leaves == null)
                 return BadRequest();
@@ -122,7 +119,7 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var response = await _employeeService.DeleteLeavesAsync(id, _mapper.Map<ICollection<LeaveDto>>(leaves));
+            var response = await _employeeService.DeleteLeavesAsync(id, leaves);
             return response.Status == ResponseResult.Success ? Ok("Leaves have been deleted") : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
     }

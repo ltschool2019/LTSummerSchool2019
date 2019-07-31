@@ -11,7 +11,8 @@ namespace LTRegistratorApi.Model.ResourceModels
         public string FirstName { get; set; }
         public string SecondName { get; set; }
         public string Mail { get; set; }
-        public string MaxRole { get; set; }
+        public RoleTypeResourceModel MaxRole { get; set; }
+        public double Rate { get; set; }
 
         public ICollection<ProjectResourceModel> Projects { get; set; }
     }

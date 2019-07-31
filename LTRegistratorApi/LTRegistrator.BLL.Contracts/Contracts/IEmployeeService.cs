@@ -10,6 +10,6 @@ namespace LTRegistrator.BLL.Contracts.Contracts
         Task<Response<EmployeeDto>> GetByIdAsync(Guid id);
         Task<Response<EmployeeDto>> AddLeavesAsync(Guid userId, ICollection<LeaveDto> leaves);
         Task<Response<EmployeeDto>> UpdateLeavesAsync(Guid userId, ICollection<LeaveDto> leaves);
-        Task<Response<EmployeeDto>> DeleteLeavesAsync(Guid userId, ICollection<LeaveDto> leaves);
+        Task<Response<EmployeeDto>> DeleteLeavesAsync(Guid userId, ICollection<Guid> leaveIds);
     }
 }

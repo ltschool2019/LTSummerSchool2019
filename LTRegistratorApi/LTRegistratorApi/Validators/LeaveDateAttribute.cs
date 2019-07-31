@@ -30,7 +30,7 @@ namespace LTRegistratorApi.Validators
 
             DateTime secondDate = (DateTime)validationContext.ObjectType.GetProperty(_validationWithDate).GetValue(validationContext.ObjectInstance, null);
 
-            return secondDate > firstDate ? ValidationResult.Success : new ValidationResult("Date is not later");
+            return secondDate < firstDate ? ValidationResult.Success : new ValidationResult("Date is not later");
         }
     }
 }

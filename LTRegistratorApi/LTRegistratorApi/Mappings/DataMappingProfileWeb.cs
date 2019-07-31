@@ -15,13 +15,7 @@ namespace LTRegistratorApi.Mappings
             #region Employee
 
             CreateMap<EmployeeDto, EmployeeResourceModel>()
-                .ForMember(erm => erm.Id, opt => opt.MapFrom(src => src.Id))
-                .ForMember(erm => erm.FirstName, opt => opt.MapFrom(src => src.FirstName))
-                .ForMember(erm => erm.SecondName, opt => opt.MapFrom(src => src.SecondName))
-                .ForMember(erm => erm.Mail, opt => opt.MapFrom(src => src.Mail))
-                .ForMember(erm => erm.MaxRole, opt => opt.MapFrom(src => src.MaxRole))
-                .ForMember(erm => erm.Projects, opt => opt.MapFrom(src => src.ProjectEmployees))
-                .ForAllOtherMembers(opt => opt.Ignore());
+                .ForMember(erm => erm.Projects, opt => opt.MapFrom(src => src.ProjectEmployees));
 
             CreateMap<ProjectEmployeeDto, ProjectResourceModel>()
                 .ForMember(prm => prm.Id, opt => opt.MapFrom(src => src.Project.Id))
@@ -32,6 +26,9 @@ namespace LTRegistratorApi.Mappings
             #region Leaves
 
             CreateMap<LeaveDto, LeaveResourceModel>();
+
+            CreateMap<LeaveResourceModel, LeaveDto>()
+                .ForMember(ld => ld.EmployeeId, opt => opt.Ignore());
 
             #endregion
 

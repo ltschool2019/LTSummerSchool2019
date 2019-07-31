@@ -18,13 +18,9 @@ namespace LTRegistrator.DAL
         public DbSet<Project> Project { get; set; }
         public DbSet<Leave> Leave { get; set; }
         public DbSet<ProjectEmployee> ProjectEmployee { get; set; }
-        public DbSet<Department> Departments { get; set; }
-        public DbSet<DepartmentEmployee> DepartmentEmployees { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new DepartmentEmployeeMap());
-            modelBuilder.ApplyConfiguration(new DepartmentMap());
             modelBuilder.ApplyConfiguration(new EmployeeMap());
             modelBuilder.ApplyConfiguration(new LeaveMap());
             modelBuilder.ApplyConfiguration(new ProjectEmployeeMap());

@@ -32,7 +32,15 @@ namespace LTRegistrator.BLL.Services.Mappings
 
             CreateMap<ProjectEmployee, ProjectEmployeeDto>().ReverseMap();
 
-            CreateMap<Leave, LeaveDto>().ReverseMap();
+            CreateMap<Project, ProjectDto>();
+
+            CreateMap<Leave, LeaveDto>();
+
+            CreateMap<LeaveDto, Leave>()
+                .ForMember(l => l.StartDate, opt => opt.MapFrom(src => src.StartDate))
+                .ForMember(l => l.EndDate, opt => opt.MapFrom(src => src.EndDate))
+                .ForMember(l => l.TypeLeave, opt => opt.MapFrom(src => src.TypeLeave))
+                .ForAllOtherMembers(opt => opt.Ignore());
         }
     }
 }

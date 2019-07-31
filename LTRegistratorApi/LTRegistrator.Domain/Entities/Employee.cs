@@ -22,6 +22,5 @@ namespace LTRegistrator.Domain.Entities
         public virtual User User { get; set; }
         public virtual ICollection<Leave> Leaves { get; set; }
         public virtual Employee Manager { get; set; }
-        public virtual ICollection<DepartmentEmployee> DepartmentEmployees { get; set; }
     }
 }
