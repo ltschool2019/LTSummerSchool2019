@@ -162,10 +162,10 @@ namespace LTRegistratorApi.Controllers
         /// Deletes a leaves record.
         /// </summary>
         /// <param name="id">UserId</param>
-        /// <param name="leaves">List of leaves that is deleted to the user</param>
+        /// <param name="identifiersOfLeaves">List of identifiers of leaves that is deleted to the user</param>
         /// <returns>Was the operation successful?</returns>
         [HttpDelete("{id}/leaves")]
-        public async Task<ActionResult> DeleteLeaveAsync(int id, [FromBody] List<Leave> leaves)
+        public async Task<ActionResult> DeleteLeaveAsync(int id, [FromQuery] List<int> identifiersOfLeaves)
         {
             if (!ChangeAvailableAsync(id).Result)
                 return BadRequest();
@@ -174,10 +174,10 @@ namespace LTRegistratorApi.Controllers
                 .Include(e => e.Leaves)
                 .SingleOrDefaultAsync(e => e.EmployeeId == id);
 
-            if (leaves != null && user != null && ModelState.IsValid)
-                foreach (var leave in leaves)
+            if (identifiersOfLeaves != null && user != null && ModelState.IsValid)
+                foreach (var idOfLeave in identifiersOfLeaves)
                 {
-                    var temp = user.Leaves.SingleOrDefault(li => li.LeaveId == leave.LeaveId);
+                    var temp = user.Leaves.SingleOrDefault(li => li.LeaveId == idOfLeave);
                     if (temp != null)
                         db.Leave.Remove(temp);
                     else return BadRequest();
