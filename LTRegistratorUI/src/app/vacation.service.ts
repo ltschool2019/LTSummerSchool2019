@@ -11,8 +11,11 @@ import { Vacation } from './vacation.model';
 })
 
 export class VacationService {
+  //FIXME: получать нужный id
   private id = 2;
   private vacationsUrl = `http://localhost:52029/api/employee/${this.id}/leaves`;
+
+  vacations: Vacation[];
 
   constructor(
     private http: HttpClient
@@ -22,12 +25,12 @@ export class VacationService {
   //get
 
   getVacations(): Observable<Vacation[]> {
-    /*return this.http.get<Vacation[]>(this.vacationsUrl).pipe(map(data => {
-      let vacationsList = data[null];
-      return vacationsList.map((vacation: any) =>
-        new Vacation(vacation.LeaveId, vacation.TypeLeave, vacation.StartDate, vacation.EndDate));
-    }));*/
-    return this.http.get<Vacation[]>(this.vacationsUrl);
+    return this.http.get<Vacation[]>(this.vacationsUrl).pipe(map(data => {
+      return data.map((vacation: any) =>
+        new Vacation(+vacation.leaveId, +vacation.typeLeave, vacation.startDate, vacation.endDate));
+    }));
+
+    //return this.http.get<Vacation[]>(this.vacationsUrl);
   }
 
   //post

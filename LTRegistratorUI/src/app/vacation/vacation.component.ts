@@ -41,11 +41,13 @@ export class VacationComponent implements OnInit {
   }
   //get
   getVacations(): void {
-    this.vacationService.getVacations().subscribe((vacations: Vacation[]) => {
+   /* this.vacationService.getVacations().subscribe((vacations: Vacation[]) => {
       this.vacations = vacations.map(
         (vacation: any) =>
           new Vacation(+vacation.leaveId, +vacation.typeLeave, vacation.startDate, vacation.endDate));
-    })
+    })*/
+    this.vacationService.getVacations()
+    .subscribe(vacations => this.vacations = vacations);
   }
   //post
   onSubmit() {
