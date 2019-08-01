@@ -18,6 +18,6 @@ namespace LTRegistratorApi.Model.ResourceModels
 
     public enum TypeLeaveResourceModel
     {
-        SickLeave, Vacation
+        SickLeave, Vacation, Training, Idle
     }
 }
