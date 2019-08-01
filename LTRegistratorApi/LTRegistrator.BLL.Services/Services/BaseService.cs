@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using System.Text;
 using AutoMapper;
-using LTRegistrator.DAL.Contracts;
+using Microsoft.EntityFrameworkCore;
 
 namespace LTRegistrator.BLL.Services.Services
 {
     public abstract class BaseService
     {
-        protected IUnitOfWork UnitOfWork { get; set; }
+        protected DbContext DbContext { get; set; }
         protected IMapper Mapper { get; set; }
 
-        public BaseService(IUnitOfWork uow, IMapper mapper)
+        public BaseService(DbContext db, IMapper mapper)
         {
-            UnitOfWork = uow ?? throw new ArgumentNullException(nameof(uow));
+            DbContext = db ?? throw new ArgumentNullException(nameof(db));
             Mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
     }

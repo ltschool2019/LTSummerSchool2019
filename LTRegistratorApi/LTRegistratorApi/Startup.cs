@@ -4,11 +4,9 @@ using System.Security.Claims;
 using System.Text;
 using AutoMapper;
 using LTRegistrator.BLL.Contracts.Contracts;
+using LTRegistrator.BLL.Services;
 using LTRegistrator.BLL.Services.Mappings;
 using LTRegistrator.BLL.Services.Services;
-using LTRegistrator.DAL;
-using LTRegistrator.DAL.Contracts;
-using LTRegistrator.DAL.Repositories;
 using LTRegistrator.Domain.Entities;
 using LTRegistratorApi.Mappings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -82,8 +80,6 @@ namespace LTRegistratorApi
                             (c.Type == ClaimTypes.Role && (c.Value == "Manager" || c.Value == "Administrator")))));
             });
 
-            services.AddTransient(typeof(IBaseRepository<>), typeof(EntityRepository<>));
-            services.AddTransient(typeof(IUnitOfWork), typeof(UnitOfWork));
             services.AddTransient(typeof(IEmployeeService), typeof(EmployeeService));
 
             var mappingConfig = new MapperConfiguration(mc =>

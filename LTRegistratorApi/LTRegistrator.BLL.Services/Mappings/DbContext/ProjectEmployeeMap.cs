@@ -5,7 +5,7 @@ using LTRegistrator.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace LTRegistrator.DAL.Mappings
+namespace LTRegistrator.BLL.Services.Mappings.DbContext
 {
     public class ProjectEmployeeMap : IEntityTypeConfiguration<ProjectEmployee>
     {

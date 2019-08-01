@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using LTRegistrator.DAL;
+using LTRegistrator.BLL.Services;
 using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
 

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using LTRegistrator.DAL;
+using LTRegistrator.BLL.Services;
 using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
 using Microsoft.AspNetCore.Identity;

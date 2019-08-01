@@ -1,7 +1,6 @@
 ﻿using System;
-using LTRegistrator.DAL;
+using LTRegistrator.BLL.Services;
 using LTRegistrator.Domain.Entities;
-using LTRegistratorApi.Model;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;

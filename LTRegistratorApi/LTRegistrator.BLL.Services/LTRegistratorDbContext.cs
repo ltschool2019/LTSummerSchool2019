@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using LTRegistrator.DAL.Mappings;
+using LTRegistrator.BLL.Services.Mappings.DbContext;
 using LTRegistrator.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace LTRegistrator.DAL
+namespace LTRegistrator.BLL.Services
 {
     public class LTRegistratorDbContext : IdentityDbContext<User, Role, Guid>
     {
