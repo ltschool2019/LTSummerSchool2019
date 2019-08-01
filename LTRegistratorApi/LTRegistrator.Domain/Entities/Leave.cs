@@ -14,7 +14,7 @@ namespace LTRegistrator.Domain.Entities
         public DateTime StartDate { get; set; } //new DateTime(year, month, day);
         public DateTime EndDate { get; set; }
 
-        public Guid EmployeeId { get; set; }
+        public int EmployeeId { get; set; }
 
         public virtual Employee Employee { get; set; }
     }

@@ -18,7 +18,7 @@ namespace LTRegistrator.BLL.Services.Services
         {
         }
 
-        public async Task<Response<EmployeeDto>> GetByIdAsync(Guid id)
+        public async Task<Response<EmployeeDto>> GetByIdAsync(int id)
         {
             var employee = await DbContext.Set<Employee>().Include(e => e.Manager).Include(e => e.Leaves).Include(e => e.ProjectEmployees).ThenInclude(pe => pe.Project).SingleOrDefaultAsync(e => e.Id == id);
             return employee == null
@@ -26,7 +26,7 @@ namespace LTRegistrator.BLL.Services.Services
                 : new Response<EmployeeDto>(Mapper.Map<EmployeeDto>(employee));
         }
 
-        public async Task<Response<EmployeeDto>> AddLeavesAsync(Guid userId, ICollection<LeaveDto> leaves)
+        public async Task<Response<EmployeeDto>> AddLeavesAsync(int userId, ICollection<LeaveDto> leaves)
         {
             var employee = await DbContext.Set<Employee>().Include(e => e.Leaves).FirstOrDefaultAsync(e => e.Id == userId);
             if (employee == null)
@@ -46,7 +46,7 @@ namespace LTRegistrator.BLL.Services.Services
             return new Response<EmployeeDto>(HttpStatusCode.BadRequest, "Transferred leave is not correct");
         }
 
-        public async Task<Response<EmployeeDto>> UpdateLeavesAsync(Guid userId, ICollection<LeaveDto> leaves)
+        public async Task<Response<EmployeeDto>> UpdateLeavesAsync(int userId, ICollection<LeaveDto> leaves)
         {
             var employee = await DbContext.Set<Employee>().Include(e => e.Leaves).SingleOrDefaultAsync(e => e.Id == userId);
             if (employee == null)
@@ -83,7 +83,7 @@ namespace LTRegistrator.BLL.Services.Services
             return new Response<EmployeeDto>(Mapper.Map<EmployeeDto>(employee));
         }
 
-        public async Task<Response<EmployeeDto>> DeleteLeavesAsync(Guid userId, ICollection<Guid> leaveIds)
+        public async Task<Response<EmployeeDto>> DeleteLeavesAsync(int userId, ICollection<int> leaveIds)
         {
             if (!leaveIds.Any())
             {

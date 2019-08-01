@@ -8,7 +8,7 @@ namespace LTRegistratorApi.Model.ResourceModels
 {
     public class LeaveResourceModel
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public TypeLeaveResourceModel TypeLeave { get; set; }
         [LeaveDate]
         public DateTime StartDate { get; set; }

@@ -2,8 +2,8 @@
 
 namespace LTRegistrator.Domain.Entities.Base
 {
-    public interface IGuidId
+    public interface IIntId
     {
-        Guid Id { get; set; }
+        int Id { get; set; }
     }
 }

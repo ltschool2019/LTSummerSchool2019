@@ -11,7 +11,7 @@ namespace LTRegistrator.Domain.Entities
     /// </summary>
     public class Employee : BaseEntity
     {
-        public Guid? ManagerId { get; set; }
+        public int? ManagerId { get; set; }
         public string FirstName { get; set; }
         public string SecondName { get; set; }
         public string Mail { get; set; }

@@ -10,10 +10,10 @@ namespace LTRegistrator.Domain.Entities
     {
         public RoleType Role { get; set; }
 
-        public Guid ProjectId { get; set; }
+        public int ProjectId { get; set; }
         public virtual Project Project { get; set; }
 
-        public Guid EmployeeId { get; set; }
+        public int EmployeeId { get; set; }
         public virtual Employee Employee { get; set; }
     }
 }

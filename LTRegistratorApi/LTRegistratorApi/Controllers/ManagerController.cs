@@ -30,7 +30,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="employeeId">EmployeeId</param>
         /// <returns>Manager's projects list</returns>
         [HttpGet("{EmployeeId}/projects")]
-        public ActionResult<List<ProjectDto>> GetManagerProjects(Guid employeeId)
+        public ActionResult<List<ProjectDto>> GetManagerProjects(int employeeId)
         {
             var projects = DtoConverter.ToProjectDto(_db.ProjectEmployee.Join(_db.Project,
                                      p => p.ProjectId,
@@ -40,15 +40,16 @@ namespace LTRegistratorApi.Controllers
                 return NotFound();
             return Ok(projects);
         }
+
         /// <summary>
         /// Post api/manager/project/{ProjectId}/assign/{EmployeeId} 
         /// Add a project to the employee.
         /// </summary>
-        /// <param name="ProjectId">ProjectId</param>    
-        /// <param name="EmployeeId">EmployeeId</param>    
+        /// <param name="projectId">ProjectId</param>    
+        /// <param name="employeeId">EmployeeId</param>
         /// <returns>Was the operation successful?</returns>
         [HttpPost("project/{ProjectId}/assign/{EmployeeId}")]
-        public async Task<ActionResult> AssignProjectToEmployee(Guid projectId, Guid employeeId)
+        public async Task<ActionResult> AssignProjectToEmployee(int projectId, int employeeId)
         {
             var user = await _db.Employee.FindAsync(employeeId);
             var project = await _db.Project.FindAsync(projectId);
@@ -71,11 +72,11 @@ namespace LTRegistratorApi.Controllers
         /// DELETE api/manager/project/{projectId}/reassign/{EmployeeId}
         /// Delete employee from project.
         /// </summary>
-        /// <param name="ProjectId">ProjectId</param>
-        /// <param name="EmployeeId">EmployeeId</param>
+        /// <param name="projectId">ProjectId</param>
+        /// <param name="employeeId">EmployeeId</param>
         /// <returns>Was the operation successful?</returns>
         [HttpDelete("project/{ProjectId}/reassign/{EmployeeId}")]
-        public async Task<ActionResult> ReassignEmployeeFromProject(Guid projectId, Guid employeeId)
+        public async Task<ActionResult> ReassignEmployeeFromProject(int projectId, int employeeId)
         {
             var result = await _db.ProjectEmployee.Where(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId).SingleOrDefaultAsync();
             if (result == null)
@@ -95,7 +96,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="employeeId">EmployeeId of manager</param>
         /// <returns>Employee list</returns>
         [HttpGet("{EmployeeId}/project/{ProjectId}/employees")]
-        public ActionResult<List<EmployeeDto>> GetEmployees(Guid projectId, Guid employeeId)
+        public ActionResult<List<EmployeeDto>> GetEmployees(int projectId, int employeeId)
         {
             var userProject = _db.ProjectEmployee.SingleOrDefault(v => v.ProjectId == projectId && v.EmployeeId == employeeId);
             if (userProject == null)

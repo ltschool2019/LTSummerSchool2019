@@ -10,13 +10,13 @@ namespace LTRegistratorApi.Model
     /// </summary>
     public class EmployeeDto
     {
-        public Guid EmployeeId { get; set; }
+        public int EmployeeId { get; set; }
         public string FirstName { get; set; }
         public string SecondName { get; set; }
         public string Mail { get; set; }
         public RoleType MaxRole { get; set; }
         public double Rate { get; set; }
-        public Guid? ManagerId { get; set; }
+        public int? ManagerId { get; set; }
 
 
         public ICollection<ProjectDto> Projects { get; set; }

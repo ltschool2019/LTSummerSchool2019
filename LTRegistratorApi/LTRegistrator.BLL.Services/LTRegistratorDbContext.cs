@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LTRegistrator.BLL.Services
 {
-    public class LTRegistratorDbContext : IdentityDbContext<User, Role, Guid>
+    public class LTRegistratorDbContext : IdentityDbContext<User>
     {
         public LTRegistratorDbContext(DbContextOptions<LTRegistratorDbContext> options)
             : base(options)
@@ -25,7 +25,6 @@ namespace LTRegistrator.BLL.Services
             modelBuilder.ApplyConfiguration(new LeaveMap());
             modelBuilder.ApplyConfiguration(new ProjectEmployeeMap());
             modelBuilder.ApplyConfiguration(new ProjectMap());
-            modelBuilder.ApplyConfiguration(new RoleMap());
             modelBuilder.ApplyConfiguration(new UserMap());
 
             base.OnModelCreating(modelBuilder);

@@ -6,7 +6,7 @@ namespace LTRegistrator.BLL.Contracts.Dtos
 {
     public class ProjectDto
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
     }
 }

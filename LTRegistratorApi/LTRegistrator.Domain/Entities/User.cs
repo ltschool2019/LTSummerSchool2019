@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace LTRegistrator.Domain.Entities
 {
-    public class User : IdentityUser<Guid>, IGuidId
+    public class User : IdentityUser
     {
-        public Guid EmployeeId { get; set; }
+        public int EmployeeId { get; set; }
         public virtual Employee Employee { get; set; }
 
         public DateTime CreatedAt { get; set; }

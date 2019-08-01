@@ -36,7 +36,7 @@ namespace LTRegistratorApi
             //string connectionString = "Server=.\\SQLExpress;Database=productsdb.Project;Trusted_Connection=True;MultipleActiveResultSets=true";
             services.AddDbContext<LTRegistratorDbContext>(options => options.UseSqlServer(connectionString));
             services.AddScoped<DbContext, LTRegistratorDbContext>();
-            services.AddIdentity<User, Role>()
+            services.AddIdentity<User, IdentityRole>()
               .AddEntityFrameworkStores<LTRegistratorDbContext>()
               .AddDefaultTokenProviders();
 

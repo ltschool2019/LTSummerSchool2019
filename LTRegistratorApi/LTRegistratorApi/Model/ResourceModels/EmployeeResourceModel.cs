@@ -7,7 +7,7 @@ namespace LTRegistratorApi.Model.ResourceModels
 {
     public class EmployeeResourceModel
     {
-        public Guid Id { get; set; }
+        public int Id { get; set; }
         public string FirstName { get; set; }
         public string SecondName { get; set; }
         public string Mail { get; set; }

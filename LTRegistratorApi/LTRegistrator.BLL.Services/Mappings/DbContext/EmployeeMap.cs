@@ -13,7 +13,7 @@ namespace LTRegistrator.BLL.Services.Mappings.DbContext
         {
             builder.HasKey(e => e.Id);
 
-            builder.Property(e => e.Id).HasDefaultValueSql("NEWID()");
+            builder.Property(e => e.Id).ValueGeneratedOnAdd();
 
             builder.HasMany(e => e.ProjectEmployees).WithOne(pe => pe.Employee).HasForeignKey(pe => pe.EmployeeId);
 

@@ -32,7 +32,7 @@ namespace LTRegistratorApi.Controllers
         /// </summary>
         /// <returns>Basic Employee information</returns>
         [HttpGet("{id}/info")]
-        public async Task<ActionResult> GetInfoAsync(Guid id)
+        public async Task<ActionResult> GetInfoAsync(int id)
         {
             var response = await _employeeService.GetByIdAsync(id);
 
@@ -48,7 +48,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="id">UserId</param>
         /// <returns>User's leave list</returns>
         [HttpGet("{id}/leaves")]
-        public async Task<ActionResult> GetLeavesAsync(Guid id)
+        public async Task<ActionResult> GetLeavesAsync(int id)
         {
             var response = await _employeeService.GetByIdAsync(id);
 
@@ -65,9 +65,9 @@ namespace LTRegistratorApi.Controllers
         /// <param name="leaves">List of LeaveDto that is added to the user</param>
         /// <returns>Was the operation successful?</returns>
         [HttpPost("{id}/leaves")]
-        public async Task<ActionResult> SetLeavesAsync(Guid id, [FromBody] ICollection<LeaveResourceModel> leaves)
+        public async Task<ActionResult> SetLeavesAsync(int id, [FromBody] ICollection<LeaveResourceModel> leaves)
         {
-            if (id == Guid.Empty || leaves == null)
+            if (leaves == null)
                 return BadRequest();
 
             if (!ModelState.IsValid)
@@ -87,9 +87,9 @@ namespace LTRegistratorApi.Controllers
         /// <param name="leaves">List of leaves that updated</param>
         /// <returns>Was the operation successful?</returns>
         [HttpPut("{id}/leaves")]
-        public async Task<ActionResult> UpdateLeaves(Guid id, [FromBody] List<LeaveResourceModel> leaves)
+        public async Task<ActionResult> UpdateLeaves(int id, [FromBody] List<LeaveResourceModel> leaves)
         {
-            if (id == Guid.Empty || leaves == null)
+            if (leaves == null)
                 return BadRequest();
 
             if (!ModelState.IsValid)
@@ -109,9 +109,9 @@ namespace LTRegistratorApi.Controllers
         /// <param name="leaves">List of leaves that is deleted to the user</param>
         /// <returns>Was the operation successful?</returns>
         [HttpDelete("{id}/leaves")]
-        public async Task<ActionResult> DeleteLeave(Guid id, [FromBody] List<Guid> leaves)
+        public async Task<ActionResult> DeleteLeave(int id, [FromBody] List<int> leaves)
         {
-            if (id == Guid.Empty || leaves == null)
+            if (leaves == null)
                 return BadRequest();
 
             if (!ModelState.IsValid)
