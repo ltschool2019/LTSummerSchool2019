@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient} from '@angular/common/http';
 import { User } from './user.model';
 import { Project } from './project.model';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
 import { shareReplay, map } from 'rxjs/operators';
 
 @Injectable({
@@ -10,8 +9,6 @@ import { shareReplay, map } from 'rxjs/operators';
 })
 export class UserService {
   private userUrl = 'http://localhost:52029/api/employee/info';
-
-  shareWithReplay = new ReplaySubject();
 
   getUser = this.http.get<User>(this.userUrl).pipe(
     map((user: any) => {
