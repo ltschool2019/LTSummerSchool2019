@@ -1,0 +1,13 @@
+$background-color: #f8f8f8;
+mat-sidenav {
+  padding-top: 30px;
+  background: $background-color;
+
+  &-content {
+    padding: 30px;
+  }
+
+  &-container {
+    height: calc(100vh - 65px);
+  }
+}
