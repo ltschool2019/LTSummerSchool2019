@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { User } from './user.model';
 import { Project } from './project.model';
-import { Observable, of } from 'rxjs';
-import { catchError, map, tap, first } from 'rxjs/operators';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { shareReplay, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -11,19 +11,17 @@ import { catchError, map, tap, first } from 'rxjs/operators';
 export class UserService {
   private userUrl = 'http://localhost:52029/api/employee/info';
 
-  projects: Project[];
-  user: User;
+  shareWithReplay = new ReplaySubject();
 
-  constructor(private http: HttpClient) { }
-
-  getUser(): Observable<User> {
-    return this.http.get<User>(this.userUrl).pipe(
-      map((user: any) => {
-        this.projects = user["projects"].map(
+  getUser = this.http.get<User>(this.userUrl).pipe(
+    map((user: any) => {
+      return new User(user.employeeId, user.firstName,
+        user.secondName, user.mail, +user.maxRole,
+        user["projects"].map(
           (project: any) => new Project(project.projectId, project.name)
-        );
-        return new User(user.employeeId, user.firstName, user.secondName, user.mail, +user.maxRole, this.projects);
-      })
-    )
-  }
+        ));
+    }),
+    shareReplay(1)
+  );
+  constructor(private http: HttpClient) { }
 }

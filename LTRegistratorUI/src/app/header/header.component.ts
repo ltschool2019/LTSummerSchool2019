@@ -17,6 +17,6 @@ export class HeaderComponent implements OnInit {
   }
 
   getUser() {
-    this.userService.getUser().subscribe(user => this.user = user);
+    this.userService.getUser.subscribe(user => this.user = user);
   }
 }

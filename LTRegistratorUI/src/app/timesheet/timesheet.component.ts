@@ -10,7 +10,6 @@ import { UserService } from '../user.service';
   styleUrls: ['./timesheet.component.scss']
 })
 export class TimesheetComponent implements OnInit {
-  user: User;
   projects: Project[];
 
   constructor(private userService: UserService) { }
@@ -20,6 +19,6 @@ export class TimesheetComponent implements OnInit {
   }
 
   getUser() {
-    this.userService.getUser().subscribe(user => this.projects = user.projects);
+    this.userService.getUser.subscribe(user => this.projects = user.projects);
   }
 }

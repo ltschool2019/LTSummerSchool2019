@@ -1,10 +1,10 @@
 import { Project } from './project.model';
 export class User {
-    id: number;
-    name: string;
-    surname: string;
-    mail: string;
-    role: any;
+    id: number=0;
+    name: string='';
+    surname: string='';
+    mail: string='';
+    role: any='';
     projects: Project[];
     roleTypes = ['', '(Manager)', '(Admin)'];
 

@@ -1,6 +1,6 @@
 export class Project {
-    id: number;
-    name: string;
+    id: number=0;
+    name: string='';
     //  hours: number;
 
     constructor(id: number, name: string) {//hours: number,
