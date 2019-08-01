@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -42,6 +43,23 @@ namespace LTRegistratorApi.Controllers
             if (!projects.Any())
                 return NotFound();
             return Ok(projects);
+        }
+
+        /// <summary>
+        /// method for getting the the list of all projects
+        /// GET: api/Manager/GetAllProjects
+        /// </summary>
+        /// <returns>list of projects in json {ProjectId, Name}</returns>
+        [Authorize(Policy = "IsManagerOrAdministrator")]
+        [HttpGet("GetProjects")]
+        public async Task<IActionResult> GetAllProjects()
+        {
+            using (db)
+            {
+                await db.Project.LoadAsync();
+                var projects = db.Project.Local.ToList();
+                return Ok(DtoConverter.ToProjectDto(projects));
+            }
         }
         /// <summary>
         /// Post api/manager/project/{ProjectId}/assign/{EmployeeId} 
@@ -120,6 +138,7 @@ namespace LTRegistratorApi.Controllers
         /// </summary>
         /// <param name="project">json {Name}</param>
         /// <returns>"201 created" and json {ProjectId, EmployeeId}</returns>
+        [Authorize(Policy = "IsManagerOrAdministrator")]
         [HttpPost("AddProject")]
         public async Task<IActionResult> AddProject([FromBody] ProjectDto projectdto)
         {
@@ -129,20 +148,40 @@ namespace LTRegistratorApi.Controllers
             }
 
             var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var thisUserIdent = HttpContext.User.Identity as ClaimsIdentity;
             if (thisUser != null && projectdto != null)
             {
-                var project = new Project { ProjectId = projectdto.ProjectId, Name = projectdto.Name };
-                db.Project.Add(project);
-                ProjectEmployee projectEmployee = new ProjectEmployee
+                if (thisUserIdent.HasClaim(c =>
+                            (c.Type == ClaimTypes.Role && c.Value == "Administrator")))
                 {
-                    ProjectId = project.ProjectId,
-                    EmployeeId = thisUser.EmployeeId,
-                    Role = RoleType.Manager
-                };
-                db.ProjectEmployee.Add(projectEmployee);
+                    var project = new Project { ProjectId = projectdto.ProjectId, Name = projectdto.Name };
+                    db.Project.Add(project);
+                    await db.SaveChangesAsync();
+                    return Ok(new ProjectDto { ProjectId = project.ProjectId, Name = project.Name });
+                }
+                else
+                {
+                    if (thisUserIdent.HasClaim(c =>
+                            (c.Type == ClaimTypes.Role && c.Value == "Manager")))
+                    {
+                        var project = new Project { ProjectId = projectdto.ProjectId, Name = projectdto.Name };
+                        db.Project.Add(project);
+                        ProjectEmployee projectEmployee = new ProjectEmployee
+                        {
+                            ProjectId = project.ProjectId,
+                            EmployeeId = thisUser.EmployeeId,
+                            Role = RoleType.Manager
+                        };
+                        db.ProjectEmployee.Add(projectEmployee);
 
-                db.SaveChanges();
-                return Ok(new ProjectDto { ProjectId = project.ProjectId, Name = project.Name });
+                        db.SaveChanges();
+                        return Ok(new ProjectDto { ProjectId = project.ProjectId, Name = project.Name });
+                    }
+                    else
+                    {
+                        return BadRequest();
+                    }
+                } 
             }
             else
             {
