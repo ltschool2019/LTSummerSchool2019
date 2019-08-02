@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace LTRegistratorApi.Model
 {
@@ -12,6 +14,7 @@ namespace LTRegistratorApi.Model
         public string FirstName { get; set; }
         public string SecondName { get; set; }
         public string Mail { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
         public RoleTypeDto MaxRole { get; set; }
         public double Rate { get; set; }
         public int? ManagerId { get; set; }
