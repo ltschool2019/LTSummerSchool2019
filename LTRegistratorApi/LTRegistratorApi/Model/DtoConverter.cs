@@ -54,7 +54,7 @@ namespace LTRegistratorApi.Model
                     FirstName = employee.FirstName,
                     SecondName = employee.SecondName,
                     Mail = employee.Mail,
-                    MaxRole = employee.MaxRole.EnumConvert<RoleTypeDto, RoleType>(),
+                    MaxRole = employee.MaxRole.ConvertToRoleTypeDto(),
                     Rate = employee.Rate,
                     ManagerId = employee.ManagerId,
                     Projects  = ToProjectDto(ToProject(employee.ProjectEmployees?.ToList()))
@@ -70,21 +70,14 @@ namespace LTRegistratorApi.Model
         public static EmployeeDto ToEmployeeDto(Employee employee) 
             => ToEmployeeDto(new List<Employee> { employee })[0];
 
-        /// <summary>
-        /// Convert enum to another enum by value
-        /// </summary>
-        /// <typeparam name="TResult"></typeparam>
-        /// <typeparam name="TFrom"></typeparam>
-        /// <param name="fromEnumValue"></param>
-        /// <returns></returns>
-        public static TResult EnumConvert<TResult, TFrom>(this TFrom fromEnumValue) where TFrom : Enum where TResult : Enum
+        public static RoleType ConvertToRoleType(this RoleTypeDto value)
         {
-            if (Enum.TryParse(typeof(TResult), fromEnumValue.ToString(), out var result))
-            {
-                return (TResult)result;
-            }
-            
-            throw new ArgumentException($"Convert error type {typeof(TFrom)} to type {typeof(TResult)}");
+            return (RoleType) Enum.ToObject(typeof(RoleType), (int) value);
+        }
+
+        public static RoleTypeDto ConvertToRoleTypeDto(this RoleType value)
+        {
+            return (RoleTypeDto)Enum.ToObject(typeof(RoleTypeDto), (int)value);
         }
     }
 }
