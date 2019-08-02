@@ -5,8 +5,9 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-using LTRegistratorApi.Model;
-using LTTimeRegistrator.Models;
+using LTRegistrator.BLL.Services;
+using LTRegistrator.Domain.Entities;
+using LTRegistrator.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -21,18 +22,18 @@ namespace LTRegistratorApi.Controllers
     [ApiController]
     public class AccountController : ControllerBase
     {
-        ApplicationContext _context;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly LTRegistratorDbContext _context;
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
 
         /// <param name="userManager">Allows you to manage users</param>
         /// <param name="signInManager">Provides the APIs for user sign in</param>
         /// <param name="configuration">To use the file setting</param>
         public AccountController(
-            ApplicationContext db,
-            UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager,
+            LTRegistratorDbContext db,
+            UserManager<User> userManager,
+            SignInManager<User> signInManager,
             IConfiguration configuration
             )
         {
@@ -84,13 +85,12 @@ namespace LTRegistratorApi.Controllers
                         MaxRole = model.Role
                     };
                     _context.Employee.Add(employee);
-                    ApplicationUser user = new ApplicationUser
+                    User user = new User
                     {
                         UserName = model.FirstName + "_" + model.SecondName,
                         Email = model.Email,
-                        EmployeeId = employee.EmployeeId
+                        EmployeeId = employee.Id
                     };
-                    transaction.Commit();
                     var res = await _userManager.CreateAsync(user, model.Password);
                     if (res.Succeeded)
                     {
@@ -99,6 +99,7 @@ namespace LTRegistratorApi.Controllers
                         var resAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
                         if (resAddRole.Succeeded)
                         {
+                            transaction.Commit();
                             await _signInManager.SignInAsync(user, false);
                             return GenerateJwtToken(user);
                         }
@@ -117,12 +118,12 @@ namespace LTRegistratorApi.Controllers
         /// </summary>
         /// <param name="user">The ApplicationUser who has mail</param>
         /// <returns>JWT-token</returns>
-        private object GenerateJwtToken(ApplicationUser user)
+        private object GenerateJwtToken(User user)
         {
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //Generate almost unique identifier for token.
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 _userManager.GetClaimsAsync(user).Result.Single(claim => claim.Type == ClaimTypes.Role)
             };
 

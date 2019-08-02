@@ -1,9 +1,12 @@
 ﻿using LTRegistratorApi.Model;
-using LTTimeRegistrator.Models;
 using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using LTRegistrator.BLL.Services;
+using LTRegistrator.Domain.Entities;
+using LTRegistrator.Domain.Enums;
 
 namespace LTRegistratorApi
 {
@@ -12,7 +15,7 @@ namespace LTRegistratorApi
     /// </summary>
     public class DbInitializer
     {
-        public static void Initialize(ApplicationContext context, UserManager<ApplicationUser> userManager)
+        public static void Initialize(LTRegistratorDbContext context, UserManager<User> userManager)
         {
             context.Database.EnsureCreated();
 
@@ -39,22 +42,25 @@ namespace LTRegistratorApi
                     new Leave() { StartDate = new DateTime(2019, 1, 1), EndDate = new DateTime(2019, 1, 13), TypeLeave = TypeLeave.Idle }
                 };
 
-                context.Employee.Add(new Employee() { FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", MaxRole = RoleType.Administrator, Rate = 1.5 });
-                context.Employee.Add(new Employee() { FirstName = "Bob", SecondName = "Johnson", Mail = "b0b@yandex.ru", MaxRole = RoleType.Manager, Leaves = leaveBob, Rate = 1 });
-                context.Employee.Add(new Employee() { FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", MaxRole = RoleType.Employee, Leaves = leaveEve, Rate = 1.25, ManagerId = 2 });
-                context.Employee.Add(new Employee() { FirstName = "Carol", SecondName = "Smith", Mail = "car0l@mail.ru", MaxRole = RoleType.Manager, Leaves = leaveCarol, Rate = 1 });
-                context.Employee.Add(new Employee() { FirstName = "Dave", SecondName = "Jones", Mail = "dave.99@mail.ru", MaxRole = RoleType.Employee, Rate = 1, ManagerId = 2 });
-                context.Employee.Add(new Employee() { FirstName = "Frank", SecondName = "Florence", Mail = "frank.99@mail.ru", MaxRole = RoleType.Employee, Leaves = leaveFrank, Rate = 0.25, ManagerId = 4 });
+                AddEmployee(context, new Employee() { FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", MaxRole = RoleType.Administrator, Rate = 1.5 });
+                AddEmployee(context, new Employee() { FirstName = "Bob", SecondName = "Johnson", Mail = "b0b@yandex.ru", MaxRole = RoleType.Manager, Leaves = leaveBob, Rate = 1 });
+                var newEmployee = new Employee { FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", MaxRole = RoleType.Employee, Leaves = leaveEve, Rate = 1.25 };
+                AddEmployeeWithManager(context, "b0b@yandex.ru", newEmployee);
+                AddEmployee(context, new Employee() { FirstName = "Carol", SecondName = "Smith", Mail = "car0l@mail.ru", MaxRole = RoleType.Manager, Leaves = leaveCarol, Rate = 1 });
+                newEmployee = new Employee { FirstName = "Dave", SecondName = "Jones", Mail = "dave.99@mail.ru", MaxRole = RoleType.Employee, Rate = 1 };
+                AddEmployeeWithManager(context, "b0b@yandex.ru", newEmployee);
+                newEmployee = new Employee { FirstName = "Frank", SecondName = "Florence", Mail = "frank.99@mail.ru", MaxRole = RoleType.Employee, Leaves = leaveFrank, Rate = 0.25 };
+                AddEmployeeWithManager(context, "car0l@mail.ru", newEmployee);
 
                 context.SaveChanges();
 
                 foreach (var employee in context.Employee)
                 {
-                    var user = new ApplicationUser
+                    var user = new User
                     {
                         UserName = employee.FirstName + "_" + employee.SecondName,
                         Email = employee.Mail,
-                        EmployeeId = employee.EmployeeId
+                        EmployeeId = employee.Id
                     };
 
                     var result = userManager.CreateAsync(user, employee.Mail + "Password1").Result;
@@ -77,17 +83,53 @@ namespace LTRegistratorApi
 
             if (!context.ProjectEmployee.Any())
             {
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1, Role = RoleType.Employee });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2, Role = RoleType.Manager });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2, Role = RoleType.Employee });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3, Role = RoleType.Employee });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 3, Role = RoleType.Employee });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 3, Role = RoleType.Manager });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4, Role = RoleType.Manager });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5, Role = RoleType.Employee });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6, Role = RoleType.Employee });
+                AddProjectEmployee(context, "A", "alice@mail.ru", RoleType.Employee);
+                AddProjectEmployee(context, "A", "b0b@yandex.ru", RoleType.Manager);
+                AddProjectEmployee(context, "B", "b0b@yandex.ru", RoleType.Employee);
+                AddProjectEmployee(context, "A", "eve.99@yandex.ru", RoleType.Employee);
+                AddProjectEmployee(context, "B", "eve.99@yandex.ru", RoleType.Employee);
+                AddProjectEmployee(context, "C", "eve.99@yandex.ru", RoleType.Manager);
+                AddProjectEmployee(context, "B", "car0l@mail.ru", RoleType.Manager);
+                AddProjectEmployee(context, "B", "dave.99@mail.ru", RoleType.Employee);
+                AddProjectEmployee(context, "B", "frank.99@mail.ru", RoleType.Employee);
+            }
+        }
 
+        private static void AddEmployee(LTRegistratorDbContext context, Employee employee)
+        {
+            context.Employee.Add(employee);
+            context.SaveChanges();
+        }
+
+        private static void AddEmployeeWithManager(LTRegistratorDbContext context, string managerEmail, Employee employee)
+        {
+            context.Employee.Add(employee);
+            var manager = context.Employee.SingleOrDefault(e => e.Mail == managerEmail);
+            if (manager != null)
+            {
+                employee.Manager = manager;
+            };
+            
+            context.SaveChanges();
+        }
+
+        private static void AddProjectEmployee(LTRegistratorDbContext context, string projectName, string userEmail, RoleType roleType)
+        {
+            var projectEmployee = new ProjectEmployee()
+            {
+                Employee = context.Employee.SingleOrDefault(e => e.Mail == userEmail),
+                Project = context.Project.SingleOrDefault(p => p.Name == projectName),
+                Role = roleType
+            };
+
+            try
+            {
+                context.ProjectEmployee.Add(projectEmployee);
                 context.SaveChanges();
+            }
+            catch
+            {
+                // ignored
             }
         }
     }

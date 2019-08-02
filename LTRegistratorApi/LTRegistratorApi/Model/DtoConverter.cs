@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using LTRegistrator.Domain.Entities;
+using LTRegistrator.Domain.Enums;
 
 namespace LTRegistratorApi.Model
 {
@@ -17,7 +20,7 @@ namespace LTRegistratorApi.Model
             var result = new List<Project>();
             if (listOfPE == null) return null;
             foreach (var pe in listOfPE)
-                result.Add(new Project { ProjectId = pe.ProjectId, Name = pe.Project.Name });
+                result.Add(new Project { Id = pe.ProjectId, Name = pe.Project.Name });
 
             return result;
         }
@@ -31,7 +34,7 @@ namespace LTRegistratorApi.Model
             var result = new List<ProjectDto>();
             if (projects == null) return null;
             foreach (var project in projects)
-                result.Add(new ProjectDto { ProjectId = project.ProjectId, Name = project.Name });
+                result.Add(new ProjectDto { Id = project.Id, Name = project.Name });
 
             return result;
         }
@@ -47,14 +50,14 @@ namespace LTRegistratorApi.Model
             {
                 result.Add(new EmployeeDto
                 {
-                    EmployeeId = employee.EmployeeId,
+                    Id = employee.Id,
                     FirstName = employee.FirstName,
                     SecondName = employee.SecondName,
                     Mail = employee.Mail,
-                    MaxRole = employee.MaxRole,
+                    MaxRole = employee.MaxRole.EnumConvert<RoleTypeDto, RoleType>(),
                     Rate = employee.Rate,
                     ManagerId = employee.ManagerId,
-                    Projects  = ToProjectDto(ToProject(employee.ProjectEmployee?.ToList()))
+                    Projects  = ToProjectDto(ToProject(employee.ProjectEmployees?.ToList()))
                 });
             }
             return result;
@@ -66,5 +69,22 @@ namespace LTRegistratorApi.Model
         /// <returns>EmployeeDto, which contains basic information about the Employee</returns>
         public static EmployeeDto ToEmployeeDto(Employee employee) 
             => ToEmployeeDto(new List<Employee> { employee })[0];
+
+        /// <summary>
+        /// Convert enum to another enum by value
+        /// </summary>
+        /// <typeparam name="TResult"></typeparam>
+        /// <typeparam name="TFrom"></typeparam>
+        /// <param name="fromEnumValue"></param>
+        /// <returns></returns>
+        public static TResult EnumConvert<TResult, TFrom>(this TFrom fromEnumValue) where TFrom : Enum where TResult : Enum
+        {
+            if (Enum.TryParse(typeof(TResult), fromEnumValue.ToString(), out var result))
+            {
+                return (TResult)result;
+            }
+            
+            throw new ArgumentException($"Convert error type {typeof(TFrom)} to type {typeof(TResult)}");
+        }
     }
 }
