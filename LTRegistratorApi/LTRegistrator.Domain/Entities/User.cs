@@ -10,8 +10,5 @@ namespace LTRegistrator.Domain.Entities
     {
         public int EmployeeId { get; set; }
         public virtual Employee Employee { get; set; }
-
-        public DateTime CreatedAt { get; set; }
-        public DateTime ModifiedAt { get; set; }
     }
 }
