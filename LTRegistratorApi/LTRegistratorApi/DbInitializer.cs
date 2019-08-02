@@ -1,9 +1,12 @@
 ﻿using LTRegistratorApi.Model;
-using LTTimeRegistrator.Models;
 using Microsoft.AspNetCore.Identity;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using LTRegistrator.BLL.Services;
+using LTRegistrator.Domain.Entities;
+using LTRegistrator.Domain.Enums;
 
 namespace LTRegistratorApi
 {
@@ -12,7 +15,7 @@ namespace LTRegistratorApi
     /// </summary>
     public class DbInitializer
     {
-        public static void Initialize(ApplicationContext context, UserManager<ApplicationUser> userManager)
+        public static void Initialize(LTRegistratorDbContext context, UserManager<User> userManager)
         {
             context.Database.EnsureCreated();
 
@@ -50,11 +53,11 @@ namespace LTRegistratorApi
 
                 foreach (var employee in context.Employee)
                 {
-                    var user = new ApplicationUser
+                    var user = new User
                     {
                         UserName = employee.FirstName + "_" + employee.SecondName,
                         Email = employee.Mail,
-                        EmployeeId = employee.EmployeeId
+                        EmployeeId = employee.Id
                     };
 
                     var result = userManager.CreateAsync(user, employee.Mail + "Password1").Result;
