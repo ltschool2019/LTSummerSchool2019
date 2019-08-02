@@ -20,6 +20,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LTRegistrator.Domain", "LTRegistrator.Domain\LTRegistrator.Domain.csproj", "{5137CD2F-43A8-4EF4-A7D8-BD80230D0D97}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LTRegistrator.BLL.Contracts", "LTRegistrator.BLL.Contracts\LTRegistrator.BLL.Contracts.csproj", "{F874FF9D-49CA-4F16-8CFE-7103FB4C72B2}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5137CD2F-43A8-4EF4-A7D8-BD80230D0D97} = {5137CD2F-43A8-4EF4-A7D8-BD80230D0D97}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LTRegistrator.BLL.Services", "LTRegistrator.BLL.Services\LTRegistrator.BLL.Services.csproj", "{C80BA1EE-2B12-4074-BE53-629C6470A8DD}"
 	ProjectSection(ProjectDependencies) = postProject

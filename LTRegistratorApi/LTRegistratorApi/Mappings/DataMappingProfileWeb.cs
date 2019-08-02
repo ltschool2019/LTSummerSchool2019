@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using LTRegistrator.BLL.Contracts.Dtos;
-using LTRegistratorApi.Model.ResourceModels;
+using LTRegistrator.Domain.Entities;
+using LTRegistratorApi.Model;
 
 namespace LTRegistratorApi.Mappings
 {
@@ -14,21 +14,20 @@ namespace LTRegistratorApi.Mappings
         {
             #region Employee
 
-            CreateMap<EmployeeDto, EmployeeResourceModel>()
-                .ForMember(erm => erm.Projects, opt => opt.MapFrom(src => src.ProjectEmployees));
+            CreateMap<Employee, EmployeeDto>()
+                .ForMember(e => e.Projects, opt => opt.MapFrom(src => src.ProjectEmployees));
 
-            CreateMap<ProjectEmployeeDto, ProjectResourceModel>()
-                .ForMember(prm => prm.Id, opt => opt.MapFrom(src => src.Project.Id))
-                .ForMember(prm => prm.Name, opt => opt.MapFrom(src => src.Project.Name));
+            CreateMap<ProjectEmployee, ProjectDto>()
+                .ForMember(pd => pd.Id, opt => opt.MapFrom(src => src.ProjectId))
+                .ForMember(pd => pd.Name, opt => opt.MapFrom(src => src.Project.Name));
 
-            #endregion
+            CreateMap<LeaveDto, Leave>()
+                .ForMember(l => l.EmployeeId, opt => opt.Ignore())
+                .ForMember(l => l.Employee, opt => opt.Ignore());
 
-            #region Leaves
+            CreateMap<Leave, LeaveDto>();
 
-            CreateMap<LeaveDto, LeaveResourceModel>();
-
-            CreateMap<LeaveResourceModel, LeaveDto>()
-                .ForMember(ld => ld.EmployeeId, opt => opt.Ignore());
+            CreateMap<LeaveInputDto, Leave>();
 
             #endregion
 

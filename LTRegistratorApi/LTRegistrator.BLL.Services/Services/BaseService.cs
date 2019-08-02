@@ -10,7 +10,6 @@ namespace LTRegistrator.BLL.Services.Services
     {
         protected DbContext DbContext { get; set; }
         protected IMapper Mapper { get; set; }
-
         public BaseService(DbContext db, IMapper mapper)
         {
             DbContext = db ?? throw new ArgumentNullException(nameof(db));

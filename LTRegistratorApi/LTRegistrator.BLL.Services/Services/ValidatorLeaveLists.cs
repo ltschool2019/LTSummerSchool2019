@@ -14,7 +14,7 @@ namespace LTRegistrator.BLL.Services.Services
         /// <param name="first">First list</param>
         /// <param name="second">Second list</param>
         /// <returns>Periods do not overlap and are the time periods correct?</returns>
-        public static bool TryMergeLeaves(List<Leave> first, List<Leave> second)
+        public static bool TryMergeLeaves(ICollection<Leave> first, ICollection<Leave> second)
             => ValidateLeaves(first.Concat(second).ToList());
 
         /// <summary>
@@ -22,15 +22,15 @@ namespace LTRegistrator.BLL.Services.Services
         /// </summary>
         /// <param name="list"></param>
         /// <returns>Periods do not overlap and are the time periods correct?</returns>
-        public static bool ValidateLeaves(List<Leave> list)
-            => GetDoubleDTList(list).LocationStartEndIsValid();
+        public static bool ValidateLeaves(ICollection<Leave> list)
+            => GetDoubleDtList(list).LocationStartEndIsValid();
 
         /// <summary>
         /// Retrieves time information.
         /// </summary>
         /// <param name="leaves">Data list</param>
         /// <returns>List(start, end)</returns>
-        private static List<(DateTime, DateTime)> GetDoubleDTList(List<Leave> leaves)
+        private static List<(DateTime, DateTime)> GetDoubleDtList(ICollection<Leave> leaves)
         {
             if (leaves == null) throw new ArgumentNullException();
 

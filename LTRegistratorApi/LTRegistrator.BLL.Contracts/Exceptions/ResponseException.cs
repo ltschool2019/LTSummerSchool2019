@@ -8,6 +8,10 @@ namespace LTRegistrator.BLL.Contracts.Exceptions
     public class ResponseException : Exception
     {
         public HttpStatusCode StatusCode { get; set; }
-        public ResponseException(HttpStatusCode statusCode, string message) : base(message) { }
+
+        public ResponseException(HttpStatusCode statusCode, string message) : base(message)
+        {
+            StatusCode = statusCode;
+        }
     }
 }

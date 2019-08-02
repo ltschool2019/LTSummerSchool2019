@@ -5,7 +5,6 @@ using System.Text;
 using AutoMapper;
 using LTRegistrator.BLL.Contracts.Contracts;
 using LTRegistrator.BLL.Services;
-using LTRegistrator.BLL.Services.Mappings;
 using LTRegistrator.BLL.Services.Services;
 using LTRegistrator.Domain.Entities;
 using LTRegistratorApi.Mappings;
@@ -84,7 +83,6 @@ namespace LTRegistratorApi
 
             var mappingConfig = new MapperConfiguration(mc =>
             {
-                mc.AddProfile<DataMappingProfile>();
                 mc.AddProfile<DataMappingProfileWeb>();
             });
             IMapper mapper = mappingConfig.CreateMapper();

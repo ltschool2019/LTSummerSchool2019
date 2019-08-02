@@ -4,7 +4,7 @@ using System.Net;
 using System.Text;
 using LTRegistrator.BLL.Contracts.Exceptions;
 
-namespace LTRegistrator.BLL.Contracts.Dtos
+namespace LTRegistrator.BLL.Contracts
 {
     public class Response<T> where T : class
     {

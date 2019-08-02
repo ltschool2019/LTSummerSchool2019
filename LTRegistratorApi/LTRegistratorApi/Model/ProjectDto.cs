@@ -7,7 +7,7 @@ namespace LTRegistratorApi.Model
     /// </summary>
     public class ProjectDto
     {
-        public int ProjectId { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; }
     }
 }

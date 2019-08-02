@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
+using LTRegistratorApi.Validators;
 
-namespace LTRegistrator.BLL.Contracts.Dtos
+namespace LTRegistratorApi.Model
 {
-    public class LeaveDto
+    public class LeaveInputDto
     {
-        public int Id { get; set; }
         public TypeLeaveDto TypeLeave { get; set; }
+        [LeaveDate]
         public DateTime StartDate { get; set; }
+        [LeaveDate(nameof(StartDate))]
         public DateTime EndDate { get; set; }
-
-        public int EmployeeId { get; set; }
     }
 }

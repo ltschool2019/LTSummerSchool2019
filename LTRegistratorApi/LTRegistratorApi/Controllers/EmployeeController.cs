@@ -4,9 +4,10 @@ using System.Linq;
 using System;
 using System.Threading.Tasks;
 using AutoMapper;
+using LTRegistrator.BLL.Contracts;
 using LTRegistrator.BLL.Contracts.Contracts;
-using LTRegistrator.BLL.Contracts.Dtos;
-using LTRegistratorApi.Model.ResourceModels;
+using LTRegistrator.Domain.Entities;
+using LTRegistratorApi.Model;
 using Microsoft.AspNetCore.Authorization;
 
 namespace LTRegistratorApi.Controllers
@@ -37,7 +38,7 @@ namespace LTRegistratorApi.Controllers
             var response = await _employeeService.GetByIdAsync(id);
 
             return response.Status == ResponseResult.Success 
-            ? Ok(_mapper.Map<EmployeeResourceModel>(response.Result)) 
+            ? Ok(_mapper.Map<EmployeeDto>(response.Result)) 
             : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
@@ -53,7 +54,7 @@ namespace LTRegistratorApi.Controllers
             var response = await _employeeService.GetByIdAsync(id);
 
             return response.Status == ResponseResult.Success 
-                ? Ok(_mapper.Map<ICollection<LeaveResourceModel>>(response.Result.Leaves)) 
+                ? Ok(_mapper.Map<ICollection<LeaveDto>>(response.Result.Leaves)) 
                 : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
@@ -65,7 +66,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="leaves">List of LeaveDto that is added to the user</param>
         /// <returns>Was the operation successful?</returns>
         [HttpPost("{id}/leaves")]
-        public async Task<ActionResult> SetLeavesAsync(int id, [FromBody] ICollection<LeaveResourceModel> leaves)
+        public async Task<ActionResult> SetLeavesAsync(int id, [FromBody] ICollection<LeaveInputDto> leaves)
         {
             if (leaves == null)
                 return BadRequest();
@@ -75,8 +76,8 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var response = await _employeeService.AddLeavesAsync(id, _mapper.Map<ICollection<LeaveDto>>(leaves));
-            return response.Status == ResponseResult.Success ? Ok("Leaves have been added") : StatusCode((int)response.Error.StatusCode, response.Error.Message);
+            var response = await _employeeService.AddLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
+            return response.Status == ResponseResult.Success ? Ok("Leaves have been added") : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message});
         }
 
         /// <summary>
@@ -87,7 +88,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="leaves">List of leaves that updated</param>
         /// <returns>Was the operation successful?</returns>
         [HttpPut("{id}/leaves")]
-        public async Task<ActionResult> UpdateLeaves(int id, [FromBody] List<LeaveResourceModel> leaves)
+        public async Task<ActionResult> UpdateLeaves(int id, [FromBody] List<LeaveDto> leaves)
         {
             if (leaves == null)
                 return BadRequest();
@@ -97,7 +98,7 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var response = await _employeeService.UpdateLeavesAsync(id, _mapper.Map<ICollection<LeaveDto>>(leaves));
+            var response = await _employeeService.UpdateLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
             return response.Status == ResponseResult.Success ? Ok("Leaves have been updated") : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
@@ -109,7 +110,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="leaves">List of leaves that is deleted to the user</param>
         /// <returns>Was the operation successful?</returns>
         [HttpDelete("{id}/leaves")]
-        public async Task<ActionResult> DeleteLeave(int id, [FromBody] List<int> leaves)
+        public async Task<ActionResult> DeleteLeave(int id, List<int> leaves)
         {
             if (leaves == null)
                 return BadRequest();
