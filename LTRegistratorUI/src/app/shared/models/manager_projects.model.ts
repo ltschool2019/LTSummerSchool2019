@@ -8,5 +8,6 @@ export class ManagerProjects {
         this.name = name;
         this.employeeId = id;
         this.projects = projects;
+        this.projects_id = projects_id;
     }
 }
