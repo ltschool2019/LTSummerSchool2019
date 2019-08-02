@@ -1,8 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppComponent } from './app.component';
 import { EmployeeComponent } from './employee/employee.component';
@@ -39,8 +39,11 @@ import { MaterialModule } from "./material.module";
   ],
   imports: [
     BrowserModule,
+    MaterialModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
     ReactiveFormsModule,
+    FormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
     MaterialModule
@@ -57,6 +60,7 @@ import { MaterialModule } from "./material.module";
     ReactiveFormsModule,
     FormsModule,
     HttpClientModule,
+    FormsModule,
     FormsModule,
   ],
   bootstrap: [AppComponent]

@@ -2,8 +2,12 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using LTRegistratorApi.Model;
-using LTTimeRegistrator.Models;
+using AutoMapper;
+using LTRegistrator.BLL.Contracts.Contracts;
+using LTRegistrator.BLL.Services;
+using LTRegistrator.BLL.Services.Services;
+using LTRegistrator.Domain.Entities;
+using LTRegistratorApi.Mappings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -28,9 +32,11 @@ namespace LTRegistratorApi
         public void ConfigureServices(IServiceCollection services)
         {
             string connectionString = "Server=(localdb)\\mssqllocaldb;Database=productsdb;Trusted_Connection=True;";
-            services.AddDbContext<ApplicationContext>(options => options.UseSqlServer(connectionString));
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-              .AddEntityFrameworkStores<ApplicationContext>()
+            //string connectionString = "Server=.\\SQLExpress;Database=productsdb.Project;Trusted_Connection=True;MultipleActiveResultSets=true";
+            services.AddDbContext<LTRegistratorDbContext>(options => options.UseSqlServer(connectionString));
+            services.AddScoped<DbContext, LTRegistratorDbContext>();
+            services.AddIdentity<User, IdentityRole>()
+              .AddEntityFrameworkStores<LTRegistratorDbContext>()
               .AddDefaultTokenProviders();
 
             services.AddCors(options =>
@@ -73,11 +79,20 @@ namespace LTRegistratorApi
                             (c.Type == ClaimTypes.Role && (c.Value == "Manager" || c.Value == "Administrator")))));
             });
 
+            services.AddTransient(typeof(IEmployeeService), typeof(EmployeeService));
+
+            var mappingConfig = new MapperConfiguration(mc =>
+            {
+                mc.AddProfile<DataMappingProfileWeb>();
+            });
+            IMapper mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
+
             services.AddMvc();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ApplicationContext dbContext)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, LTRegistratorDbContext dbContext)
         {
             if (env.IsDevelopment())
             {

@@ -1,6 +1,6 @@
 ﻿using System;
-using LTRegistratorApi.Model;
-using LTTimeRegistrator.Models;
+using LTRegistrator.BLL.Services;
+using LTRegistrator.Domain.Entities;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -20,8 +20,8 @@ namespace LTRegistratorApi
                 var services = scope.ServiceProvider;
                 try
                 {
-                    var context = services.GetRequiredService<ApplicationContext>();
-                    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+                    var context = services.GetRequiredService<LTRegistratorDbContext>();
+                    var userManager = services.GetRequiredService<UserManager<User>>();
                     DbInitializer.Initialize(context, userManager);
                 }
                 catch (Exception ex)

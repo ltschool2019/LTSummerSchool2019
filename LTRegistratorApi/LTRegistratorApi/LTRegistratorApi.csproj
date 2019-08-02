@@ -10,8 +10,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="8.1.1" />
     <PackageReference Include="Microsoft.AspNet.Identity.Core" Version="2.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\LTRegistrator.BLL.Contracts\LTRegistrator.BLL.Contracts.csproj" />
+    <ProjectReference Include="..\LTRegistrator.BLL.Services\LTRegistrator.BLL.Services.csproj" />
+    <ProjectReference Include="..\LTRegistrator.Domain\LTRegistrator.Domain.csproj" />
   </ItemGroup>
 
 </Project>

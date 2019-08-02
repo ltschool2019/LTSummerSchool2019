@@ -1,4 +1,7 @@
-﻿namespace LTRegistratorApi.Model
+﻿using System;
+using LTRegistrator.Domain.Enums;
+
+namespace LTRegistrator.Domain.Entities
 {
     /// <summary>
     /// Describes many-to-many relationships between Project's and Employee's entities.
@@ -8,9 +11,9 @@
         public RoleType Role { get; set; }
 
         public int ProjectId { get; set; }
-        public Project Project { get; set; }
+        public virtual Project Project { get; set; }
 
         public int EmployeeId { get; set; }
-        public Employee Employee { get; set; }
+        public virtual Employee Employee { get; set; }
     }
 }
