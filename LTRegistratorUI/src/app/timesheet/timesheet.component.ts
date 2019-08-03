@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-
 import { Project } from '../project.model';
-import { User } from '../user.model';
-import { UserService } from '../user.service';
+import { UserComponent } from '../user/user.component';
 
 @Component({
   selector: 'app-timesheet',
@@ -12,13 +10,13 @@ import { UserService } from '../user.service';
 export class TimesheetComponent implements OnInit {
   projects: Project[];
 
-  constructor(private userService: UserService) { }
+  constructor(private userComponent: UserComponent) { }
 
   ngOnInit() {
     this.getUser();
   }
 
   getUser() {
-    this.userService.getUser.subscribe(user => this.projects = user.projects);
+    this.userComponent.user$.subscribe(user => this.projects = user.projects);
   }
 }

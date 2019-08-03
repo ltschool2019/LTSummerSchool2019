@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from '../user.model';
-import { UserService } from '../user.service';
+import { UserComponent } from '../user/user.component';
 
 @Component({
   selector: 'app-header',
@@ -8,15 +8,14 @@ import { UserService } from '../user.service';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit {
-  user: User;
-
-  constructor(private userService: UserService) { }
+  user: User = new User(0, '', '', '', '', ['']);
+  constructor(private userComponent: UserComponent) { }
 
   ngOnInit() {
     this.getUser();
   }
 
   getUser() {
-    this.userService.getUser.subscribe(user => this.user = user);
+    this.userComponent.user$.subscribe(user => this.user = user);
   }
 }

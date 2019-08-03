@@ -9,19 +9,18 @@ import { shareReplay, map } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class UserService {
-  private userUrl = 'http://localhost:52029/api/employee/info';
+  id = 2;
+  private userUrl = `http://localhost:52029/api/employee/${this.id}/info`;
 
-  shareWithReplay = new ReplaySubject();
+  getUser() {
+    return this.http.get<User>(this.userUrl).pipe(
+      map((user: any) => {
+        return new User(user.employeeId, user.firstName, user.secondName,
+          user.mail, user.maxRole, user["projects"]);
+      }),
+      shareReplay(1)
+    );
+  }
 
-  getUser = this.http.get<User>(this.userUrl).pipe(
-    map((user: any) => {
-      return new User(user.employeeId, user.firstName,
-        user.secondName, user.mail, +user.maxRole,
-        user["projects"].map(
-          (project: any) => new Project(project.projectId, project.name)
-        ));
-    }),
-    shareReplay(1)
-  );
   constructor(private http: HttpClient) { }
 }

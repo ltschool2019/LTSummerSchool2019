@@ -1,21 +1,21 @@
 import { Project } from './project.model';
 export class User {
-    id: number = 0;
-    name: string = '';
-    surname: string = '';
-    mail: string = '';
-    role: any = '';
+    id: number;
+    name: string;
+    surname: string;
+    mail: string;
+    role: any;
     projects: Project[];
-    roleTypes = ['', '(Manager)', '(Admin)'];
+    //   roleTypes = ['', '(Manager)', '(Admin)'];
 
     constructor(employeeId: number, firstName: string, secondName: string,
-        mail: string, maxRole: number, projects: Project[]) {
+        mail: string, maxRole: string, projects: any[]) {
         this.id = employeeId;
         this.name = firstName;
         this.surname = secondName;
         this.mail = mail;
         //this.role = maxRole;
-        this.role = this.roleTypes[maxRole];
-        this.projects = projects;
+        this.role = maxRole;
+        this.projects = projects.map((project: any) => new Project(project.projectId, project.name));
     }
 }
