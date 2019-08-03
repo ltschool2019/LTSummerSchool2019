@@ -33,20 +33,17 @@ import { MaterialModule } from "./material.module";
     EmployeeComponent,
     SideMenuComponent,
     HeaderComponent,
-    LoginComponent,
     UserComponent,
     EmployeesTable,
   ],
   imports: [
     BrowserModule,
     MaterialModule,
-    BrowserAnimationsModule,
     AppRoutingModule,
     ReactiveFormsModule,
     FormsModule,
     HttpClientModule,
-    BrowserAnimationsModule,
-    MaterialModule
+    BrowserAnimationsModule
   ],
   providers: [
     LoginService,
@@ -57,11 +54,7 @@ import { MaterialModule } from "./material.module";
     MaterialModule,
     BrowserAnimationsModule,
     AppRoutingModule,
-    ReactiveFormsModule,
-    FormsModule,
-    HttpClientModule,
-    FormsModule,
-    FormsModule,
+    ReactiveFormsModule
   ],
   bootstrap: [AppComponent]
 })
