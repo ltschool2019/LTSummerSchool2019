@@ -1,3 +1,42 @@
-<div *ngFor='let project of man_project'>
-  {{project.id + " " + project.name }}
+<div class = "manager-projects">
+<button mat-raised-button type="submit"  class="manager-projects-add">+</button>
+
+<table mat-table [dataSource]="man_project" style="width: 100%" class="mat-elevation-z8">
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef> Name </th>
+      <td mat-cell *matCellDef="let element"> 
+          <button mat-button class="project-link" routerLink='/user/em_table' [routerLinkActive]="'active'"> Project {{element.name}}</button>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef> Status </th>
+        <td mat-cell *matCellDef="let element">
+           status  
+        </td>
+    </ng-container>
+
+    <ng-container matColumnDef="export">
+        <th mat-header-cell *matHeaderCellDef> Export </th>
+        <td mat-cell *matCellDef="let element">
+            <button mat-raised-button> Export to EXEL  </button>
+        </td>
+    </ng-container>
+
+    
+
+      <ng-container matColumnDef="delete">
+          <th mat-header-cell *matHeaderCellDef > Delete </th>
+          <td mat-cell *matCellDef="let element">
+              <button mat-mini-fab style="background:black; ">
+                  <mat-icon>delete</mat-icon>
+              </button> 
+          </td>
+      </ng-container>
+  
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
 </div>
