@@ -7,14 +7,15 @@ export class Vacation {
     start: string;
     end: string;
 
-    vacationTypes = ['Больничный', 'Отпуск', 'Обучение', 'Простой'];
+  //  vacationTypes = ['SickLeave', 'Vacation', 'Training', 'Idleger'];
 
-    constructor(leaveId: number, typeLeave: any, startDate: string, endDate: string) {
+    constructor(leaveId: number, typeLeave: string, startDate: string, endDate: string) {
         this.id = leaveId;
-        if (isNumber(typeLeave)) {
-            this.type = this.vacationTypes[typeLeave];
-        }
-        else this.type = typeLeave;
+        /* if (isNumber(typeLeave)) {
+             this.type = this.vacationTypes[typeLeave];
+         }*/
+        // else this.type = typeLeave;
+        this.type = typeLeave;
         this.start = startDate;
         this.end = endDate;
     }

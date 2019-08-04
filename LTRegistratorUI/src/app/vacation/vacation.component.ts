@@ -23,13 +23,13 @@ export class VacationComponent implements OnInit {
     private vacationService: VacationService) { }
 
   ngOnInit() {
-    this.vacationTypes = ['Отпуск', 'Больничный', 'Обучение', 'Простой'];
+    this.vacationTypes = ['SickLeave', 'Vacation', 'Training', 'Idleger'];
     this.initForm();
     this.getVacations();
   }
   private initForm(): void {
     this.vacationForm = this.fb.group({
-      type: 'Отпуск',
+      type: 'Vacation',
       start: [null, [Validators.required]],
       end: [null, [Validators.required]],
     });
@@ -41,13 +41,8 @@ export class VacationComponent implements OnInit {
   }
   //get
   getVacations(): void {
-   /* this.vacationService.getVacations().subscribe((vacations: Vacation[]) => {
-      this.vacations = vacations.map(
-        (vacation: any) =>
-          new Vacation(+vacation.leaveId, +vacation.typeLeave, vacation.startDate, vacation.endDate));
-    })*/
     this.vacationService.getVacations()
-    .subscribe(vacations => this.vacations = vacations);
+      .subscribe(vacations => this.vacations = vacations);
   }
   //post
   onSubmit() {
@@ -61,14 +56,14 @@ export class VacationComponent implements OnInit {
     let newVacation = new Vacation(0,
       this.vacationForm.value.type,
       this.vacationForm.value.start,
-      this.vacationForm.value.end)
+      this.vacationForm.value.end);
     this.vacationService.addVacation(newVacation)
-      .subscribe(() => {
-        this.vacations.push(newVacation);
-      });
+      .subscribe(() =>
+        this.vacations.push(newVacation) //FIXME: опять обновляется только после обновления страницы (сабскрайб не работает???)
+      );
   }
   //delete
-  //FIXME: не работает удаление. Пока что.
+  //FIXME: не работает удаление. Пока что...
   delete(vacation: Vacation): void {
     this.vacations = this.vacations.filter(v => v !== vacation);
     this.vacationService.deleteVacation(vacation).subscribe();
