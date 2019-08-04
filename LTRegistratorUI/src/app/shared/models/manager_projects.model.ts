@@ -1,13 +1,8 @@
 export class ManagerProjects {
     name: string;
-    employeeId: number;
-    projects: [];
-    projects_id: [];
-
-    constructor(name: string, id: number, projects: [], projects_id: []) {
+    id: number;
+    constructor(id: number, name: string) {
+        this.id = id;
         this.name = name;
-        this.employeeId = id;
-        this.projects = projects;
-        this.projects_id = projects_id;
     }
 }

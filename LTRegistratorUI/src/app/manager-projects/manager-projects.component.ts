@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ManagerProjectsService } from 'src/app/core/service/manager_projects.service';
 
 @Component({
   selector: 'app-manager-projects',
@@ -7,9 +8,20 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ManagerProjectsComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private managerProjectsService: ManagerProjectsService) { }
 
   ngOnInit() {
+    this.managerProjectsService.getManagerProjects();
   }
+  getManagerProjects(): void {
+    /* this.vacationService.getVacations().subscribe((vacations: Vacation[]) => {
+       this.vacations = vacations.map(
+         (vacation: any) =>
+           new Vacation(+vacation.leaveId, +vacation.typeLeave, vacation.startDate, vacation.endDate));
+     })*/
+    //  this. .getVacations()
+    //  .subscribe(vacations => this.vacations = vacations);
+   }
 
 }
