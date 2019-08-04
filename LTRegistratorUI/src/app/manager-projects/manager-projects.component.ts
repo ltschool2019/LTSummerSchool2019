@@ -29,14 +29,6 @@ export class ManagerProjectsComponent implements OnInit {
   getManagerProjects(): void {
     this.managerProjectsService.getManagerProjects()
     .subscribe((data) =>{this.man_project =  data});
-   // .subscribe((data) =>{this.man_project = data});
-    /* this.vacationService.getVacations().subscribe((vacations: Vacation[]) => {
-       this.vacations = vacations.map(
-         (vacation: any) =>
-           new Vacation(+vacation.leaveId, +vacation.typeLeave, vacation.startDate, vacation.endDate));
-     })*/
-    //  this. .getVacations()
-    //  .subscribe(vacations => this.vacations = vacations);
    }
 
 }
