@@ -1,14 +1,21 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using LTRegistratorApi.Validators;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace LTRegistratorApi.Model
 {
-    /// <summary>
-    /// Basic information about leave.
-    /// </summary>
     public class LeaveDto
     {
-        public TypeLeave TypeLeave { get; set; }
-        public DateTime StartDate { get; set; } //new DateTime(year, month, day);
+        public int Id { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public TypeLeaveDto TypeLeave { get ; set; }
+        [LeaveDate]
+        public DateTime StartDate { get ; set; }
+        [LeaveDate(nameof(StartDate))]
         public DateTime EndDate { get; set; }
     }
 }

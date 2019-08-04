@@ -1,14 +1,14 @@
-﻿using LTTimeRegistrator.Models;
-using Microsoft.AspNetCore.Mvc;
-using LTRegistratorApi.Model;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using LTRegistratorApi.Validators;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authorization;
+using System;
 using System.Threading.Tasks;
-using System.Security.Claims;
+using AutoMapper;
+using LTRegistrator.BLL.Contracts;
+using LTRegistrator.BLL.Contracts.Contracts;
+using LTRegistrator.Domain.Entities;
+using LTRegistratorApi.Model;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -19,26 +19,12 @@ namespace LTRegistratorApi.Controllers
     [ApiController, Authorize]
     public class EmployeeController : ControllerBase
     {
-        private readonly ApplicationContext db;
-        private readonly UserManager<ApplicationUser> _userManager;
-        public EmployeeController(ApplicationContext context, UserManager<ApplicationUser> userManager)
+        private readonly IEmployeeService _employeeService;
+        private readonly IMapper _mapper;
+        public EmployeeController(IEmployeeService employeeService, IMapper mapper)
         {
-            db = context;
-            _userManager = userManager;
-        }
-
-        /// <summary>
-        /// The method returns true if the user tries to change his data or he is a manager or administrator.
-        /// </summary>
-        /// <param name="id">Changeable User id</param>
-        /// <returns>Is it possible to change the data</returns>
-        private async Task<bool> ChangeAvailableAsync(int id)
-        {
-            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier)); //We are looking for an authorized user.
-            var authorizedUser = await db.Employee.SingleOrDefaultAsync(e => e.EmployeeId == thisUser.EmployeeId); //We load Employee table.
-            var maxRole = authorizedUser.MaxRole;
-
-            return authorizedUser.EmployeeId == id || maxRole == RoleType.Manager || maxRole == RoleType.Administrator;
+            _employeeService = employeeService;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -46,18 +32,14 @@ namespace LTRegistratorApi.Controllers
         /// Sends this user information.
         /// </summary>
         /// <returns>Basic Employee information</returns>
-        [HttpGet("info")]
-        public async Task<ActionResult<EmployeeDto>> GetInfoAsync()
+        [HttpGet("{id}/info")]
+        public async Task<ActionResult> GetInfoAsync(int id)
         {
-            var user = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var employee = new List<Employee>() {
-                db.Employee
-                .Include(e => e.ProjectEmployee)
-                    .ThenInclude(pe => pe.Project)
-                .SingleOrDefault(e => e.EmployeeId == user.EmployeeId)
-            }.First();
+            var response = await _employeeService.GetByIdAsync(id);
 
-            return DtoConverter.ToEmployeeDto(employee);
+            return response.Status == ResponseResult.Success 
+            ? Ok(_mapper.Map<EmployeeDto>(response.Result)) 
+            : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
         /// <summary>
@@ -67,19 +49,13 @@ namespace LTRegistratorApi.Controllers
         /// <param name="id">UserId</param>
         /// <returns>User's leave list</returns>
         [HttpGet("{id}/leaves")]
-        public async Task<ActionResult<List<Leave>>> GetLeavesAsync(int id)
+        public async Task<ActionResult> GetLeavesAsync(int id)
         {
-            if (!ChangeAvailableAsync(id).Result)
-                return BadRequest();
+            var response = await _employeeService.GetByIdAsync(id);
 
-            var user = await db.Employee
-                .Include(e => e.Leaves)
-                .SingleOrDefaultAsync(e => e.EmployeeId == id);
-
-            if (user == null)
-                return NotFound();
-
-            return user.Leaves.ToList();
+            return response.Status == ResponseResult.Success 
+                ? Ok(_mapper.Map<ICollection<LeaveDto>>(response.Result.Leaves)) 
+                : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
         /// <summary>
@@ -87,33 +63,21 @@ namespace LTRegistratorApi.Controllers
         /// Add new leaves for user.
         /// </summary>
         /// <param name="id">UserId</param>
-        /// <param name="leavesDto">List of LeaveDto that is added to the user</param>
+        /// <param name="leaves">List of LeaveDto that is added to the user</param>
         /// <returns>Was the operation successful?</returns>
         [HttpPost("{id}/leaves")]
-        public async Task<ActionResult> SetLeavesAsync(int id, [FromBody] List<LeaveDto> leavesDto)
+        public async Task<ActionResult> SetLeavesAsync(int id, [FromBody] ICollection<LeaveInputDto> leaves)
         {
-            if (!ChangeAvailableAsync(id).Result)
+            if (leaves == null)
                 return BadRequest();
 
-            var user = await db.Employee
-                .Include(e => e.Leaves)
-                .SingleOrDefaultAsync(V => V.EmployeeId == id);
-
-            if (leavesDto != null && user != null && ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var leaves = new List<Leave>();
-                foreach (var leave in leavesDto)
-                    leaves.Add(new Leave { TypeLeave = leave.TypeLeave, StartDate = leave.StartDate, EndDate = leave.EndDate });
-
-                if (LeavesValidator.TryMergeLeaves(leaves, user.Leaves.ToList()))
-                    foreach (var leave in leaves)
-                        user.Leaves.Add(leave);
-                else return BadRequest();
+                return BadRequest(ModelState);
             }
-            else return NotFound();
 
-            db.SaveChanges();
-            return Ok();
+            var response = await _employeeService.AddLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
+            return response.Status == ResponseResult.Success ? Ok("Leaves have been added") : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message});
         }
 
         /// <summary>
@@ -124,37 +88,18 @@ namespace LTRegistratorApi.Controllers
         /// <param name="leaves">List of leaves that updated</param>
         /// <returns>Was the operation successful?</returns>
         [HttpPut("{id}/leaves")]
-        public async Task<ActionResult> UpdateLeavesAsync(int id, [FromBody] List<Leave> leaves)
+        public async Task<ActionResult> UpdateLeaves(int id, [FromBody] List<LeaveDto> leaves)
         {
-            if (!ChangeAvailableAsync(id).Result)
+            if (leaves == null)
                 return BadRequest();
 
-            var user = await db.Employee
-                .Include(e => e.Leaves)
-                .SingleAsync(e => e.EmployeeId == id);
-
-            if (leaves != null && user != null && ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                foreach (var leave in leaves)
-                {
-                    var temp = user.Leaves.SingleOrDefault(li => li.LeaveId == leave.LeaveId);
-                    if (temp != null)
-                    {
-                        temp.StartDate = leave.StartDate;
-                        temp.EndDate = leave.EndDate;
-                        temp.TypeLeave = leave.TypeLeave;
-                        db.Leave.Update(temp);
-                    }
-                    else return BadRequest();
-                }
-
-                if (!LeavesValidator.ValidateLeaves(user.Leaves.ToList()))
-                    return BadRequest();
+                return BadRequest(ModelState);
             }
-            else return NotFound();
 
-            db.SaveChanges();
-            return Ok();
+            var response = await _employeeService.UpdateLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
+            return response.Status == ResponseResult.Success ? Ok("Leaves have been updated") : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
         /// <summary>
@@ -165,27 +110,18 @@ namespace LTRegistratorApi.Controllers
         /// <param name="leaves">List of leaves that is deleted to the user</param>
         /// <returns>Was the operation successful?</returns>
         [HttpDelete("{id}/leaves")]
-        public async Task<ActionResult> DeleteLeaveAsync(int id, [FromBody] List<Leave> leaves)
+        public async Task<ActionResult> DeleteLeave(int id, List<int> leaves)
         {
-            if (!ChangeAvailableAsync(id).Result)
+            if (leaves == null)
                 return BadRequest();
 
-            var user = await db.Employee
-                .Include(e => e.Leaves)
-                .SingleOrDefaultAsync(e => e.EmployeeId == id);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
-            if (leaves != null && user != null && ModelState.IsValid)
-                foreach (var leave in leaves)
-                {
-                    var temp = user.Leaves.SingleOrDefault(li => li.LeaveId == leave.LeaveId);
-                    if (temp != null)
-                        db.Leave.Remove(temp);
-                    else return BadRequest();
-                }
-            else return NotFound();
-
-            db.SaveChanges();
-            return Ok();
+            var response = await _employeeService.DeleteLeavesAsync(id, leaves);
+            return response.Status == ResponseResult.Success ? Ok("Leaves have been deleted") : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
     }
 }
