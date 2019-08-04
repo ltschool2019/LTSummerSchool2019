@@ -1,5 +1,8 @@
 <mat-toolbar class="header">
-  <div class="header__logo" routerLink='/user/timesheet'>  </div>
+  <div class="header__logo" routerLink='/user/timesheet'> </div>
+  <div class="header__username">
+    <p>Hi {{user.name }}, {{user.role}}.</p>
+  </div>
   <div>
     <mat-menu #appMenu="matMenu" class="header__menu">
       <button mat-menu-item>Sign out</button>
