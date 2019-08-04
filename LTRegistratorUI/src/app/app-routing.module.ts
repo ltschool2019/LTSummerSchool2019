@@ -8,13 +8,17 @@ import { VacationComponent } from './vacation/vacation.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { TimesheetComponent } from './timesheet/timesheet.component';
 import { EmployeeComponent } from './employee/employee.component';
-import { EmployeesTable } from './admin/admin.component';
+import { EmployeesTable } from './employee-table/employee-table.component';
+import { AdminComponent } from './admin/admin.component';
+import { AddManagerComponent } from './add-manager/add-manager.component';
 
 const userRoutes: Routes = [
   { path: 'timesheet', component: TimesheetComponent },
   { path: '', redirectTo: 'timesheet', pathMatch: 'full' },
   { path: 'vacation', component: VacationComponent },
-  { path: 'em_table', component: EmployeesTable },
+  { path: 'admin', component: AdminComponent },
+  //{ path: 'admin/em_table', component: EmployeesTable },
+  //{ path: 'admin/add_manager', component: AddManagerComponent },
   { path: 'timesheet/edit', component: EmployeeComponent }//FIXME:  сделать children
 ]
 

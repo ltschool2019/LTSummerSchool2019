@@ -15,9 +15,11 @@ import { NotFoundComponent } from './not-found/not-found.component';
 import { TimesheetComponent } from './timesheet/timesheet.component';
 import { AppRoutingModule } from './app-routing.module';
 import { UserComponent } from './user/user.component';
-import { EmployeesTable } from './admin/admin.component';
+import { EmployeesTable } from './employee-table/employee-table.component';
 import { LoginService } from 'src/app/core/service/login.service';
 import { MaterialModule } from "./material.module";
+import { AdminComponent } from './admin/admin.component';
+import { AddManagerComponent } from './add-manager/add-manager.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +34,8 @@ import { MaterialModule } from "./material.module";
     LoginComponent,
     UserComponent,
     EmployeesTable,
+    AdminComponent,
+    AddManagerComponent,
   ],
   imports: [
     BrowserModule,
