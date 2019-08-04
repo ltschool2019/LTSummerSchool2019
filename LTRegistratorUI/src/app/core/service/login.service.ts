@@ -12,7 +12,7 @@ export class LoginService {
 
 
   getUser(email: string, password: string) {
-    return this.http.post<any>('http://localhost:53635/api/account/login', {email, password})
+    return this.http.post<any>('http://localhost:52029/api/account/login', {email, password})
     .subscribe((token) => this.setSession(token));
   }
   private setSession(authResult) {
