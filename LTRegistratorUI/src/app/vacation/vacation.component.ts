@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Vacation } from '../vacation.model';
-import { VacationService } from '../vacation.service';
+import { Vacation } from '../core/models/vacation.model';
+import { VacationService } from '../core/service/vacation.service';
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 
 @Component({

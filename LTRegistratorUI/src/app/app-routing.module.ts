@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
+
 //import путей
 import { LoginComponent } from './login/login.component';
 import { UserComponent } from './user/user.component';

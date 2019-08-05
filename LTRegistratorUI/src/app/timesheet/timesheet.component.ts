@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Project } from '../project.model';
-import { UserService } from '../user.service';
+import { Project } from '../core/models/project.model';
+import { UserService } from '../core/service/user.service';
 
 @Component({
   selector: 'app-timesheet',
