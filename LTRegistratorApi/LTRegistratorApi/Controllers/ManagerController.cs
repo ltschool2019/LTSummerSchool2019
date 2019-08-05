@@ -23,14 +23,11 @@ namespace LTRegistratorApi.Controllers
     public class ManagerController : ControllerBase
     {
         private readonly LTRegistratorDbContext _db;
-        private readonly UserManager<IdentityUser> _userManager;
-
-        public UserManager<IdentityUser> UserManager { get; }
-
-        public ManagerController(LTRegistratorDbContext context, UserManager<IdentityUser> _userManager)
+        private readonly UserManager<User> _userManager;
+        public ManagerController(LTRegistratorDbContext context, UserManager<User> userManager)
         {
             _db = context;
-            UserManager = _userManager;
+            _userManager = userManager;
         }
         /// <summary>
         /// GET api/manager/{EmployeeId}/projects
@@ -50,22 +47,6 @@ namespace LTRegistratorApi.Controllers
             return Ok(projects);
         }
 
-        /// <summary>
-        /// method for getting the the list of all projects
-        /// GET: api/Manager/GetAllProjects
-        /// </summary>
-        /// <returns>list of projects in json {ProjectId, Name}</returns>
-        [Authorize(Policy = "IsManagerOrAdministrator")]
-        [HttpGet("GetProjects")]
-        public async Task<IActionResult> GetAllProjects()
-        {
-            using (_db)
-            {
-                await _db.Project.LoadAsync();
-                var projects = _db.Project.Local.ToList();
-                return Ok(DtoConverter.ToProjectDto(projects));
-            }
-        }
         /// <summary>
         /// Post api/manager/project/{ProjectId}/assign/{EmployeeId} 
         /// Add a project to the employee.
@@ -138,6 +119,20 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
+        /// method for getting the the list of all projects
+        /// GET: api/Manager/GetAllProjects
+        /// </summary>
+        /// <returns>list of projects in json {ProjectId, Name}</returns>
+        [Authorize(Policy = "IsManagerOrAdministrator")]
+        [HttpGet("GetProjects")]
+        public async Task<IActionResult> GetProjects()
+        {
+            await _db.Project.LoadAsync();
+            var projects = _db.Project.Local.ToList();
+            return Ok(DtoConverter.ToProjectDto(projects));
+        }
+
+        /// <summary>
         /// adding a new project
         /// POST: api/Manager/AddProject
         /// </summary>
@@ -152,9 +147,9 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var thisUser = await UserManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var thisUserIdent = HttpContext.User.Identity as ClaimsIdentity;
-            if (thisUser != null && projectdto != null)
+            if (projectdto != null)
             {
                 if (thisUserIdent.HasClaim(c =>
                             (c.Type == ClaimTypes.Role && c.Value == "Administrator")))
@@ -174,7 +169,7 @@ namespace LTRegistratorApi.Controllers
                         ProjectEmployee projectEmployee = new ProjectEmployee
                         {
                             ProjectId = project.Id,
-                            EmployeeId = Convert.ToInt32(thisUser.Id),
+                            EmployeeId = thisUser.EmployeeId,
                             Role = RoleType.Manager
                         };
                         _db.ProjectEmployee.Add(projectEmployee);
@@ -186,7 +181,7 @@ namespace LTRegistratorApi.Controllers
                     {
                         return BadRequest();
                     }
-                } 
+                }
             }
             else
             {
@@ -200,33 +195,53 @@ namespace LTRegistratorApi.Controllers
         /// </summary>
         /// <param name="id">id of project to be deleted</param>
         /// <returns>"200 ok" or "404 not found"</returns>
+        [Authorize(Policy = "IsManagerOrAdministrator")]
         [HttpDelete("deleteProject/{id}")]
         public async Task<IActionResult> DeleteProject([FromRoute] int id)
         {
-            var thisUser = await _userManager.GetUserAsync(HttpContext.User);
-
+            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var thisUserIdent = HttpContext.User.Identity as ClaimsIdentity;
             var project = await _db.Project.FindAsync(id);
-            
-            var managerEmployee = _db.ProjectEmployee
-                .Where(pd => pd.ProjectId == id && pd.EmployeeId == Convert.ToInt32(thisUser.Id) && pd.Role == RoleType.Manager)
-                .FirstOrDefault();
+            var managerEmployee = await _db.ProjectEmployee.SingleOrDefaultAsync(V => V.ProjectId == id && V.Role == RoleType.Manager);
 
-            if (project == null && managerEmployee == null)
+            if (project != null && managerEmployee != null)
             {
-                return NotFound();
+                if (thisUserIdent.HasClaim(c =>
+                            (c.Type == ClaimTypes.Role && c.Value == "Administrator")))
+                {
+                    var listEmployees = _db.ProjectEmployee.Where(pe => pe.ProjectId == id).ToList();
+                    foreach (ProjectEmployee employee in listEmployees)
+                    {
+                        _db.ProjectEmployee.Remove(employee);
+                    }
+
+                    _db.Project.Remove(project);
+                    await _db.SaveChangesAsync();
+
+                    return Ok();
+                }
+                else if (thisUserIdent.HasClaim(c =>
+                            (c.Type == ClaimTypes.Role && c.Value == "Manager")) && managerEmployee.EmployeeId == thisUser.EmployeeId)
+                {
+                    var listEmployees = _db.ProjectEmployee.Where(pe => pe.ProjectId == id).ToList();
+                    foreach (ProjectEmployee employee in listEmployees)
+                    {
+                        _db.ProjectEmployee.Remove(employee);
+                    }
+
+                    _db.Project.Remove(project);
+                    await _db.SaveChangesAsync();
+
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
             }
             else
             {
-                var listEmployees = _db.ProjectEmployee.Where(pe => pe.ProjectId == id).ToList();
-                foreach (ProjectEmployee employee in listEmployees)
-                {
-                    _db.ProjectEmployee.Remove(employee);
-                }
-
-                _db.Project.Remove(project);
-                await _db.SaveChangesAsync();
-
-                return Ok(project);
+                return NotFound();
             }
         }
     }

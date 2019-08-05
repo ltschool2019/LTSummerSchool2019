@@ -1,17 +1,16 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using LTRegistratorApi.Model;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using LTRegistratorApi.Model;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Identity;
 using LTRegistrator.BLL.Services;
 using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -21,26 +20,24 @@ namespace LTRegistratorApi.Controllers
     public class AdministratorController : ControllerBase
     {
         private readonly LTRegistratorDbContext _db;
+        private readonly UserManager<User> _userManager;
 
-        public AdministratorController(LTRegistratorDbContext context)
+        public AdministratorController(LTRegistratorDbContext context, UserManager<User> userManager)
         {
             _db = context;
+            _userManager = userManager;
         }
+
         /// <summary>
         /// updating project information
         /// PUT: api/Administrator/UpdateProject
         /// </summary>
         /// <param name="project">json {ProjectId, Name, projectEmployee}
         /// Name and projectEmployee not obligatory</param>
-        /// <returns> "OK" or "bad request" or "not found"</returns>
+        /// <returns> "OK" or "not found"</returns>
         [HttpPut("UpdateProject")]
         public async Task<IActionResult> UpdateProject([FromBody] ProjectDto projectdto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
             var temp = _db.Project.SingleOrDefault(p => p.Id == projectdto.Id);
             if (temp != null)
             {
@@ -52,43 +49,8 @@ namespace LTRegistratorApi.Controllers
             }
             else
             {
-                return BadRequest();
-            }
-
-        }
-        /// <summary>
-        /// deleting project by id
-        /// DELETE: api/Administrator/DeleteProject/{id}
-        /// </summary>
-        /// <param name="id">id of project</param>
-        /// <returns>"200 ok" or "404 not found"</returns>
-        [HttpDelete("DeleteProject/{id}")]
-        public async Task<IActionResult> DeleteProject([FromRoute] int id)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var project = await _db.Project.FindAsync(id);
-            if (project == null)
-            {
                 return NotFound();
             }
-            else
-            {
-                var listEmployees = _db.ProjectEmployee.Where(pe => pe.ProjectId == id).ToList();
-                foreach (ProjectEmployee employee in listEmployees)
-                {
-                    _db.ProjectEmployee.Remove(employee);
-                }
-
-                _db.Project.Remove(project);
-                await _db.SaveChangesAsync();
-
-                return Ok();
-            }
-
         }
 
         /// <summary>
@@ -102,19 +64,39 @@ namespace LTRegistratorApi.Controllers
         public async Task<IActionResult> SetManager([FromRoute] int projectid, int managerid)
         {
             var managerEmployee = _db.Employee.Where(e => e.Id == managerid).FirstOrDefault();
-            var projectemployee = _db.ProjectEmployee.Where(pe => pe.ProjectId == projectid).FirstOrDefault();
-            if (managerEmployee.MaxRole == RoleType.Manager && projectemployee != null)
+            var projectManager = _db.ProjectEmployee.Where(pe => pe.ProjectId == projectid && pe.Role == RoleType.Manager).FirstOrDefault();
+            var projectEmployee = _db.ProjectEmployee.Where(pe => pe.ProjectId == projectid && pe.EmployeeId == managerid && pe.Role == RoleType.Employee).FirstOrDefault();
+            var newProjectManager = new ProjectEmployee { EmployeeId = managerid, ProjectId = projectid, Role = RoleType.Manager };
+
+            if (managerEmployee.MaxRole == RoleType.Manager && projectManager != null && projectEmployee == null)
             {
-                projectemployee.EmployeeId = managerid;
-                projectemployee.Role = RoleType.Manager;
+                _db.ProjectEmployee.Remove(projectManager);
+                _db.ProjectEmployee.Add(newProjectManager);
                 await _db.SaveChangesAsync();
+                return Ok();
+            }
+            else if (managerEmployee.MaxRole == RoleType.Manager && projectManager == null)
+            {
+                if (projectEmployee != null)
+                {
+                    _db.ProjectEmployee.Remove(projectEmployee);
+                }
+                _db.ProjectEmployee.Add(newProjectManager);
+                await _db.SaveChangesAsync();
+                return Ok();
+            }
+            else if (managerEmployee.MaxRole == RoleType.Manager && projectEmployee != null)
+            {
+                _db.ProjectEmployee.Remove(projectEmployee);
+                _db.ProjectEmployee.Remove(projectManager);
+                _db.ProjectEmployee.Add(newProjectManager);
+                await _db.SaveChangesAsync();
+                return Ok();
             }
             else
             {
                 return BadRequest();
             }
-
-            return Ok();
         }
 
         /// <summary>
@@ -136,13 +118,8 @@ namespace LTRegistratorApi.Controllers
             }
             else
             {
-                return BadRequest();
+                return NotFound();
             }
-        }
-        
-        private bool ProjectExists(int id)
-        {
-            return _db.Project.Any(e => e.Id == id);
         }
     }
 }
