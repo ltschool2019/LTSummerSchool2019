@@ -24,14 +24,14 @@
 
     <!-- Radio button Column -->
     <ng-container matColumnDef="radio">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td>
-        <mat-cell *matCellDef="let row">
-          <mat-radio-group>
+      <mat-radio-group>
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td>
+          <mat-cell *matCellDef="let row">
             <mat-radio-button [value]="row"></mat-radio-button>
-          </mat-radio-group>
-        </mat-cell>
-      </td>
+          </mat-cell>
+        </td>
+      </mat-radio-group>
     </ng-container>
 
     <!-- Name Column -->

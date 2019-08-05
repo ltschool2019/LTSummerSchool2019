@@ -6,13 +6,14 @@ import { MatPaginator } from '@angular/material/paginator';
 
 
 export interface Project {
+  position: number;
   name: string;
 }
 
 const PROJECT: Project[] = [
-  { name: 'Project A' },
-  { name: 'Project B' },
-  { name: 'Project C' },
+  { position: 1, name: 'Project A' },
+  { position: 2, name: 'Project B' },
+  { position: 3, name: 'Project C' },
 ]
 
 @Component({
@@ -30,8 +31,7 @@ export class AddManagerComponent implements OnInit {
     this.dataSource.sort = this.sort;
   }
 
-  displayedColumns: string[] = ['name', 'delete', 'button-add'];
-  displayedColumns_m: string[] = ['name', 'delete', 'manager-name', 'edit'];
+  displayedColumns: string[] = ['project', 'button-add', 'delete'];
   dataSource = new MatTableDataSource<Project>(PROJECT);
 
   applyFilter(filterValue: string) {

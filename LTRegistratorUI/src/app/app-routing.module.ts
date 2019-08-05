@@ -17,8 +17,8 @@ const userRoutes: Routes = [
   { path: '', redirectTo: 'timesheet', pathMatch: 'full' },
   { path: 'vacation', component: VacationComponent },
   { path: 'admin', component: AdminComponent },
-  //{ path: 'admin/em_table', component: EmployeesTable },
-  //{ path: 'admin/add_manager', component: AddManagerComponent },
+ // { path: 'admin/em_table', component: EmployeesTable },
+ // { path: 'admin/add_manager', component: AddManagerComponent },
   { path: 'timesheet/edit', component: EmployeeComponent }//FIXME:  сделать children
 ]
 
