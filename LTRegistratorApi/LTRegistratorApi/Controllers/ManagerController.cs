@@ -24,9 +24,13 @@ namespace LTRegistratorApi.Controllers
     {
         private readonly LTRegistratorDbContext _db;
         private readonly UserManager<IdentityUser> _userManager;
+
+        public UserManager<IdentityUser> UserManager { get; }
+
         public ManagerController(LTRegistratorDbContext context, UserManager<IdentityUser> _userManager)
         {
             _db = context;
+            UserManager = _userManager;
         }
         /// <summary>
         /// GET api/manager/{EmployeeId}/projects
@@ -148,7 +152,7 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var thisUser = await UserManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var thisUserIdent = HttpContext.User.Identity as ClaimsIdentity;
             if (thisUser != null && projectdto != null)
             {
@@ -170,7 +174,7 @@ namespace LTRegistratorApi.Controllers
                         ProjectEmployee projectEmployee = new ProjectEmployee
                         {
                             ProjectId = project.Id,
-                            EmployeeId = thisUser.Id,
+                            EmployeeId = Convert.ToInt32(thisUser.Id),
                             Role = RoleType.Manager
                         };
                         _db.ProjectEmployee.Add(projectEmployee);
@@ -204,7 +208,7 @@ namespace LTRegistratorApi.Controllers
             var project = await _db.Project.FindAsync(id);
             
             var managerEmployee = _db.ProjectEmployee
-                .Where(pd => pd.ProjectId == id && pd.EmployeeId == thisUser.Id && pd.Role == RoleType.Manager)
+                .Where(pd => pd.ProjectId == id && pd.EmployeeId == Convert.ToInt32(thisUser.Id) && pd.Role == RoleType.Manager)
                 .FirstOrDefault();
 
             if (project == null && managerEmployee == null)
