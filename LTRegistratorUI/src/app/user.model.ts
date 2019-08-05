@@ -6,7 +6,6 @@ export class User {
     mail: string;
     role: any;
     projects: Project[];
-    //   roleTypes = ['', '(Manager)', '(Admin)'];
 
     constructor(employeeId: number, firstName: string, secondName: string,
         mail: string, maxRole: string, projects: any[]) {
@@ -14,7 +13,6 @@ export class User {
         this.name = firstName;
         this.surname = secondName;
         this.mail = mail;
-        //this.role = maxRole;
         this.role = maxRole;
         this.projects = projects.map((project: any) => new Project(project.projectId, project.name));
     }

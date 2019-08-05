@@ -38,7 +38,7 @@ import { VacationEditDialogComponent } from './vacation/vacation-edit-dialog/vac
     EmployeesTable,
     VacationEditDialogComponent
   ],
-  entryComponents:[VacationEditDialogComponent],
+  entryComponents: [VacationEditDialogComponent],
   imports: [
     BrowserModule,
     MaterialModule,

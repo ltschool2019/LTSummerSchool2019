@@ -8,19 +8,19 @@ import { Router } from '@angular/router';
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
     constructor(private loginService: LoginService,
-        private router:Router) { }
+        private router: Router) { }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
         // add authorization header with jwt token if available
-     const token = localStorage.getItem('id_token');
+        const token = localStorage.getItem('id_token');
         // if (!token) {
         //     alert('User is not authorized!');
         // } else {
-            request = request.clone({
-                setHeaders: {
-                    Authorization: `Bearer ` + token
-                }
-            });
+        request = request.clone({
+            setHeaders: {
+                Authorization: `Bearer ` + token
+            }
+        });
         // }
         return next.handle(request);
     }

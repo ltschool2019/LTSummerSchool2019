@@ -2,14 +2,15 @@
   <form [formGroup]="editForm">
     <mat-form-field>
       <mat-label>Select</mat-label>
-      <mat-select formControlName="type" >
+      <mat-select formControlName="type">
         <mat-option *ngFor="let vacationType of vacationTypes" [value]="vacationType.value">
           {{vacationType.viewValue}}
         </mat-option>
       </mat-select>
     </mat-form-field>
     <mat-form-field>
-      <input matInput [matDatepicker]="start" [min]="minDate" [max]="maxDate" placeholder="From" formControlName="start">
+      <input matInput [matDatepicker]="start" [min]="minDate" [max]="maxDate" placeholder="From"
+        formControlName="start">
       <mat-datepicker-toggle [for]="start" matSuffix></mat-datepicker-toggle>
       <mat-datepicker #start></mat-datepicker>
     </mat-form-field>

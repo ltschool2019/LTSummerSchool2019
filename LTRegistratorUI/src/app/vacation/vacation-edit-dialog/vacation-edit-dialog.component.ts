@@ -1,6 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material';
-import { Vacation } from '../../vacation.model';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 export interface vacationType {

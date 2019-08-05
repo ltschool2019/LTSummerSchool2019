@@ -10,19 +10,19 @@ import { LoginService } from 'src/app/core/service/login.service'
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent {
-  
+
   loginForm: FormGroup;
 
   constructor(private fb: FormBuilder, private loginService: LoginService) { }
 
   ngOnInit() {
     this.initForm();
-    
-  //   this.api.getUser().subscribe((x:any) => {
-  //     this.data = x;
-  //     this.user = (JSON.parse(atob(this.data.token.split('.')[1])));
-  //     console.log(this.user);
-  //   });
+
+    //   this.api.getUser().subscribe((x:any) => {
+    //     this.data = x;
+    //     this.user = (JSON.parse(atob(this.data.token.split('.')[1])));
+    //     console.log(this.user);
+    //   });
   }
 
   initForm() {
@@ -35,7 +35,7 @@ export class LoginComponent {
       ]]
     });
   }
-  
+
   onSubmit() {
     const controls = this.loginForm.controls;
     /** Проверяем форму на валидность */
@@ -48,7 +48,7 @@ export class LoginComponent {
       return;
     }
 
-    /** TODO: Обработка данных формы */    
+    /** TODO: Обработка данных формы */
     this.loginService.getUser(this.loginForm.get('email').value, this.loginForm.get('password').value);
     // console.log(this.loginForm.value);
   }

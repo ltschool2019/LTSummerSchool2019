@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-
 import { Vacation } from './vacation.model';
 
 @Injectable({
@@ -31,8 +30,6 @@ export class VacationService {
           new Vacation(vacation.id, vacation.typeLeave, vacation.startDate, vacation.endDate));
 
       }));
-
-    //return this.http.get<Vacation[]>(this.vacationsUrl);
   }
 
   //post
@@ -41,7 +38,6 @@ export class VacationService {
       TypeLeave: `${vacation.type}`,
       StartDate: `${vacation.start}`,
       EndDate: `${vacation.end}`
-      //.toISOString()
     };
     return this.http.post(this.vacationsUrl, [body]);
   }
@@ -52,7 +48,6 @@ export class VacationService {
       TypeLeave: vacation.type,
       StartDate: vacation.start,
       EndDate: vacation.end
-      //.toISOString()
     };
     return this.http.put(this.vacationsUrl, [body]);
   }
