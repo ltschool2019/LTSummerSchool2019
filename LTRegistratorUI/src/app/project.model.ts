@@ -1,11 +1,12 @@
 export class Project {
-    name: string;
-    hours: number;
     id: number;
+    name: string;
+    //  hours: number;
 
-    constructor(name: string, hours: number, id: number) {
-        this.name = name;
-        this.hours = hours;
+    constructor(id: number, name: string) {//hours: number,
         this.id = id;
+        this.name = name;
+        // this.hours = hours;
+
     }
 }
