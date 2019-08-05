@@ -22,6 +22,7 @@ import { AppRoutingModule } from './app-routing.module';
 
 import { EmployeesTable } from './admin/admin.component';
 import { MaterialModule } from "./material.module";
+import { VacationEditDialogComponent } from './vacation/vacation-edit-dialog/vacation-edit-dialog.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,9 @@ import { MaterialModule } from "./material.module";
     HeaderComponent,
     UserComponent,
     EmployeesTable,
+    VacationEditDialogComponent
   ],
+  entryComponents:[VacationEditDialogComponent],
   imports: [
     BrowserModule,
     MaterialModule,

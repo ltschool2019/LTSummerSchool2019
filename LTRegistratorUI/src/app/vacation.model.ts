@@ -1,7 +1,7 @@
 import { isNumber } from 'util';
 
 export class Vacation {
-    id: number;
+    id: any;
     type: any;
     //FIXME: Сделать тип - date 
     start: string;
@@ -9,7 +9,7 @@ export class Vacation {
 
   //  vacationTypes = ['SickLeave', 'Vacation', 'Training', 'Idleger'];
 
-    constructor(leaveId: number, typeLeave: string, startDate: string, endDate: string) {
+    constructor(leaveId: any, typeLeave: string, startDate: string, endDate: string) {
         this.id = leaveId;
         /* if (isNumber(typeLeave)) {
              this.type = this.vacationTypes[typeLeave];

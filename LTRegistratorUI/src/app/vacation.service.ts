@@ -28,7 +28,8 @@ export class VacationService {
     return this.http.get<Vacation[]>(this.vacationsUrl).pipe(
       map(data => {
         return data.map((vacation: any) =>
-          new Vacation(+vacation.leaveId, vacation.typeLeave, vacation.startDate, vacation.endDate));
+          new Vacation(vacation.id, vacation.typeLeave, vacation.startDate, vacation.endDate));
+
       }));
 
     //return this.http.get<Vacation[]>(this.vacationsUrl);
@@ -36,7 +37,6 @@ export class VacationService {
 
   //post
   addVacation(vacation: Vacation): Observable<any> {
-    //let vacationTypes = ['Больничный', 'Отпуск', 'Обучение', 'Простой'];
     const body = {
       TypeLeave: `${vacation.type}`,
       StartDate: `${vacation.start}T00:00:00`,

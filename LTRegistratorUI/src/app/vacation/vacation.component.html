@@ -1,44 +1,40 @@
 <section class="vacation">
-  <form [formGroup]="vacationForm" (submit)="onSubmit()" class="vacation-form">
-    <button type="submit" [disabled]="!vacationForm.valid" class="vacation-form__add">+</button>
-    <select formControlName="type" id="vacation-type" class="vacation-form__type" [value]="'Vacation'" #type>
-      <option disabled value="null">Select</option>
-      <option *ngFor='let vacationType of vacationTypes'>{{vacationType}}</option>
-    </select>
-    <label for="vacation-start"> С </label>
-    <input type="date" id="vacation-start" formControlName="start" class='vacation-form__start' #start>
-    <label id="vacation-end"> По </label>
-    <input type="date" id="vacation-end" formControlName="end" class="vacation-form__end" #end>
+
+  <form>
+    <button mat-mini-fab>+</button>
+    <mat-form-field>
+      <mat-label>Select</mat-label>
+      <mat-select>
+        <mat-option *ngFor="let vacationType of vacationTypes" [value]="vacationType.value">
+          {{vacationType.viewValue}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput [matDatepicker]="start" [min]="minDate" [max]="maxDate" placeholder="From">
+      <mat-datepicker-toggle [for]="start" matSuffix></mat-datepicker-toggle>
+      <mat-datepicker #start></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput [matDatepicker]="end" placeholder="To">
+      <mat-datepicker-toggle [for]="end" matSuffix></mat-datepicker-toggle>
+      <mat-datepicker #end></mat-datepicker>
+    </mat-form-field>
   </form>
 
-
-  <ul class="vacation-list">
-    <li *ngFor="let vacation of vacations">
-      <p class="vacation-list__vacation"> {{vacation.type}} с {{vacation.start.substring(0,10)}} по
+  <mat-list>
+    <mat-list-item *ngFor="let vacation of vacations">
+      <p class="vacation-list__vacation"> {{vacation.type}} from {{vacation.start.substring(0,10)}} to
         {{vacation.end.substring(0,10)}}</p>
-      <button class="vacation-list__edit" title="edit vacation" (click)="edit(vacation)" id="vacation-edit-button"
-        name="edit-button">Edit </button>
-      <button class="vacation-list__delete" title="delete vacation" (click)="delete(vacation)"
-        id="vacation-delete-button" name="delete-button">x</button>
-    </li>
-  </ul>
-</section>
-<!-- EditModalForm -->
-<section class="edit-modal" *ngIf="isModalDialogVisible">
-  <form [formGroup]="editForm" (submit)="editVacation()" class="edit-form">
-    <select formControlName="editType" id="edit-type" class="edit-form__type" [value]="'Vacation'" #editType>
-      <option disabled value="null">Select</option>
-      <option *ngFor='let vacationType of vacationTypes'>{{vacationType}}</option>
-    </select>
-    <p>
-      <label for="edit-vacation-start"> С </label>
-      <input type="date" id="edit-vacation-start" formControlName="editStart" class='edit-form__start' #editStart>
-    </p>
-    <p>
-      <label id="edit-vacation-end"> По </label>
-      <input type="date" id="edit-vacation-end" formControlName="editEnd" class="edit-form__end" #editEnd>
-    </p>
-    <button type="submit" [disabled]="!editForm.valid" class="vacation-form__add">Ok</button>
-    <button (click)='closeModal()'>Cancel</button>
-  </form>
+      <button mat-icon-button aria-label="Edit current leave" class="vacation-list__edit" title="edit leave"
+        (click)="openEditModal(vacation)" id="vacation-edit-button" name="edit-button">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button aria-label="Delete current leave" class="vacation-list__delete" title="delete leave"
+        (click)="delete(vacation)" id="vacation-delete-button" name="delete-button">
+        <mat-icon>delete_forever</mat-icon>
+      </button>
+    </mat-list-item>
+  </mat-list>
+
 </section>
