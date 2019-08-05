@@ -39,20 +39,19 @@ export class VacationService {
   addVacation(vacation: Vacation): Observable<any> {
     const body = {
       TypeLeave: `${vacation.type}`,
-      StartDate: `${vacation.start}T00:00:00`,
-      EndDate: `${vacation.end}T00:00:00`
+      StartDate: `${vacation.start}`,
+      EndDate: `${vacation.end}`
       //.toISOString()
     };
     return this.http.post(this.vacationsUrl, [body]);
   }
   //put
   editVacation(vacation: Vacation): Observable<any> {
-    let vacationTypes = ['Больничный', 'Отпуск', 'Обучение', 'Простой'];
     const body = {
-      LeaveId: vacation.id,
-      TypeLeave: vacationTypes.indexOf(vacation.type),
-      StartDate: `${vacation.start}T00:00:00`,
-      EndDate: `${vacation.end}T00:00:00`
+      id: vacation.id,
+      TypeLeave: vacation.type,
+      StartDate: vacation.start,
+      EndDate: vacation.end
       //.toISOString()
     };
     return this.http.put(this.vacationsUrl, [body]);

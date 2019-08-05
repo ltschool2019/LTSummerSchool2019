@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Vacation } from '../vacation.model';
 import { VacationService } from '../vacation.service';
-import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { VacationEditDialogComponent } from './vacation-edit-dialog/vacation-edit-dialog.component';
 export interface vacationType {
@@ -16,17 +16,14 @@ export interface vacationType {
 })
 
 export class VacationComponent implements OnInit {
-  selectedValue: string;
 
-  oldVacation: Vacation;
   vacationForm: FormGroup;
-  editForm: FormGroup;
 
   vacationTypes: vacationType[] = [
-    { value: 'sickLeave', viewValue: 'SickLeave' },
-    { value: 'vacation', viewValue: 'Vacation' },
-    { value: 'training', viewValue: 'Training' },
-    { value: 'idle', viewValue: 'Idle' }
+    { value: 'SickLeave', viewValue: 'SickLeave' },
+    { value: 'Vacation', viewValue: 'Vacation' },
+    { value: 'Training', viewValue: 'Training' },
+    { value: 'Idle', viewValue: 'Idle' }
   ];
   minDate = new Date();
   maxDate = new Date(2020, 0, 1);
@@ -44,15 +41,10 @@ export class VacationComponent implements OnInit {
   }
   private initForm(): void {
     this.vacationForm = this.fb.group({
-      type: 'Vacation',
-      start: [new FormControl(new Date()), [Validators.required]],
-      end: [null, [Validators.required]],
+      type: '',
+      start: [new Date(), [Validators.required]],
+      end: [new Date(), [Validators.required]],
     });
-    this.editForm = this.fb.group({
-      editType: '',
-      editStart: [null, [Validators.required]],
-      editEnd: [null, [Validators.required]],
-    })
   }
   //get
   getVacations(): void {
@@ -60,7 +52,7 @@ export class VacationComponent implements OnInit {
       .subscribe(vacations => this.vacations = vacations);
   }
   //post
-  onSubmit() {
+  onSubmit(value) {
 
     /** Проверяем форму на валидность */
     if (this.vacationForm.invalid) {
@@ -69,55 +61,44 @@ export class VacationComponent implements OnInit {
     }
 
     let newVacation = new Vacation(0,
-      this.vacationForm.value.type,
-      this.vacationForm.value.start,
-      this.vacationForm.value.end);
+      value.type,
+      value.start.toISOString(),
+      value.end.toISOString());
     this.vacationService.addVacation(newVacation)
-      .subscribe(() =>
-        this.vacations.push(newVacation) //FIXME: опять обновляется только после обновления страницы (сабскрайб не работает???)
-      );
+      .subscribe(() => { }, (error) => {
+        if (error.status == 200) {
+          this.vacations.push(newVacation);
+        }
+      });
   }
   //delete
-  //FIXME: не работает удаление. Пока что...
+  //TODO: дождаться back
   delete(vacation: Vacation): void {
     this.vacations = this.vacations.filter(v => v !== vacation);
-    this.vacationService.deleteVacation(vacation).subscribe();
+    this.vacationService.deleteVacation(vacation.id).subscribe();
   }
 
-  //FIXME: отпуск применяется только вторым запросом
-  /*   edit(vacation: Vacation): void {
-      this.isModalDialogVisible = true;
-      this.editForm.setValue({
-        editType: vacation.type,
-        editStart: vacation.start.substring(0, 10),
-        editEnd: vacation.end.substring(0, 10)
-      });
-      this.oldVacation = vacation;
-    }
-  
-    closeModal(): void {
-      this.isModalDialogVisible = false;
-    } */
+
   openEditModal(vacation: Vacation) {
     let dialogRef = this.dialog.open(VacationEditDialogComponent,
       { data: { id: vacation.id, type: vacation.type, start: vacation.start, end: vacation.end } });
     dialogRef.afterClosed().subscribe(result => {
-      console.log(`Dialog result: ${result}`);
+      this.editVacation(result);
     });
   }
   //put
-  /*editVacation() {
-    alert(this.editForm.value.editType);
-    let newVacation = new Vacation(
-      this.oldVacation.id,
-      this.editForm.value.editType,
-      this.editForm.value.editStart,
-      this.editForm.value.editEnd)
+  editVacation(value) {
+    let newVacation = new Vacation(value.id,
+      value.type,
+      value.start,
+      value.end);
     this.vacationService.editVacation(newVacation)
-      .subscribe(() => {
-        this.vacations = this.vacations.filter(v => v !== this.oldVacation);
-        this.vacations.push(newVacation);
-      });
-  //  this.isModalDialogVisible = false;
-  }*/
+      .subscribe(() => { },
+        (error) => {
+          if (error.status == 200) {
+            this.vacations = this.vacations.filter(v => v.id !== newVacation.id);
+            this.vacations.push(newVacation);
+          }
+        });
+  }
 }

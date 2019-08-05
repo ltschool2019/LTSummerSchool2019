@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MAT_DIALOG_DATA } from '@angular/material';
 import { Vacation } from '../../vacation.model';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 export interface vacationType {
   value: string;
@@ -13,15 +14,37 @@ export interface vacationType {
 })
 export class VacationEditDialogComponent implements OnInit {
 
+  editForm: FormGroup;
+
   vacationTypes: vacationType[] = [
-    { value: 'sickLeave', viewValue: 'SickLeave' },
-    { value: 'vacation', viewValue: 'Vacation' },
-    { value: 'training', viewValue: 'Training' },
-    { value: 'idle', viewValue: 'Idle' }
+    { value: 'SickLeave', viewValue: 'SickLeave' },
+    { value: 'Vacation', viewValue: 'Vacation' },
+    { value: 'Training', viewValue: 'Training' },
+    { value: 'Idle', viewValue: 'Idle' }
   ];
-  constructor(@Inject(MAT_DIALOG_DATA) public data: any) { }
+  minDate = new Date();
+  maxDate = new Date(2020, 0, 1);
+
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private fb: FormBuilder) { }
 
   ngOnInit() {
+    this.initForm();
   }
-
+  private initForm(): void {
+    this.editForm = this.fb.group({
+      type: '',
+      start: [`${this.data.start}`, [Validators.required]],
+      end: [`${this.data.end}`, [Validators.required]],
+    });
+  }
+  onSubmit(value) {
+    return {
+      id: this.data.id,
+      type: value.type,
+      start: value.start,
+      end: value.end
+    }
+  }
 }
