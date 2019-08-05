@@ -204,11 +204,11 @@ namespace LTRegistratorApi.Controllers
             var project = await _db.Project.FindAsync(id);
             var managerEmployee = await _db.ProjectEmployee.SingleOrDefaultAsync(V => V.ProjectId == id && V.Role == RoleType.Manager);
 
-            if (project != null && managerEmployee != null)
+            if (project != null)
             {
                 if (thisUserIdent.HasClaim(c =>
                             (c.Type == ClaimTypes.Role && c.Value == "Administrator")) || (thisUserIdent.HasClaim(c =>
-                            (c.Type == ClaimTypes.Role && c.Value == "Manager")) && managerEmployee.EmployeeId == thisUser.EmployeeId))
+                            (c.Type == ClaimTypes.Role && c.Value == "Manager")) && managerEmployee != null && managerEmployee.EmployeeId == thisUser.EmployeeId))
                 {
                     var listEmployees = _db.ProjectEmployee.Where(pe => pe.ProjectId == id).ToList();
                     foreach (ProjectEmployee employee in listEmployees)
