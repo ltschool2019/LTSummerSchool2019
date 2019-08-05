@@ -207,21 +207,8 @@ namespace LTRegistratorApi.Controllers
             if (project != null && managerEmployee != null)
             {
                 if (thisUserIdent.HasClaim(c =>
-                            (c.Type == ClaimTypes.Role && c.Value == "Administrator")))
-                {
-                    var listEmployees = _db.ProjectEmployee.Where(pe => pe.ProjectId == id).ToList();
-                    foreach (ProjectEmployee employee in listEmployees)
-                    {
-                        _db.ProjectEmployee.Remove(employee);
-                    }
-
-                    _db.Project.Remove(project);
-                    await _db.SaveChangesAsync();
-
-                    return Ok();
-                }
-                else if (thisUserIdent.HasClaim(c =>
-                            (c.Type == ClaimTypes.Role && c.Value == "Manager")) && managerEmployee.EmployeeId == thisUser.EmployeeId)
+                            (c.Type == ClaimTypes.Role && c.Value == "Administrator")) || (thisUserIdent.HasClaim(c =>
+                            (c.Type == ClaimTypes.Role && c.Value == "Manager")) && managerEmployee.EmployeeId == thisUser.EmployeeId))
                 {
                     var listEmployees = _db.ProjectEmployee.Where(pe => pe.ProjectId == id).ToList();
                     foreach (ProjectEmployee employee in listEmployees)
