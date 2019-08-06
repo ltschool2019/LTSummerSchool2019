@@ -154,7 +154,7 @@ namespace LTRegistratorApi.Controllers
                 if (thisUserIdent.HasClaim(c =>
                             (c.Type == ClaimTypes.Role && c.Value == "Administrator")))
                 {
-                    var project = new Project { Id = projectdto.Id, Name = projectdto.Name };
+                    var project = new Project {Name = projectdto.Name };
                     _db.Project.Add(project);
                     await _db.SaveChangesAsync();
                     return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
@@ -164,8 +164,9 @@ namespace LTRegistratorApi.Controllers
                     if (thisUserIdent.HasClaim(c =>
                             (c.Type == ClaimTypes.Role && c.Value == "Manager")))
                     {
-                        var project = new Project { Id = projectdto.Id, Name = projectdto.Name };
+                        var project = new Project { Name = projectdto.Name };
                         _db.Project.Add(project);
+                        _db.SaveChanges();
                         ProjectEmployee projectEmployee = new ProjectEmployee
                         {
                             ProjectId = project.Id,
