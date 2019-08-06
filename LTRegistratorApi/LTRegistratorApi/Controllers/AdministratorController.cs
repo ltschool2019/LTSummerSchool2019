@@ -35,13 +35,13 @@ namespace LTRegistratorApi.Controllers
         /// <param name="project">json {ProjectId, Name, projectEmployee}
         /// Name and projectEmployee not obligatory</param>
         /// <returns> "OK" or "not found"</returns>
-        [HttpPut("UpdateProject")]
-        public async Task<IActionResult> UpdateProject([FromBody] ProjectDto projectdto)
+        [HttpPut("UpdateProject/{projectid}")]
+        public async Task<IActionResult> UpdateProject([FromBody] ProjectDto projectdto, [FromRoute] int projectid)
         {
-            var temp = _db.Project.SingleOrDefault(p => p.Id == projectdto.Id);
+            var temp = _db.Project.SingleOrDefault(p => p.Id == projectid);
             if (temp != null)
             {
-                temp.Id = projectdto.Id;
+                temp.Id = projectid;
                 temp.Name = projectdto.Name;
                 _db.Project.Update(temp);
                 await _db.SaveChangesAsync();
@@ -60,7 +60,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="projectid">id of project</param>
         /// <param name="managerid">id of manager</param>
         /// <returns>"200 ok" or "404 not found"</returns>
-        [HttpPost("setmanager/project/{projectId}/manager/{managerId}")]
+        [HttpPost("setmanager/{managerID}/project/{projectID}")]
         public async Task<IActionResult> SetManager([FromRoute] int projectid, int managerid)
         {
             var managerEmployee = _db.Employee.Where(e => e.Id == managerid).FirstOrDefault();

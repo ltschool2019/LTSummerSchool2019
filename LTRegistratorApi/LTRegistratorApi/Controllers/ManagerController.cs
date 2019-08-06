@@ -124,7 +124,7 @@ namespace LTRegistratorApi.Controllers
         /// </summary>
         /// <returns>list of projects in json {ProjectId, Name}</returns>
         [Authorize(Policy = "IsManagerOrAdministrator")]
-        [HttpGet("GetProjects")]
+        [HttpGet("allprojects")]
         public async Task<IActionResult> GetProjects()
         {
             await _db.Project.LoadAsync();
@@ -139,7 +139,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="project">json {Name}</param>
         /// <returns>"201 created" and json {ProjectId, EmployeeId}</returns>
         [Authorize(Policy = "IsManagerOrAdministrator")]
-        [HttpPost("AddProject")]
+        [HttpPost("project")]
         public async Task<IActionResult> AddProject([FromBody] ProjectDto projectdto)
         {
             if (!ModelState.IsValid)
@@ -196,7 +196,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="id">id of project to be deleted</param>
         /// <returns>"200 ok" or "404 not found"</returns>
         [Authorize(Policy = "IsManagerOrAdministrator")]
-        [HttpDelete("deleteProject/{id}")]
+        [HttpDelete("project/{id}")]
         public async Task<IActionResult> DeleteProject([FromRoute] int id)
         {
             var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
