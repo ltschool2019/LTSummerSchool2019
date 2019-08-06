@@ -30,12 +30,12 @@ namespace LTRegistratorApi.Controllers
 
         /// <summary>
         /// updating project information
-        /// PUT: api/Administrator/UpdateProject
+        /// PUT: api/Administrator/Project
         /// </summary>
         /// <param name="project">json {ProjectId, Name, projectEmployee}
         /// Name and projectEmployee not obligatory</param>
         /// <returns> "OK" or "not found"</returns>
-        [HttpPut("UpdateProject/{projectid}")]
+        [HttpPut("Project/{projectid}")]
         public async Task<IActionResult> UpdateProject([FromBody] ProjectDto projectdto, [FromRoute] int projectid)
         {
             var temp = _db.Project.SingleOrDefault(p => p.Id == projectid);
@@ -55,7 +55,7 @@ namespace LTRegistratorApi.Controllers
 
         /// <summary>
         /// method for assigning a project manager
-        /// POST: api/Administrator/setmanager/project/{projectId}/manager/{managerId}
+        /// POST: api/Administrator/setmanager/{managerID}/project/{projectID}
         /// </summary>
         /// <param name="projectid">id of project</param>
         /// <param name="managerid">id of manager</param>
@@ -101,7 +101,7 @@ namespace LTRegistratorApi.Controllers
 
         /// <summary>
         /// method for removing the manager from the project
-        /// DELETE: api/Administrator/DeleteManager
+        /// DELETE: api/Administrator/DeleteManager/project/{projectId}
         /// </summary>
         /// <param name="projectid"> id of the project whose manager should be deleted</param>
         /// <returns>"200 ok" or "404 not found"</returns>

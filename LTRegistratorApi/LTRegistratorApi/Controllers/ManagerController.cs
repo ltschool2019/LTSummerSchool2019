@@ -120,7 +120,7 @@ namespace LTRegistratorApi.Controllers
 
         /// <summary>
         /// method for getting the the list of all projects
-        /// GET: api/Manager/GetAllProjects
+        /// GET: api/Manager/allprojects
         /// </summary>
         /// <returns>list of projects in json {ProjectId, Name}</returns>
         [Authorize(Policy = "IsManagerOrAdministrator")]
@@ -134,7 +134,7 @@ namespace LTRegistratorApi.Controllers
 
         /// <summary>
         /// adding a new project
-        /// POST: api/Manager/AddProject
+        /// POST: api/Manager/project
         /// </summary>
         /// <param name="project">json {Name}</param>
         /// <returns>"201 created" and json {ProjectId, EmployeeId}</returns>
@@ -191,7 +191,7 @@ namespace LTRegistratorApi.Controllers
 
         /// <summary>
         /// deleting project by id
-        /// DELETE: api/Manager/DeleteProject/{id}
+        /// DELETE: api/Manager/project/{id}
         /// </summary>
         /// <param name="id">id of project to be deleted</param>
         /// <returns>"200 ok" or "404 not found"</returns>
