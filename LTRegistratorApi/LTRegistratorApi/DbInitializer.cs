@@ -72,9 +72,9 @@ namespace LTRegistratorApi
 
             if (!context.Project.Any())
             {
-                context.Project.Add(new Project() { Name = "A" });
-                context.Project.Add(new Project() { Name = "B" });
-                context.Project.Add(new Project() { Name = "С" });
+                context.Project.Add(new Project() { Name = "FOSS" });
+                context.Project.Add(new Project() { Name = "EMIAS" });
+                context.Project.Add(new Project() { Name = "Area 9" });
                 context.SaveChanges();
             }
 
@@ -94,19 +94,15 @@ namespace LTRegistratorApi
             }
             if (!context.Task.Any())
             {
-                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 1, Name = "Create database"});
-                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 2, Name = "Сreate registration method" });
-                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 2, Name = "Сreate login method" });
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 2, Name = "Сreate login method" });
-                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 3, Name = "Create AccountController"});
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 3, Name = "Create ManagerController"});
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 3, Name = "Create EmployeeController" });
-                context.Task.Add(new Task() { ProjectId = 3, EmployeeId = 3, Name = "Configure authentication for different roles"});
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 4, Name = "Create layouts for the client application"});
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 5, Name = "Prepare for presentation" });
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 6, Name = "Fix DeleteLeaves method"});
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 6, Name = "Сreate login method" });
-
+                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 1, Name = "FOSS"});
+                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 2, Name = "FOSS"});
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 2, Name = "EMIAS"});
+                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 3, Name = "FOSS"});
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 3, Name = "EMIAS"});
+                context.Task.Add(new Task() { ProjectId = 3, EmployeeId = 3, Name = "Area 9"});
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 4, Name = "EMIAS"});
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 5, Name = "EMIAS"});
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 6, Name = "EMIAS"});
                 context.SaveChanges();
             }
 
@@ -122,9 +118,9 @@ namespace LTRegistratorApi
                 context.TaskNote.Add(new TaskNote() { TaskId = 4, Hours = 5, Day = new DateTime(2019, 7, 3) });
                 context.TaskNote.Add(new TaskNote() { TaskId = 5, Hours = 8, Day = new DateTime(2019, 7, 3) });
                 context.TaskNote.Add(new TaskNote() { TaskId = 6, Hours = 1, Day = new DateTime(2019, 7, 11) });                
-                context.TaskNote.Add(new TaskNote() { TaskId = 10, Hours = 7, Day = new DateTime(2019, 6, 11) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 11, Hours = 4, Day = new DateTime(2019, 7, 11) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 12, Hours = 6, Day = new DateTime(2019, 7, 14) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 8, Hours = 7, Day = new DateTime(2019, 6, 11) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 8, Hours = 4, Day = new DateTime(2019, 7, 11) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 7, Hours = 6, Day = new DateTime(2019, 7, 14) });
 
                 context.SaveChanges();
             }
