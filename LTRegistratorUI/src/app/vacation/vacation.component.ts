@@ -83,7 +83,7 @@ export class VacationComponent implements OnInit {
   //TODO: дождаться back
   delete(vacation: Vacation): void {
     this.vacations = this.vacations.filter(v => v !== vacation);
-    this.vacationService.deleteVacation(vacation.id).subscribe();
+    this.vacationService.deleteVacation(this.getUserId(), vacation.id).subscribe();
   }
 
 

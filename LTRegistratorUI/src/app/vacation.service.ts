@@ -54,9 +54,9 @@ export class VacationService {
     return this.http.put(this.getUrl(userId), [body]);
   }
   //delete
-
-  deleteVacation(vacation: Vacation): Observable<Vacation> {
+  //api/employee/{EmployeeID}/leaves?leaveID=2
+  deleteVacation(id: number, userId): Observable<any> {
     //FIXME: заставь меня работать
-    return; //this.http.request<Vacation>(req);
+    return this.http.delete<Vacation>(this.getUrl(userId) + `?leaveID=${id}`);
   }
 }
