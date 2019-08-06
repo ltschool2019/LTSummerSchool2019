@@ -92,6 +92,42 @@ namespace LTRegistratorApi
 
                 context.SaveChanges();
             }
+            if (!context.Task.Any())
+            {
+                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 1, Name = "Create database"});
+                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 2, Name = "Сreate registration method" });
+                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 2, Name = "Сreate login method" });
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 2, Name = "Сreate login method" });
+                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 3, Name = "Create AccountController"});
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 3, Name = "Create ManagerController"});
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 3, Name = "Create EmployeeController" });
+                context.Task.Add(new Task() { ProjectId = 3, EmployeeId = 3, Name = "Configure authentication for different roles"});
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 4, Name = "Create layouts for the client application"});
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 5, Name = "Prepare for presentation" });
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 6, Name = "Fix DeleteLeaves method"});
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 6, Name = "Сreate login method" });
+
+                context.SaveChanges();
+            }
+
+            if (!context.TaskNote.Any())
+            {
+                context.TaskNote.Add(new TaskNote() { TaskId = 1, Hours = 4, Day = new DateTime(2019, 1, 1) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 2, Hours = 7, Day = new DateTime(2019, 8, 2) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 2, Hours = 4, Day = new DateTime(2019, 8, 3) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 2, Hours = 7, Day = new DateTime(2019, 8, 4) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 3, Hours = 8, Day = new DateTime(2019, 8, 1) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 3, Hours = 4, Day = new DateTime(2019, 8, 2) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 3, Hours = 7, Day = new DateTime(2019, 8, 3) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 4, Hours = 5, Day = new DateTime(2019, 7, 3) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 5, Hours = 8, Day = new DateTime(2019, 7, 3) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 6, Hours = 1, Day = new DateTime(2019, 7, 11) });                
+                context.TaskNote.Add(new TaskNote() { TaskId = 10, Hours = 7, Day = new DateTime(2019, 6, 11) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 11, Hours = 4, Day = new DateTime(2019, 7, 11) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 12, Hours = 6, Day = new DateTime(2019, 7, 14) });
+
+                context.SaveChanges();
+            }
         }
     }
 }

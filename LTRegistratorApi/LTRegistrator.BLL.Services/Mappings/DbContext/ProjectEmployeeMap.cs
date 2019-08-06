@@ -16,6 +16,8 @@ namespace LTRegistrator.BLL.Services.Mappings.DbContext
             builder.HasOne(pe => pe.Employee).WithMany(e => e.ProjectEmployees).HasForeignKey(pe => pe.EmployeeId);
 
             builder.HasOne(pe => pe.Project).WithMany(e => e.ProjectEmployees).HasForeignKey(pe => pe.ProjectId);
+
+            builder.HasMany(pe => pe.Tasks).WithOne(t => t.ProjectEmployee).HasForeignKey(pe => new { pe.EmployeeId, pe.ProjectId });
         }
     }
 }
