@@ -73,11 +73,10 @@ export class VacationComponent implements OnInit {
       value.start.toISOString(),
       value.end.toISOString());
     this.vacationService.addVacation(this.getUserId(), newVacation)
-      .subscribe(() => { }, (error) => {
-        if (error.status == 200) {
-          this.vacations.push(newVacation);
-        }
-      });
+      .subscribe(() => {
+        this.vacations.push(newVacation);
+      }
+      );
   }
   //delete
   //TODO: дождаться back
@@ -101,12 +100,10 @@ export class VacationComponent implements OnInit {
       value.start,
       value.end);
     this.vacationService.editVacation(this.getUserId(), newVacation)
-      .subscribe(() => { },
-        (error) => {
-          if (error.status == 200) {
-            this.vacations = this.vacations.filter(v => v.id !== newVacation.id);
-            this.vacations.push(newVacation);
-          }
-        });
+      .subscribe(() => {
+        this.vacations = this.vacations.filter(v => v.id !== newVacation.id);
+        this.vacations.push(newVacation);
+      }
+      );
   }
 }
