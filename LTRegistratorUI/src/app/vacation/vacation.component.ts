@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { Vacation } from '../vacation.model';
 import { VacationService } from '../vacation.service';
+import { UserService } from '../user.service'
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { VacationEditDialogComponent } from './vacation-edit-dialog/vacation-edit-dialog.component';
+
 export interface vacationType {
   value: string;
   viewValue: string;
@@ -33,11 +35,17 @@ export class VacationComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private vacationService: VacationService,
+    private userService: UserService,
     public dialog: MatDialog) { }
 
   ngOnInit() {
     this.initForm();
     this.getVacations();
+  }
+  getUserId() {
+    let id: number;
+    this.userService.getUser().subscribe(user => id = user.id);
+    return id;
   }
   private initForm(): void {
     this.vacationForm = this.fb.group({
@@ -48,7 +56,7 @@ export class VacationComponent implements OnInit {
   }
   //get
   getVacations(): void {
-    this.vacationService.getVacations()
+    this.vacationService.getVacations(this.getUserId())
       .subscribe(vacations => this.vacations = vacations);
   }
   //post
@@ -64,7 +72,7 @@ export class VacationComponent implements OnInit {
       value.type,
       value.start.toISOString(),
       value.end.toISOString());
-    this.vacationService.addVacation(newVacation)
+    this.vacationService.addVacation(this.getUserId(), newVacation)
       .subscribe(() => { }, (error) => {
         if (error.status == 200) {
           this.vacations.push(newVacation);
@@ -92,7 +100,7 @@ export class VacationComponent implements OnInit {
       value.type,
       value.start,
       value.end);
-    this.vacationService.editVacation(newVacation)
+    this.vacationService.editVacation(this.getUserId(), newVacation)
       .subscribe(() => { },
         (error) => {
           if (error.status == 200) {

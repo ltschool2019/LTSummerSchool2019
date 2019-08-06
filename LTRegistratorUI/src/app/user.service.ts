@@ -15,7 +15,7 @@ export class UserService {
   getObservableUser() {
     this.user$ = this.http.get<User>(this.userUrl).pipe(
       map((user: any) => {
-        return new User(user.employeeId, user.firstName, user.secondName,
+        return new User(user.id, user.firstName, user.secondName,
           user.mail, user.maxRole, user["projects"]);
       }),
       shareReplay(1)

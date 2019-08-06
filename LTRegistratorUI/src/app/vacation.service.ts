@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Vacation } from './vacation.model';
+import { VacationComponent } from './vacation/vacation.component';
 
 @Injectable({
   providedIn: 'root'
@@ -11,20 +12,21 @@ import { Vacation } from './vacation.model';
 
 export class VacationService {
   //FIXME: получать нужный id
-  private id = 2;
-  private vacationsUrl = `http://localhost:52029/api/employee/${this.id}/leaves`;
+  private;
 
   vacations: Vacation[];
 
   constructor(
     private http: HttpClient
   ) { }
-
+  private getUrl(id: any) {
+    return `http://localhost:52029/api/employee/${id}/leaves`;
+  }
 
   //get
 
-  getVacations(): Observable<Vacation[]> {
-    return this.http.get<Vacation[]>(this.vacationsUrl).pipe(
+  getVacations(userId: any): Observable<Vacation[]> {
+    return this.http.get<Vacation[]>(this.getUrl(userId)).pipe(
       map(data => {
         return data.map((vacation: any) =>
           new Vacation(vacation.id, vacation.typeLeave, vacation.startDate, vacation.endDate));
@@ -33,23 +35,23 @@ export class VacationService {
   }
 
   //post
-  addVacation(vacation: Vacation): Observable<any> {
+  addVacation(userId: any, vacation: Vacation): Observable<any> {
     const body = {
       TypeLeave: `${vacation.type}`,
       StartDate: `${vacation.start}`,
       EndDate: `${vacation.end}`
     };
-    return this.http.post(this.vacationsUrl, [body]);
+    return this.http.post(this.getUrl(userId), [body]);
   }
   //put
-  editVacation(vacation: Vacation): Observable<any> {
+  editVacation(userId: any, vacation: Vacation): Observable<any> {
     const body = {
       id: vacation.id,
       TypeLeave: vacation.type,
       StartDate: vacation.start,
       EndDate: vacation.end
     };
-    return this.http.put(this.vacationsUrl, [body]);
+    return this.http.put(this.getUrl(userId), [body]);
   }
   //delete
 
