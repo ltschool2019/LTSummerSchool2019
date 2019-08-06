@@ -25,6 +25,8 @@ namespace LTRegistratorApi.Mappings
                 .ForMember(l => l.EmployeeId, opt => opt.Ignore())
                 .ForMember(l => l.Employee, opt => opt.Ignore());
 
+            CreateMap<Leave, Leave>();
+
             CreateMap<Leave, LeaveDto>();
 
             CreateMap<LeaveInputDto, Leave>();
