@@ -20,7 +20,7 @@ export class VacationService {
     private http: HttpClient
   ) { }
   private getUrl(id: any) {
-    return `http://localhost:52029/api/employee/${id}/leaves`;
+    return `http://localhost:5000/api/employee/${id}/leaves`;
   }
 
   //get

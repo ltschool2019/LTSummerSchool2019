@@ -10,7 +10,7 @@ import { shareReplay, map } from 'rxjs/operators';
 export class UserService {
   id = 2;
   user$: Observable<User>;
-  private userUrl = `http://localhost:52029/api/employee/${this.id}/info`;
+  private userUrl = `http://localhost:5000/api/employee/${this.id}/info`;
 
   getObservableUser() {
     this.user$ = this.http.get<User>(this.userUrl).pipe(
