@@ -31,8 +31,8 @@ namespace LTRegistratorApi.Controllers
         /// POST api/task/project/{Id}
         /// Adding project tasks
         /// </summary>
-        [HttpPost("project/{Id}")]
-        public async Task<ActionResult> AddTask([FromRoute] int projectid, [FromBody] TaskInputDto task)
+        [HttpPost("project/{projectId}")]
+        public async Task<ActionResult> AddTask([FromRoute] int projectId, [FromBody] TaskInputDto task)
         {            
             if (!ModelState.IsValid)
             {
@@ -43,9 +43,10 @@ namespace LTRegistratorApi.Controllers
             var authorizedUser =
                 await _db.Set<Employee>().SingleOrDefaultAsync(
                     e => e.Id == thisUser.EmployeeId);
-            var templateTypeProject = _db.Project.Where(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectid).FirstOrDefault();           
-            var nameTask = _db.Task.Where(t => (t.Name == task.Name || t.Name == templateTypeProject.Name) && t.ProjectId == projectid && t.EmployeeId == thisUser.EmployeeId).FirstOrDefault(); 
-            if (nameTask == null && templateTypeProject != null && task != null )
+            var templateTypeProject = _db.Project.Where(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId).FirstOrDefault();
+            var employeeProject = _db.ProjectEmployee.Where(pe => pe.ProjectId == projectId && pe.EmployeeId == thisUser.EmployeeId).FirstOrDefault();
+            var nameTask = _db.Task.Where(t => (t.Name == task.Name || t.Name == templateTypeProject.Name)  && t.ProjectId == projectId && t.EmployeeId == thisUser.EmployeeId).FirstOrDefault(); 
+            if (nameTask == null && templateTypeProject != null && task != null && templateTypeProject.Name == task.Name && employeeProject != null)
             {
                 using (var transaction = _db.Database.BeginTransaction())
                 {
@@ -54,7 +55,7 @@ namespace LTRegistratorApi.Controllers
                         LTRegistrator.Domain.Entities.Task newTask = new LTRegistrator.Domain.Entities.Task
                         {
                             EmployeeId = authorizedUser.Id,
-                            ProjectId = projectid,
+                            ProjectId = projectId,
                             Name = task.Name
                         };
                         _db.Task.Add(newTask);
@@ -68,7 +69,8 @@ namespace LTRegistratorApi.Controllers
                                     Hours = item.Hours
                                 };
                                 _db.TaskNote.Add(taskNote);                          
-                        }                      
+                        }
+                        await _db.SaveChangesAsync();
                         transaction.Commit();
                         return Ok();
                     }
