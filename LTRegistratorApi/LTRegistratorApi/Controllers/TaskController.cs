@@ -43,9 +43,9 @@ namespace LTRegistratorApi.Controllers
             var authorizedUser =
                 await _db.Set<Employee>().SingleOrDefaultAsync(
                     e => e.Id == thisUser.EmployeeId);
-            var templateTypeProject = _db.Project.Where(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectid).FirstOrDefault(); ;
-            var nameTask = _db.Task.Where(t => t.Name == task.Name && t.ProjectId == projectid && t.EmployeeId == thisUser.EmployeeId).FirstOrDefault(); ;
-            if (nameTask == null && templateTypeProject != null && task != null)
+            var templateTypeProject = _db.Project.Where(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectid).FirstOrDefault();           
+            var nameTask = _db.Task.Where(t => (t.Name == task.Name || t.Name == templateTypeProject.Name) && t.ProjectId == projectid && t.EmployeeId == thisUser.EmployeeId).FirstOrDefault(); 
+            if (nameTask == null && templateTypeProject != null && task != null )
             {
                 using (var transaction = _db.Database.BeginTransaction())
                 {
