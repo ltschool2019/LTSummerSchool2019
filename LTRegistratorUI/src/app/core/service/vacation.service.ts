@@ -1,30 +1,22 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-
-import { Observable } from 'rxjs';
+import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
-import { Vacation } from './vacation.model';
-import { VacationComponent } from './vacation/vacation.component';
+import { Vacation } from '../models/vacation.model';
+
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class VacationService {
-  //FIXME: получать нужный id
-  private;
-
-  vacations: Vacation[];
 
   constructor(
     private http: HttpClient
-  ) { }
-  private getUrl(id: any) {
-    return `http://localhost:52029/api/employee/${id}/leaves`;
+  ) {
   }
 
-  //get
-
+  // get
   getVacations(userId: any): Observable<Vacation[]> {
     return this.http.get<Vacation[]>(this.getUrl(userId)).pipe(
       map(data => {
@@ -34,7 +26,7 @@ export class VacationService {
       }));
   }
 
-  //post
+  // post
   addVacation(userId: any, vacation: Vacation): Observable<any> {
     const body = {
       TypeLeave: `${vacation.type}`,
@@ -43,7 +35,8 @@ export class VacationService {
     };
     return this.http.post(this.getUrl(userId), [body]);
   }
-  //put
+
+  // put
   editVacation(userId: any, vacation: Vacation): Observable<any> {
     const body = {
       id: vacation.id,
@@ -53,10 +46,16 @@ export class VacationService {
     };
     return this.http.put(this.getUrl(userId), [body]);
   }
-  //delete
-  //api/employee/{EmployeeID}/leaves?leaveID=2
-  deleteVacation(id: number, userId): Observable<any> {
-    //FIXME: заставь меня работать
-    return this.http.delete<Vacation>(this.getUrl(userId) + `?leaveID=${id}`);
+
+  // delete
+  // api/employee/{EmployeeID}/leaves?leaveID=2
+  deleteVacation(vacationId: number, userId): Observable<any> {
+    // FIXME: заставь меня работать
+    return this.http.delete<Vacation>(this.getUrl(userId) + `?leaveID=${vacationId}`);
   }
+
+  private getUrl(userId: any) {
+    return `http://localhost:59920/api/employee/${userId}/leaves`;
+  }
+
 }

@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 
 import { User } from '../../core/models/user.model';
 import { UserService } from '../../core/service/user.service';
-import { LoginService } from "../../core/service/login.service";
-import { Router } from "@angular/router";
+import { LoginService } from '../../core/service/login.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-header',
@@ -21,7 +21,7 @@ export class HeaderComponent implements OnInit {
   }
 
   getUser() {
-    this.userService.getUser().subscribe(user => this.user = user);
+    this.userService.getUserInfo().subscribe(user => this.user = user);
   }
 
   signOut() {
