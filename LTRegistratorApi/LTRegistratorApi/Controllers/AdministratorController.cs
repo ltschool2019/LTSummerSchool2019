@@ -121,5 +121,75 @@ namespace LTRegistratorApi.Controllers
                 return NotFound();
             }
         }
+
+        /// <summary>
+        /// Update role claim of user to Manager
+        /// </summary>
+        /// <param name="employeeid">id of user which should be assigned as manager</param>
+        /// <response code="200">Claim updated</response>
+        /// <response code="400">User cannot be assigned as manager</response>
+        /// <response code="404">Cannot find user</response>
+        [HttpPut("AllowBeManager/{employeeid}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> AllowBeManager([FromRoute] string employeeid)
+        {
+            var user = await _userManager.FindByIdAsync(employeeid);
+            if (user != null)
+            {
+                var oldclaims = await _userManager.GetClaimsAsync(user);
+                var isemployee = oldclaims.Where(c => c.Value == "Employee").FirstOrDefault();
+                if (isemployee != null)
+                {
+                    await _userManager.RemoveClaimsAsync(user, oldclaims);
+                    await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, Enum.GetName(typeof(RoleType), 1)));
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
+
+        /// <summary>
+        /// Update role claim of user to Employee
+        /// </summary>
+        /// <param name="employeeid">id of user which should be assigned as employee</param>
+        /// <response code="200">Claim updated</response>
+        /// <response code="400">User cannot be assigned as employee</response>
+        /// <response code="404">Cannot find user</response>
+        [HttpPut("DisallowBeManager/{employeeid}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> DisallowBeManager([FromRoute] string employeeid)
+        {
+            var user = await _userManager.FindByIdAsync(employeeid);
+            if (user != null)
+            {
+                var oldclaims = await _userManager.GetClaimsAsync(user);
+                var isemployee = oldclaims.Where(c => c.Value == "Manager").FirstOrDefault();
+                if (isemployee != null)
+                {
+                    await _userManager.RemoveClaimsAsync(user, oldclaims);
+                    await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, Enum.GetName(typeof(RoleType), 0)));
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest();
+                }
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
     }
 }

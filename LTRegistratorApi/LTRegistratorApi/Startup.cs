@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.IO;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
@@ -95,6 +96,8 @@ namespace LTRegistratorApi
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new Info { Title = "LTSummerSchool2019", Version = "v1" });
+                var filePath = Path.Combine(System.AppContext.BaseDirectory, "LTRegistratorApi.xml");
+                c.IncludeXmlComments(filePath);
             });
         }
 
