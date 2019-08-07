@@ -2,35 +2,78 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
-using LTRegistratorApi.Model;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using LTRegistratorApi.Model;
+using LTRegistrator.BLL.Services;
+using LTRegistrator.Domain.Entities;
+using LTRegistrator.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 
 namespace LTRegistratorApi.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController, Authorize]
-    public class TaskController : Controller
+    [ApiController]
+    public class TaskController : ControllerBase
     {
+        private readonly LTRegistratorDbContext _db;
+        private readonly UserManager<User> _userManager;
+        private readonly HttpContext _httpContext;
+
+        public TaskController(LTRegistratorDbContext context, UserManager<User> userManager)
+        {
+            _db = context;
+            _userManager = userManager;
+        }
         /// <summary>
         /// POST api/task/project/{Id}
         /// Adding project tasks
         /// </summary>
         [HttpPost("project/{Id}")]
-        public async Task<ActionResult> AddTask(int id, [FromBody] ICollection<TaskInputDto> task)
-        {
-            if (task == null)
-                return BadRequest();
-
+        public async Task<ActionResult> AddTask([FromRoute] int projectid, [FromBody] TaskInputDto task)
+        {            
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var thisUser = await _userManager.FindByIdAsync(
-                _httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var response = await _employeeService.AddLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
-            return response.Status == ResponseResult.Success ? Ok("Leaves have been added") : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message });
+            var thisUser = await _userManager.FindByIdAsync(_httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var authorizedUser =
+                await _db.Set<Employee>().SingleOrDefaultAsync(
+                    e => e.Id ==
+                         thisUser.EmployeeId);
+            var templateTypeProject = _db.Project.Where(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectid);
+            var nameTask = _db.Task.Where(t => t.Name == task.Name && t.ProjectId == projectid && t.EmployeeId == thisUser.EmployeeId);
+            if (nameTask == null && templateTypeProject != null && task != null)
+            {
+                using (var transaction = _db.Database.BeginTransaction())
+                {
+                    try
+                    {
+                        LTRegistrator.Domain.Entities.Task newTask = new LTRegistrator.Domain.Entities.Task
+                        {
+                            EmployeeId = authorizedUser.Id,
+                            ProjectId = projectid,
+                            Name = task.Name
+                        };
+                        _db.Task.Add(newTask);
+                        TaskNote taskNote = new TaskNote
+                        {
+                            TaskId = newTask.Id
+                            
+                        };
+                         transaction.Commit();
+                        return Ok();
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                    }
+                }
+            }
+            return BadRequest();      
         }
     }
 }
