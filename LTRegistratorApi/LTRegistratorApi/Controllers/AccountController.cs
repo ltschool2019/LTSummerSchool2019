@@ -123,7 +123,8 @@ namespace LTRegistratorApi.Controllers
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //Generate almost unique identifier for token.
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim("EmployeeID", user.EmployeeId.ToString()),
                 _userManager.GetClaimsAsync(user).Result.Single(claim => claim.Type == ClaimTypes.Role)
             };
 

@@ -72,9 +72,9 @@ namespace LTRegistratorApi
 
             if (!context.Project.Any())
             {
-                context.Project.Add(new Project() { Name = "A", TemplateType = TemplateType.HoursPerProject});
-                context.Project.Add(new Project() { Name = "B", TemplateType = TemplateType.HoursPerProject});
-                context.Project.Add(new Project() { Name = "С", TemplateType = TemplateType.HoursPerProject});
+                context.Project.Add(new Project() { Name = "FOSS" });
+                context.Project.Add(new Project() { Name = "EMIAS" });
+                context.Project.Add(new Project() { Name = "Area 9" });
                 context.SaveChanges();
             }
 
@@ -94,14 +94,15 @@ namespace LTRegistratorApi
             }
             if (!context.Task.Any())
             {
-                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 1, Name = "A"});
-                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 2, Name = "B" });
-                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 2, Name = "A" });
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 3, Name = "B"});
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 5, Name = "B" });
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 6, Name = "B"});
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 6, Name = "B" });
-
+                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 1, Name = "FOSS"});
+                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 2, Name = "FOSS"});
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 2, Name = "EMIAS"});
+                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 3, Name = "FOSS"});
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 3, Name = "EMIAS"});
+                context.Task.Add(new Task() { ProjectId = 3, EmployeeId = 3, Name = "Area 9"});
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 4, Name = "EMIAS"});
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 5, Name = "EMIAS"});
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 6, Name = "EMIAS"});
                 context.SaveChanges();
             }
 
@@ -109,11 +110,17 @@ namespace LTRegistratorApi
             {
                 context.TaskNote.Add(new TaskNote() { TaskId = 1, Hours = 4, Day = new DateTime(2019, 1, 1) });
                 context.TaskNote.Add(new TaskNote() { TaskId = 2, Hours = 7, Day = new DateTime(2019, 8, 2) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 3, Hours = 4, Day = new DateTime(2019, 8, 3) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 4, Hours = 7, Day = new DateTime(2019, 8, 4) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 5, Hours = 8, Day = new DateTime(2019, 8, 1) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 6, Hours = 4, Day = new DateTime(2019, 8, 2) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 7, Hours = 7, Day = new DateTime(2019, 8, 3) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 2, Hours = 4, Day = new DateTime(2019, 8, 3) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 2, Hours = 7, Day = new DateTime(2019, 8, 4) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 3, Hours = 8, Day = new DateTime(2019, 8, 1) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 3, Hours = 4, Day = new DateTime(2019, 8, 2) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 3, Hours = 7, Day = new DateTime(2019, 8, 3) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 4, Hours = 5, Day = new DateTime(2019, 7, 3) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 5, Hours = 8, Day = new DateTime(2019, 7, 3) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 6, Hours = 1, Day = new DateTime(2019, 7, 11) });                
+                context.TaskNote.Add(new TaskNote() { TaskId = 8, Hours = 7, Day = new DateTime(2019, 6, 11) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 8, Hours = 4, Day = new DateTime(2019, 7, 11) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 7, Hours = 6, Day = new DateTime(2019, 7, 14) });
 
                 context.SaveChanges();
             }

@@ -77,7 +77,7 @@ namespace LTRegistratorApi.Controllers
             }
 
             var response = await _employeeService.AddLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
-            return response.Status == ResponseResult.Success ? Ok("Leaves have been added") : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message});
+            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message});
         }
 
         /// <summary>
@@ -99,7 +99,7 @@ namespace LTRegistratorApi.Controllers
             }
 
             var response = await _employeeService.UpdateLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
-            return response.Status == ResponseResult.Success ? Ok("Leaves have been updated") : StatusCode((int)response.Error.StatusCode, response.Error.Message);
+            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace LTRegistratorApi.Controllers
             }
 
             var response = await _employeeService.DeleteLeavesAsync(userId, leaveID);
-            return response.Status == ResponseResult.Success ? Ok("Leaves have been deleted") : StatusCode((int)response.Error.StatusCode, response.Error.Message);
+            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
     }
 }
