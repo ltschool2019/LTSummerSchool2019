@@ -28,9 +28,12 @@ namespace LTRegistratorApi.Controllers
             _userManager = userManager;
         }
         /// <summary>
-        /// POST api/task/project/{Id}
+        /// POST api/task/project/{projectId}
         /// Adding project tasks
         /// </summary>
+        /// <param name="projectId">id of project</param>
+        /// <param name="task">json {Name, List<{Day, Hours}></param>
+        /// <returns>"200 ok" or "400 Bad Request" or "401 Unauthorized"</returns>
         [HttpPost("project/{projectId}")]
         public async Task<ActionResult> AddTask([FromRoute] int projectId, [FromBody] TaskInputDto task)
         {            
