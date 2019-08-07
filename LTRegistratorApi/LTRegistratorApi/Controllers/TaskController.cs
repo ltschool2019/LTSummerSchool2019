@@ -16,12 +16,11 @@ using Microsoft.AspNetCore.Http;
 namespace LTRegistratorApi.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
+    [ApiController, Authorize]
     public class TaskController : ControllerBase
     {
         private readonly LTRegistratorDbContext _db;
         private readonly UserManager<User> _userManager;
-        private readonly HttpContext _httpContext;
 
         public TaskController(LTRegistratorDbContext context, UserManager<User> userManager)
         {
@@ -39,13 +38,13 @@ namespace LTRegistratorApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var thisUser = await _userManager.FindByIdAsync(_httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var thisUser = 
+                await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var authorizedUser =
                 await _db.Set<Employee>().SingleOrDefaultAsync(
-                    e => e.Id ==
-                         thisUser.EmployeeId);
-            var templateTypeProject = _db.Project.Where(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectid);
-            var nameTask = _db.Task.Where(t => t.Name == task.Name && t.ProjectId == projectid && t.EmployeeId == thisUser.EmployeeId);
+                    e => e.Id == thisUser.EmployeeId);
+            var templateTypeProject = _db.Project.Where(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectid).FirstOrDefault(); ;
+            var nameTask = _db.Task.Where(t => t.Name == task.Name && t.ProjectId == projectid && t.EmployeeId == thisUser.EmployeeId).FirstOrDefault(); ;
             if (nameTask == null && templateTypeProject != null && task != null)
             {
                 using (var transaction = _db.Database.BeginTransaction())
@@ -59,12 +58,18 @@ namespace LTRegistratorApi.Controllers
                             Name = task.Name
                         };
                         _db.Task.Add(newTask);
-                        TaskNote taskNote = new TaskNote
-                        {
-                            TaskId = newTask.Id
-                            
-                        };
-                         transaction.Commit();
+                        
+                        foreach (var item in task.TaskNotes)
+                        {                          
+                                TaskNote taskNote = new TaskNote
+                                {
+                                    TaskId = newTask.Id,
+                                    Day = item.Day,
+                                    Hours = item.Hours
+                                };
+                                _db.TaskNote.Add(taskNote);                          
+                        }                      
+                        transaction.Commit();
                         return Ok();
                     }
                     catch (Exception ex)
