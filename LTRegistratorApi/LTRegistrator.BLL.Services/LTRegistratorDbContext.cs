@@ -18,6 +18,8 @@ namespace LTRegistrator.BLL.Services
         public DbSet<Project> Project { get; set; }
         public DbSet<Leave> Leave { get; set; }
         public DbSet<ProjectEmployee> ProjectEmployee { get; set; }
+        public DbSet<Task> Task { get; set; }
+        public DbSet<TaskNote> TaskNote { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,6 +28,8 @@ namespace LTRegistrator.BLL.Services
             modelBuilder.ApplyConfiguration(new ProjectEmployeeMap());
             modelBuilder.ApplyConfiguration(new ProjectMap());
             modelBuilder.ApplyConfiguration(new UserMap());
+            modelBuilder.ApplyConfiguration(new TaskMap());
+            modelBuilder.ApplyConfiguration(new TaskNoteMap());
 
             base.OnModelCreating(modelBuilder);
         }

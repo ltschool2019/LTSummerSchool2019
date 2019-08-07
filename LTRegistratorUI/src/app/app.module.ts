@@ -13,11 +13,16 @@ import { JwtInterceptor } from 'src/app/core/service/interceptor.service';
 import { VacationComponent } from './vacation/vacation.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { TimesheetComponent } from './timesheet/timesheet.component';
-import { AppRoutingModule } from './app-routing.module';
 import { UserComponent } from './user/user.component';
-import { EmployeesTable } from './admin/admin.component';
+
+import { VacationService } from './vacation.service';
 import { LoginService } from 'src/app/core/service/login.service';
+
+import { AppRoutingModule } from './app-routing.module';
+
+import { EmployeesTable } from './admin/admin.component';
 import { MaterialModule } from "./material.module";
+import { VacationEditDialogComponent } from './vacation/vacation-edit-dialog/vacation-edit-dialog.component';
 
 @NgModule({
   declarations: [
@@ -29,23 +34,30 @@ import { MaterialModule } from "./material.module";
     EmployeeComponent,
     SideMenuComponent,
     HeaderComponent,
-    LoginComponent,
     UserComponent,
     EmployeesTable,
+    VacationEditDialogComponent
   ],
+  entryComponents: [VacationEditDialogComponent],
   imports: [
     BrowserModule,
     MaterialModule,
-    BrowserAnimationsModule,
     AppRoutingModule,
     ReactiveFormsModule,
     FormsModule,
     HttpClientModule,
-    FormsModule,
+    BrowserAnimationsModule
   ],
   providers: [
     LoginService,
-    {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true}
+    VacationService,
+    FormsModule,
+    HttpClientModule,
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    MaterialModule,
+    BrowserAnimationsModule,
+    AppRoutingModule,
+    ReactiveFormsModule
   ],
   bootstrap: [AppComponent]
 })

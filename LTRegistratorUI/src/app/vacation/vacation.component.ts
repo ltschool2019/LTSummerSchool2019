@@ -1,7 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { Vacation } from '../core/models/vacation.model';
-import { VacationService } from '../core/service/vacation.service';
-import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
+import { Vacation } from '../vacation.model';
+import { VacationService } from '../vacation.service';
+import { UserService } from '../user.service'
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
+import { VacationEditDialogComponent } from './vacation-edit-dialog/vacation-edit-dialog.component';
+
+export interface vacationType {
+  value: string;
+  viewValue: string;
+}
 
 @Component({
   selector: 'app-vacation',
@@ -10,47 +18,92 @@ import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms'
 })
 
 export class VacationComponent implements OnInit {
+
   vacationForm: FormGroup;
-  vacationTypes: string[];
 
-  //TODO: из бд подгружать
-  vacations: Vacation[] = [
-
+  vacationTypes: vacationType[] = [
+    { value: 'SickLeave', viewValue: 'SickLeave' },
+    { value: 'Vacation', viewValue: 'Vacation' },
+    { value: 'Training', viewValue: 'Training' },
+    { value: 'Idle', viewValue: 'Idle' }
   ];
+  minDate = new Date();
+  maxDate = new Date(2020, 0, 1);
 
-  constructor(private fb: FormBuilder) { }
+  vacations: Vacation[] = [];
+
+  constructor(
+    private fb: FormBuilder,
+    private vacationService: VacationService,
+    private userService: UserService,
+    public dialog: MatDialog) { }
 
   ngOnInit() {
-    this.vacationTypes = ['Отпуск', 'Больничный'];
     this.initForm();
+    this.getVacations();
+  }
+  getUserId() {
+    let id: number;
+    this.userService.getUser().subscribe(user => id = user.id);
+    return id;
   }
   private initForm(): void {
     this.vacationForm = this.fb.group({
-      type: 'Отпуск',
-      start: [null, [Validators.required]],
-      end: [null, [Validators.required]],
+      type: '',
+      start: [new Date(), [Validators.required]],
+      end: [new Date(), [Validators.required]],
     });
   }
-
-  delete(vacation: Vacation): void {
-    //TODO: метод удаления под сервис
-    this.vacations.splice(this.vacations.indexOf(vacation), 1);
+  //get
+  getVacations(): void {
+    this.vacationService.getVacations(this.getUserId())
+      .subscribe(vacations => this.vacations = vacations);
   }
-
-  onSubmit() {
-    const controls = this.vacationForm.controls;
+  //post
+  onSubmit(value) {
 
     /** Проверяем форму на валидность */
     if (this.vacationForm.invalid) {
-      /** Если форма не валидна, то помечаем все контролы как touched*/
-      Object.keys(controls)
-        .forEach(controlName => controls[controlName].markAsTouched());
-
       /** Прерываем выполнение метода*/
       return;
     }
 
-    /** TODO: Обработка данных формы */
-    this.vacations.push(this.vacationForm.value)
+    let newVacation = new Vacation(0,
+      value.type,
+      value.start.toISOString(),
+      value.end.toISOString());
+    this.vacationService.addVacation(this.getUserId(), newVacation)
+      .subscribe(() => {
+        this.vacations.push(newVacation);
+      }
+      );
+  }
+  //delete
+  //TODO: дождаться back
+  delete(vacation: Vacation): void {
+    this.vacations = this.vacations.filter(v => v !== vacation);
+    this.vacationService.deleteVacation(this.getUserId(), vacation.id).subscribe();
+  }
+
+
+  openEditModal(vacation: Vacation) {
+    let dialogRef = this.dialog.open(VacationEditDialogComponent,
+      { data: { id: vacation.id, type: vacation.type, start: vacation.start, end: vacation.end } });
+    dialogRef.afterClosed().subscribe(result => {
+      this.editVacation(result);
+    });
+  }
+  //put
+  editVacation(value) {
+    let newVacation = new Vacation(value.id,
+      value.type,
+      value.start,
+      value.end);
+    this.vacationService.editVacation(this.getUserId(), newVacation)
+      .subscribe(() => {
+        this.vacations = this.vacations.filter(v => v.id !== newVacation.id);
+        this.vacations.push(newVacation);
+      }
+      );
   }
 }

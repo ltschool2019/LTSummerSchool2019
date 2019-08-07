@@ -1,0 +1,28 @@
+<section class="edit-modal">
+  <form [formGroup]="editForm">
+    <mat-form-field>
+      <mat-label>Select</mat-label>
+      <mat-select formControlName="type">
+        <mat-option *ngFor="let vacationType of vacationTypes" [value]="vacationType.value">
+          {{vacationType.viewValue}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput [matDatepicker]="start" [min]="minDate" [max]="maxDate" placeholder="From"
+        formControlName="start">
+      <mat-datepicker-toggle [for]="start" matSuffix></mat-datepicker-toggle>
+      <mat-datepicker #start></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput [matDatepicker]="end" placeholder="To" formControlName="end">
+      <mat-datepicker-toggle [for]="end" matSuffix></mat-datepicker-toggle>
+      <mat-datepicker #end></mat-datepicker>
+    </mat-form-field>
+    <mat-dialog-actions>
+      <button mat-button mat-dialog-close [mat-dialog-close]="onSubmit(editForm.value)">Submit</button>
+      <button mat-button mat-dialog-close mat-dialog-close="null">Cancel</button>
+    </mat-dialog-actions>
+  </form>
+
+</section>

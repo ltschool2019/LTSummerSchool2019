@@ -36,7 +36,7 @@ namespace LTRegistratorApi.Controllers
         public async Task<ActionResult> GetInfoAsync(int id)
         {
             var response = await _employeeService.GetByIdAsync(id);
-
+            
             return response.Status == ResponseResult.Success 
             ? Ok(_mapper.Map<EmployeeDto>(response.Result)) 
             : StatusCode((int)response.Error.StatusCode, response.Error.Message);
@@ -77,7 +77,7 @@ namespace LTRegistratorApi.Controllers
             }
 
             var response = await _employeeService.AddLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
-            return response.Status == ResponseResult.Success ? Ok("Leaves have been added") : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message});
+            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message});
         }
 
         /// <summary>
@@ -99,20 +99,20 @@ namespace LTRegistratorApi.Controllers
             }
 
             var response = await _employeeService.UpdateLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
-            return response.Status == ResponseResult.Success ? Ok("Leaves have been updated") : StatusCode((int)response.Error.StatusCode, response.Error.Message);
+            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
         /// <summary>
-        /// DELETE api/employee/{id}/leaves
+        /// DELETE api/employee/{id}/leaves?leaveID=1&leaveID=2&leaveID=3
         /// Deletes a leaves record.
         /// </summary>
-        /// <param name="id">UserId</param>
-        /// <param name="leaves">List of leaves that is deleted to the user</param>
+        /// <param name="userId">UserId</param>
+        /// <param name="id"> IDs of leaves that should be deleted</param>
         /// <returns>Was the operation successful?</returns>
-        [HttpDelete("{id}/leaves")]
-        public async Task<ActionResult> DeleteLeave(int id, List<int> leaves)
+        [HttpDelete("{userId}/leaves")]
+        public async Task<ActionResult> DeleteLeave(int userId, [FromQuery] List<int> leaveID)
         {
-            if (leaves == null)
+            if ( leaveID== null)
                 return BadRequest();
 
             if (!ModelState.IsValid)
@@ -120,8 +120,8 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var response = await _employeeService.DeleteLeavesAsync(id, leaves);
-            return response.Status == ResponseResult.Success ? Ok("Leaves have been deleted") : StatusCode((int)response.Error.StatusCode, response.Error.Message);
+            var response = await _employeeService.DeleteLeavesAsync(userId, leaveID);
+            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
     }
 }

@@ -11,6 +11,7 @@ using LTRegistratorApi.Mappings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -79,7 +80,8 @@ namespace LTRegistratorApi
                         context.User.HasClaim(c => 
                             (c.Type == ClaimTypes.Role && (c.Value == "Manager" || c.Value == "Administrator")))));
             });
-
+            services.AddTransient<HttpContext>(s =>
+                s.GetService<IHttpContextAccessor>().HttpContext);
             services.AddTransient(typeof(IEmployeeService), typeof(EmployeeService));
 
             var mappingConfig = new MapperConfiguration(mc =>

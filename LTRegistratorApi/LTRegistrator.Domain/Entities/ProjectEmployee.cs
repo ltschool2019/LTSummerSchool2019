@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using LTRegistrator.Domain.Enums;
 
 namespace LTRegistrator.Domain.Entities
@@ -15,5 +16,7 @@ namespace LTRegistrator.Domain.Entities
 
         public int EmployeeId { get; set; }
         public virtual Employee Employee { get; set; }
+
+        public virtual ICollection<Task> Tasks { get; set; }
     }
 }
