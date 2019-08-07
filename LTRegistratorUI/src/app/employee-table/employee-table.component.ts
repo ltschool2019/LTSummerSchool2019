@@ -1,10 +1,12 @@
-import { Component, OnInit, ViewChild, Input } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, Inject } from '@angular/core';
 import { SelectionModel } from '@angular/cdk/collections';
 import { MaterialModule } from "src/app/material.module";
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatRadioModule } from '@angular/material/radio';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+
 
 export interface EmployeeItem {
   position: number;
@@ -36,7 +38,12 @@ export class EmployeesTable implements OnInit {
     this.parameter = !this.parameter;
   }
 
-  constructor() {}
+  constructor(public dialogRef: MatDialogRef<EmployeesTable>,
+    @Inject(MAT_DIALOG_DATA) public data: false) { }
+
+  onNoClick(): void {
+    this.dialogRef.close();
+  }
 
  displayedColumns: string[];
  dataSource = new MatTableDataSource<EmployeeItem>(EMPLOYEES);
@@ -63,6 +70,14 @@ export class EmployeesTable implements OnInit {
    }
    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
  }
+  //////////////////
+ isOneSelected(row?: EmployeeItem) {
+     for (let item of this.selection.selected) {
+       if (item.position != row.position) {
+         this.selection.deselect(item);
+       }
+     }
+ }
  
  applyFilter(filterValue: string) {
    this.dataSource.filter = filterValue.trim().toLowerCase();
@@ -73,9 +88,12 @@ export class EmployeesTable implements OnInit {
      this.displayedColumns = ['select', 'name', 'email'];
    }
    else {
-     this.displayedColumns = ['radio', 'name', 'email'];
+     this.displayedColumns = ['select_like_radio', 'name', 'email'];
    }
    return this.parameter;
  }
+
+ //убираем радиобаттоны, вместо них делаем обработчик, в зависимости
+ //от параметра: чтобы мог выбираться только 1 чекбокс
 
 }

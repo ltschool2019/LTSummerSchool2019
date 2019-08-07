@@ -7,13 +7,13 @@ import { MatPaginator } from '@angular/material/paginator';
 
 export interface Project {
   position: number;
-  name: string;
+  project: string;
 }
 
 const PROJECT: Project[] = [
-  { position: 1, name: 'Project A' },
-  { position: 2, name: 'Project B' },
-  { position: 3, name: 'Project C' },
+  { position: 1, project: 'Project A' },
+  { position: 2, project: 'Project B' },
+  { position: 3, project: 'Project C' },
 ]
 
 @Component({

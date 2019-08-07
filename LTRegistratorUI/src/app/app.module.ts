@@ -51,7 +51,8 @@ import { AddManagerComponent } from './add-manager/add-manager.component';
     LoginService,
     {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true}
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [EmployeesTable]
 })
 export class AppModule {
 }
