@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Project } from '../core/models/project.model';
 import { ActivatedRoute } from '@angular/router';
+
+import { Project } from '../core/models/project.model';
 
 @Component({
   selector: 'app-timesheet',

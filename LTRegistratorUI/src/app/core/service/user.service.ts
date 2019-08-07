@@ -40,6 +40,6 @@ export class UserService {
   }
 
   private getUrl() {
-    return `http://localhost:59920/api/employee/${this.currentUser.id}/info`;
+    return `http://localhost:5000/api/employee/${this.currentUser.id}/info`;
   }
 }
