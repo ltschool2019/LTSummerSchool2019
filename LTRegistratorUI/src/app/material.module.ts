@@ -29,8 +29,6 @@ import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 
-
-
 @NgModule({
   exports: [
     CdkTableModule,
