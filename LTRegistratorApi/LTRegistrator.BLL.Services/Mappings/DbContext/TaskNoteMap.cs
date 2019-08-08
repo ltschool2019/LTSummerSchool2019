@@ -13,6 +13,8 @@ namespace LTRegistrator.BLL.Services.Mappings.DbContext
             builder.Property(tn => tn.Id).ValueGeneratedOnAdd();
 
             builder.HasOne(tn => tn.Task).WithMany(t => t.TaskNotes).HasForeignKey(tn => tn.TaskId);
+
+            builder.HasIndex(tn => new { tn.Day, tn.TaskId }).IsUnique();
         }
     }
 }

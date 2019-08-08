@@ -102,7 +102,6 @@ namespace LTRegistratorApi
                 context.Task.Add(new Task() { ProjectId = 3, EmployeeId = 3, Name = "Area 9"});
                 context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 4, Name = "EMIAS"});
                 context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 5, Name = "EMIAS"});
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 6, Name = "EMIAS"});
                 context.SaveChanges();
             }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using LTRegistrator.Domain.Entities.Base;
+using LTRegistrator.Domain.Enums;
 
 namespace LTRegistrator.Domain.Entities
 {
@@ -9,6 +10,7 @@ namespace LTRegistrator.Domain.Entities
     public class Project : BaseEntity
     {
         public string Name { get; set; }
+        public TemplateType TemplateType { get; set; }
 
         public virtual ICollection<ProjectEmployee> ProjectEmployees { get; set; }
     }

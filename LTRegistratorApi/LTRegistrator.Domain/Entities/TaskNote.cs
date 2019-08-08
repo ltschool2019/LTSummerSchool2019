@@ -4,6 +4,9 @@ using LTRegistrator.Domain.Entities.Base;
 
 namespace LTRegistrator.Domain.Entities
 {
+    /// <summary>
+    /// Describes an entity with task notes.
+    /// </summary>
     public class TaskNote : BaseEntity
     {
         public DateTime Day { get; set; }
