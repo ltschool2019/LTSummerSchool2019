@@ -19,7 +19,6 @@ import { EmployeesTable } from './employee-table/employee-table.component';
 import { LoginService } from 'src/app/core/service/login.service';
 import { MaterialModule } from "./material.module";
 import { AdminComponent } from './admin/admin.component';
-import { AddManagerComponent } from './add-manager/add-manager.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +34,6 @@ import { AddManagerComponent } from './add-manager/add-manager.component';
     UserComponent,
     EmployeesTable,
     AdminComponent,
-    AddManagerComponent,
   ],
   imports: [
     BrowserModule,
