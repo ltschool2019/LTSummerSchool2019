@@ -11,14 +11,14 @@ import { ManagerProjects } from 'src/app/shared/models/manager_projects.model';
 
 export class ManagerProjectsService {
   private id = 2;
-  private manager_projectsUrl = `http://localhost:53635/api/manager/${this.id}/projects`;
+  private managerProjectsUrl = `http://localhost:53635/api/manager/${this.id}/projects`;
 
   constructor(
     private http: HttpClient
   ) { }
 
   getManagerProjects():any {
-    return this.http.get<any>(this.manager_projectsUrl);
+    return this.http.get<any>(this.managerProjectsUrl);
 
   }
 }
