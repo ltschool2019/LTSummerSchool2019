@@ -15,6 +15,9 @@ using Microsoft.AspNetCore.Http;
 
 namespace LTRegistratorApi.Controllers
 {
+    /// <summary>
+    /// Сontroller providing operations with tasks.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController, Authorize]
     public class TaskController : ControllerBase
@@ -41,8 +44,11 @@ namespace LTRegistratorApi.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var thisUser = 
-                await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (thisUser == null)
+            {
+                return BadRequest();
+            }           
             var authorizedUser =
                 await _db.Set<Employee>().SingleOrDefaultAsync(
                     e => e.Id == thisUser.EmployeeId);
