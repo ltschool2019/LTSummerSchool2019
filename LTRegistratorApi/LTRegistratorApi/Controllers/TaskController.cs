@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
+using AutoMapper;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -24,11 +25,13 @@ namespace LTRegistratorApi.Controllers
     {
         private readonly LTRegistratorDbContext _db;
         private readonly UserManager<User> _userManager;
+        private readonly IMapper _mapper;
 
-        public TaskController(LTRegistratorDbContext context, UserManager<User> userManager)
+        public TaskController(LTRegistratorDbContext context, UserManager<User> userManager, IMapper mapper)
         {
             _db = context;
             _userManager = userManager;
+            _mapper = mapper;
         }
         /// <summary>
         /// POST api/task/project/{projectId}
@@ -90,6 +93,43 @@ namespace LTRegistratorApi.Controllers
                 }
             }
             return BadRequest();      
+        }
+        /// <summary>
+        /// GET api/tasks/project/{ProjectId}/from/{StartDate}/to/{EndDate}
+        /// Output information on tasks for a certain period of time
+        /// </summary>
+        /// <param name="ProjectId">id of project</param>
+        /// <param name="StartDate">period start date</param>
+        /// <param name="EndDate">period end date</param>
+        /// <returns>Task information list</returns>
+        [HttpGet("project/{ProjectId}/from/{StartDate}/to/{EndDate}")]
+        public async Task<ActionResult<List<TaskDto>>> GetTask([FromRoute] int ProjectId, DateTime StartDate, DateTime EndDate)
+        {
+            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (thisUser == null)
+            {
+                return BadRequest();
+            }
+            var authorizedUser =
+                await _db.Set<Employee>().SingleOrDefaultAsync(
+                    e => e.Id == thisUser.EmployeeId);
+            var intersectingEmployeeLeave = await _db.Leave.Join(_db.Employee,
+                                                        l => l.EmployeeId,
+                                                        e => e.Id,
+                                                        (l, e) => new { l, e }).Where(w => w.l.EmployeeId == thisUser.EmployeeId && EndDate > w.l.StartDate && StartDate < w.l.EndDate).ToListAsync();
+            foreach (var item in intersectingEmployeeLeave)
+            {
+                var iStart = item.l.StartDate < StartDate ? StartDate : item.l.StartDate;
+                var iEnd = item.l.EndDate < EndDate ? item.l.EndDate : EndDate;
+                var newRange = iStart < iEnd ? new {start = iStart, end = iEnd, TypeLeave = item.l.TypeLeave, LeaveId = item.l.Id } : null;
+            }
+            var employeeTaskProject = _db.Task.Where(t => t.ProjectId == ProjectId && t.EmployeeId == thisUser.EmployeeId).FirstOrDefault();
+            if (employeeTaskProject != null)
+            {
+                var taskNotes = await _db.TaskNote.Where(tn => tn.TaskId == employeeTaskProject.Id).ToListAsync();
+                //return _mapper.Map<ICollection<TaskDto>>(employeeTaskProject);
+            }          
+            return BadRequest();           
         }
     }
 }
