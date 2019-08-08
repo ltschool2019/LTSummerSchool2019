@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-
 //import путей
 import { LoginComponent } from './login/login.component';
 import { UserComponent } from './user/user.component';
@@ -25,7 +25,6 @@ const userRoutes: Routes = [
 
 const appRoutes: Routes = [
   {path: 'login', component: LoginComponent},
-  { path: 'manager_projects', component: ManagerProjectsComponent},
   {path: '', redirectTo: '/login', pathMatch: 'full'},
   {path: 'user', component: UserComponent, children: userRoutes},
   {path: '**', component: NotFoundComponent}
