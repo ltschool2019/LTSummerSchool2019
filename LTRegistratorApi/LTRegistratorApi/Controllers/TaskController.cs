@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
-using AutoMapper;
 
 namespace LTRegistratorApi.Controllers
 {
