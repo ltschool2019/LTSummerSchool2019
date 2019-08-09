@@ -21,7 +21,7 @@ export class UserService {
       this.user$ = this.http.get<User>(this.getUrl()).pipe(
         map((user: any) => {
           this.currentUser = new User(user.id, user.firstName, user.secondName,
-            user.mail, user.maxRole, user['projects']);
+            user.mail, user.maxRole, user.projects);
           return this.currentUser;
         }),
         shareReplay(1)

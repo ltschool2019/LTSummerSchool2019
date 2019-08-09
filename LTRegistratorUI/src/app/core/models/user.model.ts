@@ -15,7 +15,7 @@ export class User {
     this._surname = secondName;
     this._mail = mail;
     this._role = maxRole;
-    this._projects = projects.map((project: any) => new Project(project.projectId, project._name));
+    this._projects = projects.map((project: any) => new Project(project.id, project.name));
   }
 
   get id(): number {
