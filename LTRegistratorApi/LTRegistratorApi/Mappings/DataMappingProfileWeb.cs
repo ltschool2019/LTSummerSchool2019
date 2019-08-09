@@ -32,7 +32,6 @@ namespace LTRegistratorApi.Mappings
             CreateMap<LeaveInputDto, Leave>();
 
             #endregion
-
         }
     }
 }
