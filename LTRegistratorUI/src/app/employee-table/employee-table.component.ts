@@ -32,46 +32,46 @@ export class EmployeesTable implements OnInit {
   ngOnInit() {
     this.dataSource.sort = this.sort;
   }
-  @Input('multiple-choice') parameter: boolean;// = true;
+  public data: boolean;
 
-  Change_parameter() {
-    this.parameter = !this.parameter;
-  }
+  //Change_parameter() {
+  //  this.data = !this.data;
+  //}
 
-  constructor(public dialogRef: MatDialogRef<EmployeesTable>,
-    @Inject(MAT_DIALOG_DATA) public data: false) { }
+  constructor(public dialogRef: MatDialogRef<EmployeesTable>
+  ) { }
 
-  onNoClick(): void {
+  private onNoClick(): void {
     this.dialogRef.close();
   }
 
- displayedColumns: string[];
- dataSource = new MatTableDataSource<EmployeeItem>(EMPLOYEES);
- selection = new SelectionModel<EmployeeItem>(true, []);
+ private displayedColumns: string[];
+ private dataSource = new MatTableDataSource<EmployeeItem>(EMPLOYEES);
+ private selection = new SelectionModel<EmployeeItem>(true, []);
 
  /** Whether the number of selected elements matches the total number of rows. */
- isAllSelected() {
+ private isAllSelected() {
    const numSelected = this.selection.selected.length;
    const numRows = this.dataSource.data.length;
    return numSelected === numRows;
  }
 
  /** Selects all rows if they are not all selected; otherwise clear selection. */
- masterToggle() {
+ private selectAll() {
    this.isAllSelected() ?
      this.selection.clear() :
      this.dataSource.data.forEach(row => this.selection.select(row));
  }
 
  /** The label for the checkbox on the passed row */
- checkboxLabel(row?: EmployeeItem): string {
+ private checkboxLabel(row?: EmployeeItem): string {
    if (!row) {
      return `${this.isAllSelected() ? 'select' : 'deselect'} all`;
    }
    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
  }
   //////////////////
- isOneSelected(row?: EmployeeItem) {
+ private isOneSelected(row?: EmployeeItem) {
      for (let item of this.selection.selected) {
        if (item.position != row.position) {
          this.selection.deselect(item);
@@ -79,18 +79,18 @@ export class EmployeesTable implements OnInit {
      }
  }
  
- applyFilter(filterValue: string) {
+ private applyFilter(filterValue: string) {
    this.dataSource.filter = filterValue.trim().toLowerCase();
  }
 
- changeColumn() {
-   if (this.parameter) {
+ private changeColumn() {
+   if (this.data) {
      this.displayedColumns = ['select', 'name', 'email'];
    }
    else {
      this.displayedColumns = ['select_like_radio', 'name', 'email'];
    }
-   return this.parameter;
+   return this.data;
  }
 
  //убираем радиобаттоны, вместо них делаем обработчик, в зависимости

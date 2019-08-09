@@ -6,10 +6,6 @@ import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
-export interface DialogData {
-  parameter: boolean;
-}
-
 export interface Project {
   position: number;
   name: string;
@@ -36,12 +32,8 @@ export class AdminComponent implements OnInit {
 
   openDialog(): void {
     const dialogRef = this.dialog.open(EmployeesTable, {
-      data: { parameter: false }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-    });
+      width: '700px'  });
+    dialogRef.componentInstance.data = false;
   }
 
   ngOnInit() {

@@ -1,13 +1,6 @@
 $background-color: #f8f8f8;
 
 .employees {
-  /*margin-top: 30px;
-  float: left;
-  width: 950px;
-  height: 100%;
-  margin-left: 330px;
-  position: absolute;
-  align-self: flex-start;*/
   table {
     position: relative;
     border-collapse: collapse;
@@ -27,8 +20,14 @@ $background-color: #f8f8f8;
 
   .mat-form-field {
     position: relative;
-   // margin-top: 80px;
+    // margin-top: 80px;
     font-size: 14px;
     width: 100%;
+  }
+
+  button{
+    position: relative;
+    margin: 10px;
+    margin-left: 90% ;
   }
 }

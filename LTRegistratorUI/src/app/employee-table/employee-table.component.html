@@ -7,7 +7,7 @@
     <!-- Checkbox Column -->
     <ng-container *ngIf="changeColumn()" matColumnDef="select">
       <th mat-header-cell *matHeaderCellDef>
-        <mat-checkbox (change)="$event ? masterToggle() : null"
+        <mat-checkbox (change)="$event ? selectAll() : null"
                       [checked]="selection.hasValue() && isAllSelected()"
                       [indeterminate]="selection.hasValue() && !isAllSelected()"
                       [aria-label]="checkboxLabel()">
@@ -54,5 +54,5 @@
 
   <!--<button (click)="Change_parameter()">Change parameter</button>-->
 
-  <button mat-button (click)="onNoClick()">Add</button>
+  <button mat-raised-button (click)="onNoClick()">Add</button>
 </div>

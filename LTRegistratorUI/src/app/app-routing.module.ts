@@ -10,7 +10,6 @@ import { TimesheetComponent } from './timesheet/timesheet.component';
 import { EmployeeComponent } from './employee/employee.component';
 import { EmployeesTable } from './employee-table/employee-table.component';
 import { AdminComponent } from './admin/admin.component';
-import { AddManagerComponent } from './add-manager/add-manager.component';
 
 const userRoutes: Routes = [
   { path: 'timesheet', component: TimesheetComponent },
