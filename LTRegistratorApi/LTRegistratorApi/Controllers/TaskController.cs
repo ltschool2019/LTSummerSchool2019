@@ -25,13 +25,11 @@ namespace LTRegistratorApi.Controllers
     {
         private readonly LTRegistratorDbContext _db;
         private readonly UserManager<User> _userManager;
-        private readonly IMapper _mapper;
 
-        public TaskController(LTRegistratorDbContext context, UserManager<User> userManager, IMapper mapper)
+        public TaskController(LTRegistratorDbContext context, UserManager<User> userManager)
         {
             _db = context;
             _userManager = userManager;
-            _mapper = mapper;
         }
         /// <summary>
         /// POST api/task/project/{projectId}
