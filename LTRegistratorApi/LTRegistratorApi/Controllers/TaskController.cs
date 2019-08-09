@@ -95,7 +95,7 @@ namespace LTRegistratorApi.Controllers
             return BadRequest();      
         }
         /// <summary>
-        /// GET api/tasks/project/{ProjectId}/from/{StartDate}/to/{EndDate}
+        /// GET api/task/project/{ProjectId}/from/{StartDate}/to/{EndDate}
         /// Output information on tasks for a certain period of time
         /// </summary>
         /// <param name="ProjectId">id of project</param>
@@ -117,17 +117,24 @@ namespace LTRegistratorApi.Controllers
                                                         l => l.EmployeeId,
                                                         e => e.Id,
                                                         (l, e) => new { l, e }).Where(w => w.l.EmployeeId == thisUser.EmployeeId && EndDate > w.l.StartDate && StartDate < w.l.EndDate).ToListAsync();
+            List<LeaveDto> leave = new List<LeaveDto>();
             foreach (var item in intersectingEmployeeLeave)
             {
                 var iStart = item.l.StartDate < StartDate ? StartDate : item.l.StartDate;
                 var iEnd = item.l.EndDate < EndDate ? item.l.EndDate : EndDate;
-                var newRange = iStart < iEnd ? new {start = iStart, end = iEnd, TypeLeave = item.l.TypeLeave, LeaveId = item.l.Id } : null;
+                leave.Add(new LeaveDto { StartDate = iStart, EndDate = iEnd });            
             }
             var employeeTaskProject = _db.Task.Where(t => t.ProjectId == ProjectId && t.EmployeeId == thisUser.EmployeeId).FirstOrDefault();
             if (employeeTaskProject != null)
             {
-                var taskNotes = await _db.TaskNote.Where(tn => tn.TaskId == employeeTaskProject.Id).ToListAsync();
-                //return _mapper.Map<ICollection<TaskDto>>(employeeTaskProject);
+                var nameProject = _db.Project.Where(pid => pid.Id == ProjectId).Select(n => n.Name).FirstOrDefault();
+                List<TaskNoteDto> taskNotes = new List<TaskNoteDto>();
+                var tnote = await _db.TaskNote.Where(tn => tn.TaskId == employeeTaskProject.Id).ToListAsync();
+                foreach (var taskNote in tnote)
+                    taskNotes.Add(new TaskNoteDto { Day = taskNote.Day, Hours = taskNote.Hours }) ;
+                List<TaskDto> res = new List<TaskDto>();
+                res.Add(new TaskDto { Name = nameProject, Leave = leave, TaskNotes = taskNotes });
+                return (res);
             }          
             return BadRequest();           
         }

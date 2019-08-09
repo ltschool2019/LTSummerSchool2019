@@ -23,7 +23,7 @@ namespace LTRegistratorApi
             {
                 var leaveBob = new Leave[]
                 {
-                    new Leave() { StartDate = new DateTime(2019, 1, 1), EndDate = new DateTime(2019, 1, 13), TypeLeave = TypeLeave.Vacation },
+                    new Leave() { StartDate = new DateTime(2019, 8, 1), EndDate = new DateTime(2019, 8, 5), TypeLeave = TypeLeave.Vacation },
                     new Leave() { StartDate = new DateTime(2019, 2, 10), EndDate = new DateTime(2019, 2, 13), TypeLeave = TypeLeave.SickLeave }
                 };
                 var leaveEve = new Leave[]
