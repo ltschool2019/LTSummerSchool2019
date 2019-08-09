@@ -23,10 +23,10 @@ export class VacationComponent implements OnInit {
   vacationForm: FormGroup;
 
   vacationTypes: VacationType[] = [
-    {value: 'SickLeave', viewValue: 'SickLeave'},
-    {value: 'Vacation', viewValue: 'Vacation'},
-    {value: 'Training', viewValue: 'Training'},
-    {value: 'Idle', viewValue: 'Idle'}
+    { value: 'SickLeave', viewValue: 'SickLeave' },
+    { value: 'Vacation', viewValue: 'Vacation' },
+    { value: 'Training', viewValue: 'Training' },
+    { value: 'Idle', viewValue: 'Idle' }
   ];
   minDate = new Date();
   maxDate = new Date(2020, 0, 1);
@@ -69,8 +69,8 @@ export class VacationComponent implements OnInit {
       value.end.toISOString());
     this.vacationService.addVacation(this.userId, newVacation)
       .subscribe(() => {
-          this.vacations.push(newVacation);
-        }
+        this.vacations.push(newVacation);
+      }
       );
   }
 
@@ -84,9 +84,11 @@ export class VacationComponent implements OnInit {
 
   openEditModal(vacation: Vacation) {
     const dialogRef = this.dialog.open(VacationEditDialogComponent,
-      {data: {id: vacation.id, type: vacation.type, start: vacation.start, end: vacation.end}});
+      { data: { id: vacation.id, type: vacation.type, start: vacation.start, end: vacation.end } });
     dialogRef.afterClosed().subscribe(result => {
-      this.editVacation(result);
+      if (result != undefined && result != "false") {
+        this.editVacation(result);
+      }
     });
   }
 
@@ -98,9 +100,9 @@ export class VacationComponent implements OnInit {
       value.end);
     this.vacationService.editVacation(this.userId, newVacation)
       .subscribe(() => {
-          this.vacations = this.vacations.filter(v => v.id !== newVacation.id);
-          this.vacations.push(newVacation);
-        }
+        this.vacations = this.vacations.filter(v => v.id !== newVacation.id);
+        this.vacations.push(newVacation);
+      }
       );
   }
 
