@@ -116,13 +116,13 @@ namespace LTRegistratorApi.Controllers
             var intersectingEmployeeLeave = await _db.Leave.Join(_db.Employee,
                                                         l => l.EmployeeId,
                                                         e => e.Id,
-                                                        (l, e) => new { l, e }).Where(w => w.l.EmployeeId == thisUser.EmployeeId && EndDate > w.l.StartDate && StartDate < w.l.EndDate).ToListAsync();
+                                                        (l, e) => new { l, e }).Where(w => w.l.EmployeeId == thisUser.EmployeeId && EndDate >= w.l.StartDate && StartDate <= w.l.EndDate).ToListAsync();
             List<LeaveDto> leave = new List<LeaveDto>();
             foreach (var item in intersectingEmployeeLeave)
             {
                 var iStart = item.l.StartDate < StartDate ? StartDate : item.l.StartDate;
                 var iEnd = item.l.EndDate < EndDate ? item.l.EndDate : EndDate;
-                leave.Add(new LeaveDto { StartDate = iStart, EndDate = iEnd });            
+                leave.Add(new LeaveDto { StartDate = iStart, EndDate = iEnd, Id = item.l.Id});            
             }
             var employeeTaskProject = _db.Task.Where(t => t.ProjectId == ProjectId && t.EmployeeId == thisUser.EmployeeId).FirstOrDefault();
             if (employeeTaskProject != null)
