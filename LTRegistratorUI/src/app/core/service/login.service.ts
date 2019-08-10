@@ -17,7 +17,7 @@ export class LoginService {
 
 
   public signIn(email: string, password: string) {
-    return this.http.post<any>('http://localhost:5000/api/account/login', {email, password})
+    return this.http.post<any>('http://localhost:5000/api/account/login', { email, password })
       .pipe(
         tap((token) => this.setSession(token)),
         catchError(err => {
@@ -35,8 +35,10 @@ export class LoginService {
   private setSession(authResult) {
     this.token_Json = (JSON.parse(atob(authResult.token.split('.')[1])));
     console.log(this.token_Json);
-    this.userService.setUserId(Number(this.token_Json['EmployeeID']));
+    //this.userService.setUserId(Number(this.token_Json['EmployeeID']));
 
+    localStorage.setItem('userId', this.token_Json['EmployeeID']);
+    this.userService.setUserId(+localStorage.getItem('userId'));
     const expiresAt = moment().add(authResult.exp, 'second');
     localStorage.setItem('id_token', authResult.token);
     localStorage.setItem('expires_at', JSON.stringify(expiresAt.valueOf()));

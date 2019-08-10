@@ -9,7 +9,7 @@ import { User } from '../models/user.model';
   providedIn: 'root'
 })
 export class UserService {
-  private currentUser: User = new User(0, '', '', '', '', []);
+  private currentUser: User = new User(+localStorage.getItem('userId'), '', '', '', '', []);
 
   user$: Observable<User>;
 
