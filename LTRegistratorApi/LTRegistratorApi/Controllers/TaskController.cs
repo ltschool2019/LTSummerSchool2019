@@ -123,14 +123,13 @@ namespace LTRegistratorApi.Controllers
             }
             var employeeTaskProject = _db.Task.Where(t => t.ProjectId == ProjectId && t.EmployeeId == thisUser.EmployeeId).FirstOrDefault();
             if (employeeTaskProject != null)
-            {
-                var nameProject = _db.Project.Where(pid => pid.Id == ProjectId).Select(n => n.Name).FirstOrDefault();
+            {             
                 List<TaskNoteDto> taskNotes = new List<TaskNoteDto>();
                 var notes = await _db.TaskNote.Where(tn => tn.TaskId == employeeTaskProject.Id).ToListAsync();
                 foreach (var item in notes)
                     taskNotes.Add(new TaskNoteDto { Day = item.Day, Hours = item.Hours}) ;
                 List<TaskDto> result = new List<TaskDto>();
-                result.Add(new TaskDto { Name = nameProject, Leave = leave, TaskNotes = taskNotes });
+                result.Add(new TaskDto { Name = employeeTaskProject.Name, Leave = leave, TaskNotes = taskNotes });
                 return (result);
             }          
             return BadRequest();           
