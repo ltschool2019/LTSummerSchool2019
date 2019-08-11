@@ -78,7 +78,7 @@ export class VacationComponent implements OnInit {
   // TODO: дождаться back
   delete(vacation: Vacation): void {
     this.vacations = this.vacations.filter(v => v !== vacation);
-    this.vacationService.deleteVacation(this.userId, vacation.id).subscribe();
+    this.vacationService.deleteVacation(+this.userId, +vacation.id).subscribe();
   }
 
 
