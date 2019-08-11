@@ -30,6 +30,7 @@ export class LoginService {
   public logout() {
     localStorage.removeItem('id_token');
     localStorage.removeItem('expires_at');
+    localStorage.removeItem('userId');
   }
 
   private setSession(authResult) {

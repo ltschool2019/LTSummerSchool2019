@@ -50,7 +50,7 @@ export class VacationService {
 
   // delete
   // api/employee/{EmployeeID}/leaves?leaveID=2
-  deleteVacation(vacationId: number, userId): Observable<any> {
+  deleteVacation(userId:number, vacationId: number): Observable<any> {
     return this.http.delete<Vacation>(this.getUrl(userId) + `?leaveID=${vacationId}`);
   }
 
