@@ -10,7 +10,6 @@ import { User } from '../models/user.model';
 })
 export class UserService {
   private currentUser: User = new User(+localStorage.getItem('userId'), '', '', '', '', []);
-
   user$: Observable<User>;
 
   constructor(private http: HttpClient) {
@@ -27,10 +26,10 @@ export class UserService {
         shareReplay(1)
       );
     }
-
-    return this.user$;
+    if (localStorage.getItem('id_token')) {
+      return this.user$;
+    }
   }
-
   public getUserId() {
     return this.currentUser.id;
   }
