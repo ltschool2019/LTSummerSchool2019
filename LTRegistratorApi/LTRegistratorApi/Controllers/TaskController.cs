@@ -134,5 +134,75 @@ namespace LTRegistratorApi.Controllers
             }          
             return BadRequest();           
         }
+        /// <summary>
+        /// Updating task information
+        /// PUT: api/Task/{TaskId}
+        /// </summary>
+        /// <param name="TaskId">id of task</param>
+        /// <param name="task">json {Name, List<{Day, Hours}></param>
+        /// <returns> "OK" or "not found"</returns>
+        [HttpPut("{TaskId}")]
+        public async Task<IActionResult> UpdateTask([FromBody] TaskInputDto task, [FromRoute] int TaskId)
+        {
+            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (thisUser == null)
+            {
+                return BadRequest();
+            }
+            var temp = _db.Task.SingleOrDefault(t => t.Id == TaskId && t.Name == task.Name);
+            if (temp != null)
+            {
+                foreach (var item in task.TaskNotes)
+                {
+                    var note = _db.TaskNote.Where(tn => tn.Day == item.Day && tn.TaskId == TaskId).FirstOrDefault();
+                    if (note != null && note.Hours != item.Hours)
+                    {
+                        note.Hours = item.Hours;
+                        _db.TaskNote.Update(note);
+                        await _db.SaveChangesAsync();
+                    }
+                    if (note == null)
+                    {
+                        TaskNote taskNote = new TaskNote
+                        {
+                            TaskId = TaskId,
+                            Day = item.Day,
+                            Hours = item.Hours
+                        };
+                        _db.TaskNote.Add(taskNote);
+                        await _db.SaveChangesAsync();                       
+                    }
+                }
+                return Ok();
+            }
+            return NotFound();
+        }
+        /// <summary>
+        /// Method for removing the task from the project
+        /// DELETE: api/task/{TaskId}
+        /// </summary>
+        /// <param name="TaskId"> id of the task to be deleted</param>
+        /// <returns>"200 ok" or "404 not found"</returns>
+        [HttpDelete("{TaskId}")]
+        public async Task<IActionResult> DeleteTask([FromRoute] int TaskId)
+        {
+            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            if (thisUser == null)
+            {
+                return BadRequest();
+            }
+            var task = _db.Task.Where(t => t.Id == TaskId).FirstOrDefault();
+            if (task != null)
+            {
+                _db.Task.Remove(task);
+
+                await _db.SaveChangesAsync();
+                return Ok();
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
     }
 }
