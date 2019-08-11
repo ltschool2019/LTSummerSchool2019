@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import { Router } from "@angular/router";
 
-import { User } from 'src/app/shared/models/user.model';
 import { LoginService } from 'src/app/core/service/login.service'
 
 @Component({
@@ -9,20 +9,15 @@ import { LoginService } from 'src/app/core/service/login.service'
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent {
-  
+export class LoginComponent implements OnInit {
+
   loginForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private loginService: LoginService) { }
+  constructor(private fb: FormBuilder, private loginService: LoginService, private router: Router) {
+  }
 
   ngOnInit() {
     this.initForm();
-    
-  //   this.api.getUser().subscribe((x:any) => {
-  //     this.data = x;
-  //     this.user = (JSON.parse(atob(this.data.token.split('.')[1])));
-  //     console.log(this.user);
-  //   });
   }
 
   initForm() {
@@ -35,7 +30,7 @@ export class LoginComponent {
       ]]
     });
   }
-  
+
   onSubmit() {
     const controls = this.loginForm.controls;
 
@@ -49,8 +44,12 @@ export class LoginComponent {
       return;
     }
 
-    /** TODO: Обработка данных формы */    
-    this.loginService.getUser(this.loginForm.get('email').value, this.loginForm.get('password').value);
-    // console.log(this.loginForm.value);
+
+    this.loginService.signIn(this.loginForm.get('email').value, this.loginForm.get('password').value)
+      .subscribe(() => {
+        this.router.navigateByUrl('user/timesheet');
+      }, err => {
+        // todo показать ошибку пользователю
+      });
   }
 }
