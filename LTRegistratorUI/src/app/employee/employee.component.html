@@ -1,9 +1,8 @@
-<div class="section-timesheet">
+<!-- <div class="section-timesheet">
   <p class="timesheet"><b>TimeSheet</b><br></p>
   <ul class="dates">
     <li><a href="#"><img src="/assets/arrow_left.png"></a></li>
     <li><input class="input_button" type="week" value="0000-00-00" size="20"></li>
-    <!--<li><input class="input_button" type="week" value="0000-00-00" size="20"></li>-->
     <li><a href="#"><img src="/assets/arrow_right.png"></a></li>
   </ul>
 
@@ -32,7 +31,6 @@
     <li><input type="text" size="7"></li>
     <li><input type="text" size="7"></li>
     <li><input type="text" size="7"></li>
-    <!--     <li><a href="#">Edit</a></li> -->
   </ul>
   <ul class="projects">
     <li>
@@ -55,4 +53,64 @@
     <li><a class="save" href="#">Save Details</a></li>
     <li><a class="cancel" href="#">Edit</a></li>
   </ul>
-</div>
+</div> -->
+<section>
+  <form>
+    <mat-form-field>
+      <mat-label>Название проекта</mat-label>
+      <mat-select>
+        <mat-option *ngFor="let project of projects" [value]="project.value">
+          {{project.viewValue}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <br>
+    <!--FIXME: сделать week-picker-->
+    <mat-form-field>
+      <input matInput [matDatepicker]="week" placeholder="Choose a week">
+      <mat-datepicker-toggle matSuffix [for]="week"></mat-datepicker-toggle>
+      <mat-datepicker #week></mat-datepicker>
+    </mat-form-field>
+    <button mat-icon-button aria-label="Previous week">
+      <mat-icon>keyboard_arrow_left</mat-icon>
+    </button>
+    <button mat-icon-button aria-label="Next week">
+      <mat-icon>keyboard_arrow_right</mat-icon>
+    </button>
+<!-- 
+    <table mat-table>
+      <ng-container>
+        <th mat-header-cell *matHeaderCellDef>Пн</th>
+        <td mat-cell *matCellDef="let element">{{element}}</td>
+      </ng-container>
+      <ng-container>
+        <th mat-header-cell *matHeaderCellDef>Вт</th>
+        <td mat-cell *matCellDef="let element">{{element}}</td>
+      </ng-container>
+      <ng-container>
+        <th mat-header-cell *matHeaderCellDef>Ср</th>
+        <td mat-cell *matCellDef="let element">{{element}}</td>
+      </ng-container>
+      <ng-container>
+        <th mat-header-cell *matHeaderCellDef>Чт</th>
+        <td mat-cell *matCellDef="let element">{{element}}</td>
+      </ng-container>
+      <ng-container>
+        <th mat-header-cell *matHeaderCellDef>Пт</th>
+        <td mat-cell *matCellDef="let element">{{element}}</td>
+      </ng-container>
+      <ng-container>
+        <th mat-header-cell *matHeaderCellDef>Сб</th>
+        <td mat-cell *matCellDef="let element">{{element}}</td>
+      </ng-container>
+      <ng-container>
+        <th mat-header-cell *matHeaderCellDef>Вс</th>
+        <td mat-cell *matCellDef="let element">{{element}}</td>
+      </ng-container>
+      <ng-container>
+        <th mat-header-cell *matHeaderCellDef>Всего</th>
+        <td mat-cell *matCellDef="let element">{{element}}</td>
+      </ng-container>
+    </table> -->
+  </form>
+</section>
