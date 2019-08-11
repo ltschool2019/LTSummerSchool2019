@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using LTRegistratorApi.Model;
@@ -10,6 +11,7 @@ using LTRegistrator.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
+using LTRegistrator.BLL.Contracts;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http;
 
@@ -24,9 +26,11 @@ namespace LTRegistratorApi.Controllers
     {
         private readonly LTRegistratorDbContext _db;
         private readonly UserManager<User> _userManager;
+        private readonly HttpContext _httpContext;
 
-        public TaskController(LTRegistratorDbContext context, UserManager<User> userManager)
+        public TaskController(LTRegistratorDbContext context, UserManager<User> userManager, HttpContext httpContext)
         {
+            _httpContext = httpContext;
             _db = context;
             _userManager = userManager;
         }
@@ -96,24 +100,30 @@ namespace LTRegistratorApi.Controllers
         /// Output information on tasks for a certain period of time
         /// </summary>
         /// <param name="ProjectId">id of project</param>
+        /// <param name="EmployeeId">id of project</param>
         /// <param name="StartDate">period start date</param>
         /// <param name="EndDate">period end date</param>
         /// <returns>Task information list</returns>
-        [HttpGet("project/{ProjectId}/from/{StartDate}/to/{EndDate}")]
-        public async Task<ActionResult<List<TaskDto>>> GetTask([FromRoute] int ProjectId, DateTime StartDate, DateTime EndDate)
+        [HttpGet("project/{ProjectId}/employee/{employeeId}")]
+        public async Task<ActionResult<List<TaskDto>>> GetTask([FromRoute] int ProjectId, int EmployeeId,[FromQuery] DateTime StartDate,[FromQuery] DateTime EndDate)
         {
             var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
             if (thisUser == null)
             {
                 return BadRequest();
             }
+
+            if (!this.AccessAllowed(EmployeeId).Result)
+            {
+                return BadRequest();
+            }
             var authorizedUser =
                 await _db.Set<Employee>().SingleOrDefaultAsync(
-                    e => e.Id == thisUser.EmployeeId);
+                    e => e.Id == EmployeeId);
             var intersectingEmployeeLeave = await _db.Leave.Join(_db.Employee,
                                                         l => l.EmployeeId,
                                                         e => e.Id,
-                                                        (l, e) => new { l, e }).Where(w => w.l.EmployeeId == thisUser.EmployeeId && EndDate >= w.l.StartDate && StartDate <= w.l.EndDate).ToListAsync();
+                                                        (l, e) => new { l, e }).Where(w => w.l.EmployeeId == EmployeeId && EndDate >= w.l.StartDate && StartDate <= w.l.EndDate).ToListAsync();
             List<LeaveDto> leave = new List<LeaveDto>();
             foreach (var item in intersectingEmployeeLeave)
             {
@@ -132,7 +142,7 @@ namespace LTRegistratorApi.Controllers
                 result.Add(new TaskDto { Name = employeeTaskProject.Name, Leave = leave, TaskNotes = taskNotes });
                 return (result);
             }          
-            return BadRequest();           
+            return BadRequest();
         }
         /// <summary>
         /// Updating task information
@@ -203,6 +213,26 @@ namespace LTRegistratorApi.Controllers
             {
                 return NotFound();
             }
+        }
+        /// <summary>
+        /// The method returns true if the user tries to change his data or he is a manager or administrator.
+        /// </summary>
+        /// <param name="id">User Id</param>
+        /// <returns>Is it possible to change the data</returns>
+        private async Task<bool> AccessAllowed(int id)
+        {
+            var thisUser = await _userManager.FindByIdAsync(
+                _httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)); //We are looking for an authorized user.
+            var authorizedUser =
+                await _db.Employee.SingleOrDefaultAsync(
+                    e => e.Id ==
+                         thisUser.EmployeeId); //We load Employee table.
+            var maxRole = authorizedUser.MaxRole;
+
+
+            return authorizedUser.Id == id ||
+                   maxRole == RoleType.Manager ||
+                   maxRole == RoleType.Administrator;
         }
     }
 }
