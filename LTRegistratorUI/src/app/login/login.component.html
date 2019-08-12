@@ -3,7 +3,8 @@
     <img src="../../assets/logo.PNG" alt="logo" class="logo">
     <input type="email" formControlName="email" class="login-form__email" placeholder="Электронная почта">
     <input type="password" formControlName="password" class="login-form__pasword" placeholder="Пароль">
-    <button type="submit" [disabled]="!loginForm.valid" class="login-form__enter-button" name="login-button">Войти</button>
+    <button type="submit" [disabled]="!loginForm.valid" class="login-form__enter-button"
+      name="login-button">Войти</button>
   </form>
   <p class="login__forget-link"><a href="#">Забыли пароль?</a></p>
 </section>

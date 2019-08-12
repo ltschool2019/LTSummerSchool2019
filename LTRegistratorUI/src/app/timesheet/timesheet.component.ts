@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { Project } from '../project.model';
-import { UserService } from '../user.service';
+import { ActivatedRoute } from '@angular/router';
+
+import { Project } from '../core/models/project.model';
 
 @Component({
   selector: 'app-timesheet',
@@ -8,15 +9,13 @@ import { UserService } from '../user.service';
   styleUrls: ['./timesheet.component.scss']
 })
 export class TimesheetComponent implements OnInit {
-  projects: Project[];
+  projects: Project[] = [];
 
-  constructor(private userService: UserService) { }
+  constructor(private route: ActivatedRoute) {
+  }
 
   ngOnInit() {
-    this.getUser();
+    this.projects = this.route.snapshot.data.user.projects;
   }
 
-  getUser() {
-    this.userService.getUser().subscribe(user => this.projects = user.projects);
-  }
 }

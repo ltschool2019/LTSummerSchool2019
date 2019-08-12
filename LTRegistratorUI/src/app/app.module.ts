@@ -6,10 +6,10 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppComponent } from './app.component';
 import { EmployeeComponent } from './employee/employee.component';
-import { SideMenuComponent } from './side-menu/side-menu.component';
-import { HeaderComponent } from './header/header.component';
+import { SideMenuComponent } from './shared/side-menu/side-menu.component';
+import { HeaderComponent } from './shared/header/header.component';
 import { LoginComponent } from './login/login.component';
-import { JwtInterceptor } from 'src/app/helpers/jwt_interceptors.service';
+import { JwtInterceptor } from 'src/app/core/service/interceptor.service';
 import { VacationComponent } from './vacation/vacation.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { TimesheetComponent } from './timesheet/timesheet.component';
@@ -19,6 +19,10 @@ import { EmployeesTableComponent } from './employee-table/employee-table.compone
 import { LoginService } from 'src/app/core/service/login.service';
 import { MaterialModule } from './material.module';
 import { AdminComponent } from './admin/admin.component';
+import { VacationEditDialogComponent } from './vacation/vacation-edit-dialog/vacation-edit-dialog.component';
+import { VacationService } from './core/service/vacation.service';
+import { TimesheetResolverService } from './timesheet/timesheet-resolver.service';
+
 
 @NgModule({
   declarations: [
@@ -30,11 +34,12 @@ import { AdminComponent } from './admin/admin.component';
     EmployeeComponent,
     SideMenuComponent,
     HeaderComponent,
-    LoginComponent,
     UserComponent,
+    VacationEditDialogComponent
     EmployeesTableComponent,
     AdminComponent,
   ],
+  entryComponents: [VacationEditDialogComponent],
   imports: [
     BrowserModule,
     MaterialModule,
@@ -47,7 +52,15 @@ import { AdminComponent } from './admin/admin.component';
   ],
   providers: [
     LoginService,
-    {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true}
+    VacationService,
+    FormsModule,
+    HttpClientModule,
+    TimesheetResolverService,
+    {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true},
+    MaterialModule,
+    BrowserAnimationsModule,
+    AppRoutingModule,
+    ReactiveFormsModule
   ],
   bootstrap: [AppComponent],
   entryComponents: [EmployeesTableComponent]

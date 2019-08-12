@@ -1,8 +1,8 @@
 <section class="timesheet">
-  <ul class="project-list">
-    <li *ngFor="let project of projects">
-      <p class="project-list__project"> {{project.name}} <b>{{project.hours}}</b> </p>
-    </li>
-  </ul>
-    <a routerLink='/user/timesheet/edit' class="timesheet__edit">Edit</a>
+  <mat-list class="project-list">
+    <mat-list-item *ngFor="let project of projects">
+      <p class="project-list__project"> {{project.name}} </p>
+    </mat-list-item>
+  </mat-list>
+  <button mat-raised-button routerLink='/user/timesheet/edit' class="timesheet__edit">Edit</button>
 </section>
