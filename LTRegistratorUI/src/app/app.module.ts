@@ -35,11 +35,11 @@ import { TimesheetResolverService } from './timesheet/timesheet-resolver.service
     SideMenuComponent,
     HeaderComponent,
     UserComponent,
-    VacationEditDialogComponent
+    VacationEditDialogComponent,
     EmployeesTableComponent,
     AdminComponent,
   ],
-  entryComponents: [VacationEditDialogComponent],
+  entryComponents: [VacationEditDialogComponent, EmployeesTableComponent],
   imports: [
     BrowserModule,
     MaterialModule,
@@ -63,7 +63,6 @@ import { TimesheetResolverService } from './timesheet/timesheet-resolver.service
     ReactiveFormsModule
   ],
   bootstrap: [AppComponent],
-  entryComponents: [EmployeesTableComponent]
 })
 export class AppModule {
 }
