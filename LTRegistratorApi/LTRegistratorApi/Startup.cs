@@ -5,6 +5,7 @@ using System.Text;
 using AutoMapper;
 using LTRegistrator.BLL.Contracts.Contracts;
 using LTRegistrator.BLL.Services;
+using LTRegistrator.BLL.Services.Mappings;
 using LTRegistrator.BLL.Services.Services;
 using LTRegistrator.Domain.Entities;
 using LTRegistratorApi.Mappings;
@@ -83,10 +84,12 @@ namespace LTRegistratorApi
             services.AddTransient<HttpContext>(s =>
                 s.GetService<IHttpContextAccessor>().HttpContext);
             services.AddTransient(typeof(IEmployeeService), typeof(EmployeeService));
+            services.AddTransient(typeof(IReportService), typeof(ReportService));
 
             var mappingConfig = new MapperConfiguration(mc =>
             {
                 mc.AddProfile<DataMappingProfileWeb>();
+                mc.AddProfile<DataMappingProfile>();
             });
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);

@@ -49,6 +49,14 @@ namespace LTRegistratorApi
                 context.Employee.Add(new Employee() { FirstName = "Dave", SecondName = "Jones", Mail = "dave.99@mail.ru", MaxRole = RoleType.Employee, Rate = 1, ManagerId = 2 });
                 context.Employee.Add(new Employee() { FirstName = "Frank", SecondName = "Florence", Mail = "frank.99@mail.ru", MaxRole = RoleType.Employee, Leaves = leaveFrank, Rate = 0.25, ManagerId = 4 });
 
+                context.Employee.Add(new Employee() { FirstName = "Антон", SecondName = "Сапановский", Mail = "anvitsapik@gmail.com", MaxRole = RoleType.Employee, Rate = 1, ManagerId = 2 });
+                context.Employee.Add(new Employee() { FirstName = "Сергей", SecondName = "Сергеев", Mail = "seregak@gmail.com", MaxRole = RoleType.Employee, Rate = 1, ManagerId = 2 });
+                context.Employee.Add(new Employee() { FirstName = "Виталий", SecondName = "Витальев", Mail = "vitaly@gmail.com", MaxRole = RoleType.Employee, Rate = 1, ManagerId = 2 });
+                context.Employee.Add(new Employee() { FirstName = "Николай", SecondName = "Николаев", Mail = "niko@gmail.com", MaxRole = RoleType.Employee, Rate = 1, ManagerId = 2 });
+                context.Employee.Add(new Employee() { FirstName = "Юлия", SecondName = "Юлькина", Mail = "uliya@gmail.com", MaxRole = RoleType.Employee, Rate = 1, ManagerId = 2 });
+                context.Employee.Add(new Employee() { FirstName = "Александра", SecondName = "Сашкова", Mail = "sashkovak@gmail.com", MaxRole = RoleType.Employee, Rate = 1, ManagerId = 2 });
+                context.Employee.Add(new Employee() { FirstName = "Павел", SecondName = "Пашков", Mail = "pahacool@gmail.com", MaxRole = RoleType.Employee, Rate = 1, ManagerId = 2 });
+
                 context.SaveChanges();
 
                 foreach (var employee in context.Employee)
@@ -75,6 +83,8 @@ namespace LTRegistratorApi
                 context.Project.Add(new Project() { Name = "FOSS" });
                 context.Project.Add(new Project() { Name = "EMIAS" });
                 context.Project.Add(new Project() { Name = "Area 9" });
+                context.Project.Add(new Project() { Name = "EdMaven" });
+                context.Project.Add(new Project() { Name = "InOut" });
                 context.SaveChanges();
             }
 
@@ -90,6 +100,18 @@ namespace LTRegistratorApi
                 context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5, Role = RoleType.Employee });
                 context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6, Role = RoleType.Employee });
 
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 4, EmployeeId = 7, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 4, EmployeeId = 8, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 4, EmployeeId = 9, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 4, EmployeeId = 10, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 4, EmployeeId = 11, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 4, EmployeeId = 12, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 5, EmployeeId = 7, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 5, EmployeeId = 8, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 5, EmployeeId = 9, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 5, EmployeeId = 10, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 5, EmployeeId = 12, Role = RoleType.Employee });
+
                 context.SaveChanges();
             }
             if (!context.Task.Any())
@@ -102,6 +124,19 @@ namespace LTRegistratorApi
                 context.Task.Add(new Task() { ProjectId = 3, EmployeeId = 3, Name = "Area 9"});
                 context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 4, Name = "EMIAS"});
                 context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 5, Name = "EMIAS"});
+
+                context.Task.Add(new Task() { ProjectId = 4, EmployeeId = 7, Name = "SomeTask" });
+                context.Task.Add(new Task() { ProjectId = 4, EmployeeId = 8, Name = "SomeTask" });
+                context.Task.Add(new Task() { ProjectId = 4, EmployeeId = 9, Name = "SomeTask" });
+                context.Task.Add(new Task() { ProjectId = 4, EmployeeId = 10, Name = "SomeTask" });
+                context.Task.Add(new Task() { ProjectId = 4, EmployeeId = 11, Name = "SomeTask" });
+                context.Task.Add(new Task() { ProjectId = 4, EmployeeId = 12, Name = "SomeTask" });
+                context.Task.Add(new Task() { ProjectId = 5, EmployeeId = 7, Name = "SomeTask" });
+                context.Task.Add(new Task() { ProjectId = 5, EmployeeId = 8, Name = "SomeTask" });
+                context.Task.Add(new Task() { ProjectId = 5, EmployeeId = 9, Name = "SomeTask" });
+                context.Task.Add(new Task() { ProjectId = 5, EmployeeId = 10, Name = "SomeTask" });
+                context.Task.Add(new Task() { ProjectId = 5, EmployeeId = 12, Name = "SomeTask" });
+
                 context.SaveChanges();
             }
 
@@ -120,6 +155,18 @@ namespace LTRegistratorApi
                 context.TaskNote.Add(new TaskNote() { TaskId = 8, Hours = 7, Day = new DateTime(2019, 6, 11) });
                 context.TaskNote.Add(new TaskNote() { TaskId = 8, Hours = 4, Day = new DateTime(2019, 7, 11) });
                 context.TaskNote.Add(new TaskNote() { TaskId = 7, Hours = 6, Day = new DateTime(2019, 7, 14) });
+
+                context.TaskNote.Add(new TaskNote() { TaskId = 9, Hours = 10, Day = new DateTime(2019, 7, 1) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 10, Hours = 5, Day = new DateTime(2019, 7, 2) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 11, Hours = 20, Day = new DateTime(2019, 7, 3) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 12, Hours = 12, Day = new DateTime(2019, 7, 4) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 13, Hours = 80, Day = new DateTime(2019, 7, 5) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 14, Hours = 15, Day = new DateTime(2019, 7, 6) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 15, Hours = 40, Day = new DateTime(2019, 7, 7) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 16, Hours = 10, Day = new DateTime(2019, 7, 8) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 17, Hours = 22, Day = new DateTime(2019, 7, 9) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 18, Hours = 44, Day = new DateTime(2019, 7, 10) });
+                context.TaskNote.Add(new TaskNote() { TaskId = 19, Hours = 1, Day = new DateTime(2019, 7, 14) });
 
                 context.SaveChanges();
             }
