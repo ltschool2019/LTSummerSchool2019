@@ -15,9 +15,9 @@ import { NotFoundComponent } from './not-found/not-found.component';
 import { TimesheetComponent } from './timesheet/timesheet.component';
 import { AppRoutingModule } from './app-routing.module';
 import { UserComponent } from './user/user.component';
-import { EmployeesTable } from './employee-table/employee-table.component';
+import { EmployeesTableComponent } from './employee-table/employee-table.component';
 import { LoginService } from 'src/app/core/service/login.service';
-import { MaterialModule } from "./material.module";
+import { MaterialModule } from './material.module';
 import { AdminComponent } from './admin/admin.component';
 
 @NgModule({
@@ -32,7 +32,7 @@ import { AdminComponent } from './admin/admin.component';
     HeaderComponent,
     LoginComponent,
     UserComponent,
-    EmployeesTable,
+    EmployeesTableComponent,
     AdminComponent,
   ],
   imports: [
@@ -50,7 +50,7 @@ import { AdminComponent } from './admin/admin.component';
     {provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true}
   ],
   bootstrap: [AppComponent],
-  entryComponents: [EmployeesTable]
+  entryComponents: [EmployeesTableComponent]
 })
 export class AppModule {
 }

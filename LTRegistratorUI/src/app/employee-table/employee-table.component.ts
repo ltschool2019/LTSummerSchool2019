@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, Input, Inject } from '@angular/core';
 import { SelectionModel } from '@angular/cdk/collections';
-import { MaterialModule } from "src/app/material.module";
+import { MaterialModule } from 'src/app/material.module';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
@@ -25,21 +25,16 @@ const EMPLOYEES: EmployeeItem[] = [
   templateUrl: './employee-table.component.html',
   styleUrls: ['./employee-table.component.scss']
 })
-export class EmployeesTable implements OnInit {
-
+export class EmployeesTableComponent implements OnInit {
+  public data: boolean;
   @ViewChild(MatSort, { static: true }) sort: MatSort;
+
+  constructor(public dialogRef: MatDialogRef<EmployeesTableComponent>
+    ) { }
 
   ngOnInit() {
     this.dataSource.sort = this.sort;
   }
-  public data: boolean;
-
-  //Change_parameter() {
-  //  this.data = !this.data;
-  //}
-
-  constructor(public dialogRef: MatDialogRef<EmployeesTable>
-  ) { }
 
   private onNoClick(): void {
     this.dialogRef.close();
@@ -70,15 +65,14 @@ export class EmployeesTable implements OnInit {
    }
    return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`;
  }
-  //////////////////
+ 
  private isOneSelected(row?: EmployeeItem) {
-     for (let item of this.selection.selected) {
-       if (item.position != row.position) {
+     for (const item of this.selection.selected) {
+       if (item.position !== row.position) {
          this.selection.deselect(item);
        }
      }
  }
- 
  private applyFilter(filterValue: string) {
    this.dataSource.filter = filterValue.trim().toLowerCase();
  }
@@ -86,14 +80,10 @@ export class EmployeesTable implements OnInit {
  private changeColumn() {
    if (this.data) {
      this.displayedColumns = ['select', 'name', 'email'];
-   }
-   else {
+   }  else {
      this.displayedColumns = ['select_like_radio', 'name', 'email'];
    }
    return this.data;
  }
-
- //убираем радиобаттоны, вместо них делаем обработчик, в зависимости
- //от параметра: чтобы мог выбираться только 1 чекбокс
 
 }

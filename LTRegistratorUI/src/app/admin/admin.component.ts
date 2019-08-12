@@ -1,6 +1,6 @@
-import { EmployeesTable } from 'src/app/employee-table/employee-table.component';
+import { EmployeesTableComponent } from 'src/app/employee-table/employee-table.component';
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { MaterialModule } from "src/app/material.module";
+import { MaterialModule } from 'src/app/material.module';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
 import { MatPaginator } from '@angular/material/paginator';
@@ -31,7 +31,7 @@ export class AdminComponent implements OnInit {
   constructor(public dialog: MatDialog) { }
 
   openDialog(): void {
-    const dialogRef = this.dialog.open(EmployeesTable, {
+    const dialogRef = this.dialog.open(EmployeesTableComponent, {
       width: '700px'  });
     dialogRef.componentInstance.data = false;
   }

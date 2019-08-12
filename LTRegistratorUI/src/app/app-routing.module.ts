@@ -1,14 +1,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-//import путей
+// import путей
 import { LoginComponent } from './login/login.component';
 import { UserComponent } from './user/user.component';
 import { VacationComponent } from './vacation/vacation.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { TimesheetComponent } from './timesheet/timesheet.component';
 import { EmployeeComponent } from './employee/employee.component';
-import { EmployeesTable } from './employee-table/employee-table.component';
+import { EmployeesTableComponent } from './employee-table/employee-table.component';
 import { AdminComponent } from './admin/admin.component';
 
 const userRoutes: Routes = [
@@ -16,7 +16,7 @@ const userRoutes: Routes = [
   { path: '', redirectTo: 'timesheet', pathMatch: 'full' },
   { path: 'vacation', component: VacationComponent },
   { path: 'admin', component: AdminComponent },
-  { path: 'timesheet/edit', component: EmployeeComponent }//FIXME:  сделать children
+  { path: 'timesheet/edit', component: EmployeeComponent }// FIXME:  сделать children
 ]
 
 const appRoutes: Routes = [
