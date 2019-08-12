@@ -28,6 +28,24 @@ namespace LTRegistratorApi.Controllers
         private readonly UserManager<User> _userManager;
         private readonly HttpContext _httpContext;
 
+        /// <summary>
+        /// The method returns true if the user tries to change his data or he is a manager or administrator.
+        /// </summary>
+        /// <param name="id">User Id</param>
+        /// <returns>Is it possible to change the data</returns>
+        private async Task<bool> AccessAllowed(int id)
+        {
+            var employeeIdFromClaim = User.FindFirstValue("EmployeeID");//We are looking for EmployeeID.
+            var authorizedUser =
+                await _db.Employee.SingleOrDefaultAsync(
+                    e => e.Id == Convert.ToInt32(employeeIdFromClaim)); //We load Employee table.
+            var maxRole = authorizedUser.MaxRole;
+
+            return authorizedUser.Id == id ||
+                   maxRole == RoleType.Manager ||
+                   maxRole == RoleType.Administrator;
+        }
+
         public TaskController(LTRegistratorDbContext context, UserManager<User> userManager, HttpContext httpContext)
         {
             _httpContext = httpContext;
@@ -35,30 +53,29 @@ namespace LTRegistratorApi.Controllers
             _userManager = userManager;
         }
         /// <summary>
-        /// POST api/task/project/{projectId}
+        /// POST api/task/project/{projectId}/employee/{EmployeeId}
         /// Adding project tasks
         /// </summary>
         /// <param name="projectId">id of project</param>
+        /// <param name="employeeId">id of employee</param>
         /// <param name="task">json {Name, List<{Day, Hours}></param>
         /// <returns>"200 ok" or "400 Bad Request" or "401 Unauthorized"</returns>
-        [HttpPost("project/{projectId}")]
-        public async Task<ActionResult> AddTask([FromRoute] int projectId, [FromBody] TaskInputDto task)
+        [HttpPost("project/{projectId}/employee/{EmployeeId}")]
+        public async Task<ActionResult> AddTask([FromRoute] int projectId, int employeeId, [FromBody] TaskInputDto task)
         {            
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            if (thisUser == null)
+
+            if (!this.AccessAllowed(employeeId).Result)
             {
-                return BadRequest();
-            }           
-            var authorizedUser =
-                await _db.Set<Employee>().SingleOrDefaultAsync(
-                    e => e.Id == thisUser.EmployeeId);
+                return BadRequest($"User not allowed to change data for employee with {employeeId}.");
+            }
+
             var templateTypeProject = _db.Project.Where(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId).FirstOrDefault();
-            var employeeProject = _db.ProjectEmployee.Where(pe => pe.ProjectId == projectId && pe.EmployeeId == thisUser.EmployeeId).FirstOrDefault();
-            var nameTask = _db.Task.Where(t => (t.Name == task.Name || t.Name == templateTypeProject.Name)  && t.ProjectId == projectId && t.EmployeeId == thisUser.EmployeeId).FirstOrDefault(); 
+            var employeeProject = _db.ProjectEmployee.Where(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId).FirstOrDefault();
+            var nameTask = _db.Task.Where(t => (t.Name == task.Name || t.Name == templateTypeProject.Name)  && t.ProjectId == projectId && t.EmployeeId == employeeId).FirstOrDefault(); 
             if (nameTask == null && templateTypeProject != null && task != null && templateTypeProject.Name == task.Name && employeeProject != null)
             {
                 using (var transaction = _db.Database.BeginTransaction())
@@ -67,7 +84,7 @@ namespace LTRegistratorApi.Controllers
                     {
                         LTRegistrator.Domain.Entities.Task newTask = new LTRegistrator.Domain.Entities.Task
                         {
-                            EmployeeId = authorizedUser.Id,
+                            EmployeeId = employeeId,
                             ProjectId = projectId,
                             Name = task.Name
                         };
@@ -96,75 +113,67 @@ namespace LTRegistratorApi.Controllers
             return BadRequest();      
         }
         /// <summary>
-        /// GET api/task/project/{ProjectId}/from/{StartDate}/to/{EndDate}
+        /// GET api/task/project/{projectId}/employee/{employeeId}?StartDate={startDate}&EndDate={endDate}
         /// Output information on tasks for a certain period of time
         /// </summary>
-        /// <param name="ProjectId">id of project</param>
-        /// <param name="EmployeeId">id of project</param>
-        /// <param name="StartDate">period start date</param>
-        /// <param name="EndDate">period end date</param>
+        /// <param name="projectId">id of project</param>
+        /// <param name="employeeId">id of employee</param>
+        /// <param name="startDate">period start date</param>
+        /// <param name="endDate">period end date</param>
         /// <returns>Task information list</returns>
-        [HttpGet("project/{ProjectId}/employee/{employeeId}")]
-        public async Task<ActionResult<List<TaskDto>>> GetTask([FromRoute] int ProjectId, int EmployeeId,[FromQuery] DateTime StartDate,[FromQuery] DateTime EndDate)
+        [HttpGet("project/{projectId}/employee/{employeeId}")]
+        public async Task<ActionResult<List<TaskDto>>> GetTasks([FromRoute] int projectId, int employeeId,[FromQuery] DateTime startDate,[FromQuery] DateTime endDate)
         {
-            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            if (thisUser == null)
+            if (!this.AccessAllowed(employeeId).Result)
             {
-                return BadRequest();
+                return BadRequest($"User not allowed to change data for employee with {employeeId}.");
             }
-
-            if (!this.AccessAllowed(EmployeeId).Result)
-            {
-                return BadRequest();
-            }
-            var authorizedUser =
-                await _db.Set<Employee>().SingleOrDefaultAsync(
-                    e => e.Id == EmployeeId);
+            
             var intersectingEmployeeLeave = await _db.Leave.Join(_db.Employee,
                                                         l => l.EmployeeId,
                                                         e => e.Id,
-                                                        (l, e) => new { l, e }).Where(w => w.l.EmployeeId == EmployeeId && EndDate >= w.l.StartDate && StartDate <= w.l.EndDate).ToListAsync();
+                                                        (l, e) => new { l, e }).Where(w => w.l.EmployeeId == employeeId && endDate >= w.l.StartDate && startDate <= w.l.EndDate).ToListAsync();
             List<LeaveDto> leave = new List<LeaveDto>();
             foreach (var item in intersectingEmployeeLeave)
             {
-                var iStart = item.l.StartDate < StartDate ? StartDate : item.l.StartDate;
-                var iEnd = item.l.EndDate < EndDate ? item.l.EndDate : EndDate;
-                leave.Add(new LeaveDto { StartDate = iStart, EndDate = iEnd, Id = item.l.Id});            
+                var iStart = item.l.StartDate < startDate ? startDate : item.l.StartDate;
+                var iEnd = item.l.EndDate < endDate ? item.l.EndDate : endDate;
+                leave.Add(new LeaveDto { StartDate = iStart, EndDate = iEnd, Id = item.l.Id, TypeLeave = (TypeLeaveDto)item.l.TypeLeave});            
             }
-            var employeeTaskProject = _db.Task.Where(t => t.ProjectId == ProjectId && t.EmployeeId == thisUser.EmployeeId).FirstOrDefault();
+            var employeeTaskProject = _db.Task.Where(t => t.ProjectId == projectId && t.EmployeeId == employeeId).FirstOrDefault();
             if (employeeTaskProject != null)
             {             
                 List<TaskNoteDto> taskNotes = new List<TaskNoteDto>();
-                var notes = await _db.TaskNote.Where(tn => tn.TaskId == employeeTaskProject.Id).ToListAsync();
+                var notes = await _db.TaskNote.Where(tn => tn.TaskId == employeeTaskProject.Id && tn.Day <= endDate && tn.Day>=startDate).ToListAsync();
                 foreach (var item in notes)
-                    taskNotes.Add(new TaskNoteDto { Day = item.Day, Hours = item.Hours}) ;
+                    taskNotes.Add(new TaskNoteDto { Day = item.Day, Hours = item.Hours, Id = item.Id}) ;
                 List<TaskDto> result = new List<TaskDto>();
-                result.Add(new TaskDto { Name = employeeTaskProject.Name, Leave = leave, TaskNotes = taskNotes });
+                result.Add(new TaskDto { Name = employeeTaskProject.Name, Leave = leave, TaskNotes = taskNotes, Id = employeeTaskProject.Id});
                 return (result);
             }          
-            return BadRequest();
+            return NotFound();
         }
         /// <summary>
         /// Updating task information
-        /// PUT: api/Task/{TaskId}
+        /// PUT: api/Task/employee/{employeeId}
         /// </summary>
-        /// <param name="TaskId">id of task</param>
+        /// <param name="employeeId">id of employee</param>
         /// <param name="task">json {Name, List<{Day, Hours}></param>
         /// <returns> "OK" or "not found"</returns>
-        [HttpPut("{TaskId}")]
-        public async Task<IActionResult> UpdateTask([FromBody] TaskInputDto task, [FromRoute] int TaskId)
+        [HttpPut("employee/{employeeId}")]
+        public async Task<IActionResult> UpdateTask([FromBody] TaskInputDto task, int employeeId)
         {
-            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            if (thisUser == null)
+            if (!this.AccessAllowed(employeeId).Result)
             {
-                return BadRequest();
+                return BadRequest($"User not allowed to change data for employee with {employeeId}.");
             }
-            var temp = _db.Task.SingleOrDefault(t => t.Id == TaskId && t.Name == task.Name);
+
+            var temp = _db.Task.SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name);
             if (temp != null)
             {
                 foreach (var item in task.TaskNotes)
                 {
-                    var note = _db.TaskNote.Where(tn => tn.Day == item.Day && tn.TaskId == TaskId).FirstOrDefault();
+                    var note = _db.TaskNote.Where(tn => tn.Day == item.Day && tn.TaskId == task.Id).FirstOrDefault();
                     if (note != null && note.Hours != item.Hours)
                     {
                         note.Hours = item.Hours;
@@ -175,7 +184,7 @@ namespace LTRegistratorApi.Controllers
                     {
                         TaskNote taskNote = new TaskNote
                         {
-                            TaskId = TaskId,
+                            TaskId = task.Id,
                             Day = item.Day,
                             Hours = item.Hours
                         };
@@ -189,19 +198,20 @@ namespace LTRegistratorApi.Controllers
         }
         /// <summary>
         /// Method for removing the task from the project
-        /// DELETE: api/task/{TaskId}
+        /// DELETE: api/task/{taskId}/employee/{employeeId}
         /// </summary>
-        /// <param name="TaskId"> id of the task to be deleted</param>
+        /// <param name="taskId"> id of the task to be deleted</param>
+        /// <param name="EmployeeId">id of employee</param>
         /// <returns>"200 ok" or "404 not found"</returns>
-        [HttpDelete("{TaskId}")]
-        public async Task<IActionResult> DeleteTask([FromRoute] int TaskId)
+        [HttpDelete("{TaskId}/employee/{employeeId}")]
+        public async Task<IActionResult> DeleteTask([FromRoute] int taskId, int employeeId)
         {
-            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            if (thisUser == null)
+            if (!this.AccessAllowed(employeeId).Result)
             {
-                return BadRequest();
+                return BadRequest($"User not allowed to change data for employee with {employeeId}.");
             }
-            var task = _db.Task.Where(t => t.Id == TaskId).FirstOrDefault();
+
+            var task = _db.Task.Where(t => t.Id == taskId).FirstOrDefault();
             if (task != null)
             {
                 _db.Task.Remove(task);
@@ -213,26 +223,6 @@ namespace LTRegistratorApi.Controllers
             {
                 return NotFound();
             }
-        }
-        /// <summary>
-        /// The method returns true if the user tries to change his data or he is a manager or administrator.
-        /// </summary>
-        /// <param name="id">User Id</param>
-        /// <returns>Is it possible to change the data</returns>
-        private async Task<bool> AccessAllowed(int id)
-        {
-            var thisUser = await _userManager.FindByIdAsync(
-                _httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)); //We are looking for an authorized user.
-            var authorizedUser =
-                await _db.Employee.SingleOrDefaultAsync(
-                    e => e.Id ==
-                         thisUser.EmployeeId); //We load Employee table.
-            var maxRole = authorizedUser.MaxRole;
-
-
-            return authorizedUser.Id == id ||
-                   maxRole == RoleType.Manager ||
-                   maxRole == RoleType.Administrator;
         }
     }
 }
