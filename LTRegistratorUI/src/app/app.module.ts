@@ -16,6 +16,7 @@ import { TimesheetComponent } from './timesheet/timesheet.component';
 import { AppRoutingModule } from './app-routing.module';
 import { UserComponent } from './user/user.component';
 import { EmployeesTableComponent } from './employee-table/employee-table.component';
+import { AddProjectDialogComponent } from './add-project-dialog/add-project-dialog.component';
 import { LoginService } from 'src/app/core/service/login.service';
 import { MaterialModule } from './material.module';
 import { AdminComponent } from './admin/admin.component';
@@ -39,10 +40,11 @@ import { TimesheetResolverService } from './timesheet/timesheet-resolver.service
     VacationEditDialogComponent,
     EmployeesTable,
     EmployeesTableComponent,
+    ManagerProjectsComponent,
+    AddProjectDialogComponent,
     AdminComponent,
-    ManagerProjectsComponent
   ],
-  entryComponents: [VacationEditDialogComponent, EmployeesTableComponent],
+  entryComponents: [VacationEditDialogComponent],
   imports: [
     BrowserModule,
     MaterialModule,

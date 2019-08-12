@@ -18,7 +18,19 @@ export class ManagerProjectsService {
   ) { }
 
   getManagerProjects():any {
-    return this.http.get<any>(this.managerProjectsUrl);
-
+    return this.http.get<any>(this.managerProjectsUrl)
   }
+  addManagerProject(projectName:any):any {
+    return this.http.post<any>(this.managerProjectsUrl, {name: projectName});
+  }
+
+  // addVacation(userId: any, vacation: Vacation): Observable<any> {
+  //   const body = {
+  //     TypeLeave: `${vacation.type}`,
+  //     StartDate: `${vacation.start}`,
+  //     EndDate: `${vacation.end}`
+  //   };
+  //   return this.http.post(this.getUrl(userId), [body]);
+  // }
+
 }
