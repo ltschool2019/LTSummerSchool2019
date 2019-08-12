@@ -1,0 +1,33 @@
+$background-color: #f8f8f8;
+
+.employees {
+  table {
+    position: relative;
+    border-collapse: collapse;
+    border: 2px solid $background-color;
+    //margin-left: 80px;
+    //margin-top: 20px;
+    width: 100%;
+
+    tr {
+
+      td, th {
+        border: 2px solid $background-color;
+        padding: 15px;
+      }
+    }
+  }
+
+  .mat-form-field {
+    position: relative;
+    // margin-top: 80px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  button{
+    position: relative;
+    margin: 10px;
+    margin-left: 90% ;
+  }
+}

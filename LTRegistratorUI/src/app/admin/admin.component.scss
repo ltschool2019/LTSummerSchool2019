@@ -1,34 +1,4 @@
-$background-color: #f8f8f8;
-
-.employees {
-  /*margin-top: 30px;
-  float: left;
-  width: 950px;
-  height: 100%;
-  margin-left: 330px;
-  position: absolute;
-  align-self: flex-start;*/
-  table {
-    position: relative;
-    border-collapse: collapse;
-    border: 2px solid $background-color;
-    //margin-left: 80px;
-    //margin-top: 20px;
-    width: 100%;
-
-    tr {
-
-      td, th {
-        border: 2px solid $background-color;
-        padding: 15px;
-      }
-    }
-  }
-
-  .mat-form-field {
-    position: relative;
-   // margin-top: 80px;
-    font-size: 14px;
-    width: 100%;
-  }
+table {
+  position: relative;
+  width: 100%;
 }
