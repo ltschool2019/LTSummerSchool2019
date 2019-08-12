@@ -17,14 +17,13 @@ namespace LTRegistratorApi.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController, Authorize]
-    public class EmployeeController : ControllerBase
+    public class EmployeeController : BaseApiController
     {
         private readonly IEmployeeService _employeeService;
-        private readonly IMapper _mapper;
-        public EmployeeController(IEmployeeService employeeService, IMapper mapper)
+
+        public EmployeeController(IEmployeeService employeeService, IMapper mapper) : base(mapper)
         {
             _employeeService = employeeService;
-            _mapper = mapper;
         }
 
         /// <summary>
@@ -36,9 +35,9 @@ namespace LTRegistratorApi.Controllers
         public async Task<ActionResult> GetInfoAsync(int id)
         {
             var response = await _employeeService.GetByIdAsync(id);
-            
-            return response.Status == ResponseResult.Success 
-            ? Ok(_mapper.Map<EmployeeDto>(response.Result)) 
+
+            return response.Status == ResponseResult.Success
+            ? Ok(Mapper.Map<EmployeeDto>(response.Result))
             : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
@@ -53,8 +52,8 @@ namespace LTRegistratorApi.Controllers
         {
             var response = await _employeeService.GetByIdAsync(id);
 
-            return response.Status == ResponseResult.Success 
-                ? Ok(_mapper.Map<ICollection<LeaveDto>>(response.Result.Leaves)) 
+            return response.Status == ResponseResult.Success
+                ? Ok(Mapper.Map<ICollection<LeaveDto>>(response.Result.Leaves))
                 : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
@@ -76,8 +75,8 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var response = await _employeeService.AddLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
-            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message});
+            var response = await _employeeService.AddLeavesAsync(id, Mapper.Map<ICollection<Leave>>(leaves));
+            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message });
         }
 
         /// <summary>
@@ -98,7 +97,7 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var response = await _employeeService.UpdateLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
+            var response = await _employeeService.UpdateLeavesAsync(id, Mapper.Map<ICollection<Leave>>(leaves));
             return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
@@ -112,7 +111,7 @@ namespace LTRegistratorApi.Controllers
         [HttpDelete("{userId}/leaves")]
         public async Task<ActionResult> DeleteLeave(int userId, [FromQuery] List<int> leaveID)
         {
-            if ( leaveID== null)
+            if (leaveID == null)
                 return BadRequest();
 
             if (!ModelState.IsValid)
