@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using LTRegistrator.BLL.Contracts.Contracts;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
@@ -13,7 +15,7 @@ using OfficeOpenXml.Style;
 namespace LTRegistratorApi.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
+    [ApiController, Authorize]
     public class ReportsController : BaseApiController
     {
         private readonly IReportService _reportService;
@@ -26,10 +28,8 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("monthly/{date}")]
         public async Task<IActionResult> Test(DateTime date)
         {
-            //var managerId = Convert.ToInt32(User.Identity.GetUserId());
-            var managerId = 2;
+            var managerId = Convert.ToInt32(User.Identity.GetUserId());
             var report = await _reportService.GetMonthlyReportAsync(managerId, date);
-
 
             byte[] fileContents;
 
@@ -42,10 +42,10 @@ namespace LTRegistratorApi.Controllers
                 {
                     "№", "ФИО","Ставка","Норма часов", "Итого"
                 };
-                
+
                 using (ExcelRange range = worksheet.Cells[1, 1, 1, header.Count])
                 {
-                    range.LoadFromArrays(new List<string[]>(new[] {header.ToArray()}));
+                    range.LoadFromArrays(new List<string[]>(new[] { header.ToArray() }));
                     AddColorForRangeCells(range, Color.FromArgb(204, 204, 255));
                     using (ExcelRange headerRange = worksheet.Cells[1, 3, 1, header.Count])
                     {
@@ -89,11 +89,11 @@ namespace LTRegistratorApi.Controllers
                 {
                     using (ExcelRange range = worksheet.Cells[2 + userIndex, 1, 3 + userIndex, header.Count + report.Projects.Count])
                     {
-                        var row = new List<string>()
+                        var row = new List<string>
                         {
                             userIndex.ToString(), $"{user.FirstName} {user.Surname}", user.Rate.ToString(CultureInfo.InvariantCulture), ""
                         };
-                        range.LoadFromArrays(new List<string[]>(new[] {row.ToArray()}));
+                        range.LoadFromArrays(new List<string[]>(new[] { row.ToArray() }));
                         var currentCell = worksheet.Cells[2 + userIndex, 5];
                         currentCell.Formula = $"SUM({worksheet.Cells[2 + userIndex, currentCell.Start.Column + 1].Address}:{worksheet.Cells[2 + userIndex, range.End.Column].Address})";
                         currentCell.Style.Fill.PatternType = ExcelFillStyle.Solid;
@@ -103,7 +103,7 @@ namespace LTRegistratorApi.Controllers
                         {
                             foreach (var project in user.Projects)
                             {
-                                var projectCell = headerProjectRange.FirstOrDefault(h => (string) h.Value == project.ProjectName);
+                                var projectCell = headerProjectRange.FirstOrDefault(h => (string)h.Value == project.ProjectName);
                                 if (projectCell == null) throw new Exception();
 
                                 worksheet.Cells[2 + userIndex, projectCell.Start.Column].Value = project.Hours;
@@ -128,7 +128,7 @@ namespace LTRegistratorApi.Controllers
                     range.Style.Font.Size = 10;
                 }
 
-                worksheet.Cells.AutoFitColumns(0, 50);
+                worksheet.Cells.AutoFitColumns();
 
                 fileContents = package.GetAsByteArray();
             }
@@ -138,11 +138,7 @@ namespace LTRegistratorApi.Controllers
                 return NotFound();
             }
 
-            return File(
-                fileContents: fileContents,
-                contentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                fileDownloadName: "test.xlsx"
-            );
+            return File(fileContents, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "test.xlsx");
         }
 
         private void AddColorForRangeCells(ExcelWorksheet worksheet, int startRow, int startColumn, int endRow, int endColumn, Color color)
