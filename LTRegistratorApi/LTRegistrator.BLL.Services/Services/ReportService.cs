@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using LTRegistrator.BLL.Contracts.Contracts;
 using LTRegistrator.BLL.Contracts.Models;
+using LTRegistrator.DAL.Contracts;
 using LTRegistrator.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,12 +14,16 @@ namespace LTRegistrator.BLL.Services.Services
 {
     public class ReportService: BaseService, IReportService
     {
-        public ReportService(DbContext db, IMapper mapper) : base(db, mapper)
+        private readonly IWorkCalendarRepository _workCalendar;
+        public ReportService(DbContext db, IWorkCalendarRepository workCalendar, IMapper mapper) : base(db, mapper)
         {
+            _workCalendar = workCalendar;
         }
 
         public async Task<HourReportBllModel> GetMonthlyReportAsync(int managerId, DateTime date)
         {
+            var a = await _workCalendar.CheckDay(date);
+            await _workCalendar.GetWorkCalendarByMonth(date);
             date = new DateTime(date.Year, date.Month, 1);
             var projects = await DbContext.Set<Project>().ToListAsync();
             var taskNotes = await DbContext.Set<TaskNote>()

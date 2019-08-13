@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\LTRegistrator.BLL.Contracts\LTRegistrator.BLL.Contracts.csproj" />
+    <ProjectReference Include="..\LTRegistrator.DAL\LTRegistrator.DAL.csproj" />
     <ProjectReference Include="..\LTRegistrator.Domain\LTRegistrator.Domain.csproj" />
   </ItemGroup>
 
