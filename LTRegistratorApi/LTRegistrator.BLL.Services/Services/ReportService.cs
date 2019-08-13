@@ -17,16 +17,18 @@ namespace LTRegistrator.BLL.Services.Services
         {
         }
 
-        public async Task<HourReportBllModel> GetHourReportAsync(int managerId)
+        public async Task<HourReportBllModel> GetMonthlyReportAsync(int managerId, DateTime date)
         {
+            date = new DateTime(date.Year, date.Month, 1);
             var projects = await DbContext.Set<Project>().ToListAsync();
-            var users = await DbContext.Set<Employee>().Where(e => e.ManagerId == managerId)
-                .Include(e => e.ProjectEmployees).ThenInclude(pe => pe.Tasks).ThenInclude(t => t.TaskNotes)
-                .ThenInclude(tn => tn.Task).ThenInclude(t => t.ProjectEmployee).ThenInclude(pe => pe.Project)
+            var taskNotes = await DbContext.Set<TaskNote>()
+                .Where(t => t.Day >= date && t.Day < date.AddMonths(1) && t.Task.ProjectEmployee.Employee.ManagerId == managerId)
+                .Include(tn => tn.Task).ThenInclude(t => t.ProjectEmployee).ThenInclude(pe => pe.Employee)
+                .Include(tn => tn.Task).ThenInclude(t => t.ProjectEmployee).ThenInclude(pe => pe.Project)
                 .ToListAsync();
 
             var report = Mapper.Map<HourReportBllModel>(projects);
-            Mapper.Map(users, report);
+            Mapper.Map(taskNotes.GroupBy(t => t.Task.ProjectEmployee.Employee).Select(g => g.Key).ToList(), report);
 
             return report;
         }

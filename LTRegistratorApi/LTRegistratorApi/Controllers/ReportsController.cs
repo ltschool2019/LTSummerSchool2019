@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -22,10 +23,12 @@ namespace LTRegistratorApi.Controllers
             _reportService = reportService;
         }
 
-        [HttpGet("{managerId}/test")]
-        public async Task<IActionResult> Test(int managerId)
+        [HttpGet("monthly/{date}")]
+        public async Task<IActionResult> Test(DateTime date)
         {
-            var report = await _reportService.GetHourReportAsync(managerId);
+            //var managerId = Convert.ToInt32(User.Identity.GetUserId());
+            var managerId = 2;
+            var report = await _reportService.GetMonthlyReportAsync(managerId, date);
 
 
             byte[] fileContents;
@@ -33,62 +36,100 @@ namespace LTRegistratorApi.Controllers
             using (var package = new ExcelPackage())
             {
                 var worksheet = package.Workbook.Worksheets.Add("Часы");
+
                 //Header
-                worksheet.Cells[1, 1].Value = "№";
-                worksheet.Cells[1, 2].Value = "ФИО";
-                worksheet.Cells[1, 3].Value = "Ставка";
-                worksheet.Cells[1, 4].Value = "Норма часов";
-                worksheet.Cells[1, 5].Value = "Итого";
-                AddColorForRangeCells(worksheet, 1, 1, 1, 5, Color.FromArgb(204, 204, 255));
-
-                var i = 6;
-                foreach (var project in report.Projects)
+                var header = new List<string>()
                 {
-                    worksheet.Cells[1, i].Value = project.ProjectName;
-                    i++;
-                }
-                AddColorForRangeCells(worksheet, 1, 6, 1, i - 1, Color.Green);
-
-                //Total
-                worksheet.Cells[2, 2].Value = "Итого";
-                for (i = 5; i <= 5 + report.Projects.Count; i++)
+                    "№", "ФИО","Ставка","Норма часов", "Итого"
+                };
+                
+                using (ExcelRange range = worksheet.Cells[1, 1, 1, header.Count])
                 {
-                    worksheet.Cells[2, i].Formula = $"SUM({worksheet.Cells[3, i].Address}:{worksheet.Cells[3 + report.Users.Count - 1, i].Address})";
-                }
-                AddColorForRangeCells(worksheet, 2, 1, 2, 5 + report.Projects.Count, Color.FromArgb(153, 204, 255));
-                //Data1
-                int row = 3;
-                i = 1;
-                foreach (var user in report.Users)
-                {
-                    worksheet.Cells[row, 1].Value = i;
-                    worksheet.Cells[row, 2].Value = $"{user.FirstName} {user.Surname} {user.LastName}";
-                    worksheet.Cells[row, 3].Value = user.Rate;
-                    worksheet.Cells[row, 4].Value = user.NormHours;
-                    worksheet.Cells[row, 5].Formula = $"SUM({worksheet.Cells[row, 6].Address}:{worksheet.Cells[row, 5 + report.Projects.Count].Address})";
-                    worksheet.Cells[row, 5].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                    worksheet.Cells[row, 5].Style.Fill.BackgroundColor.SetColor(Color.FromArgb(204, 204, 255));
-
-                    foreach (var project in user.Projects)
+                    range.LoadFromArrays(new List<string[]>(new[] {header.ToArray()}));
+                    AddColorForRangeCells(range, Color.FromArgb(204, 204, 255));
+                    using (ExcelRange headerRange = worksheet.Cells[1, 3, 1, header.Count])
                     {
-                        for (int j = 6; j < report.Projects.Count + 6; j++)
-                        {
-                            if ((string)worksheet.Cells[1, j].Value == project.ProjectName)
-                            {
-                                worksheet.Cells[row, j].Value = project.Hours;
-                                break;
-                            }
-                        }
+                        headerRange.Style.TextRotation = 90;
+                    }
+                }
+
+                using (ExcelRange range = worksheet.Cells[1, header.Count + 1, 1, header.Count + report.Projects.Count])
+                {
+                    range.LoadFromArrays(new List<string[]>(new[] { report.Projects.Select(p => p.ProjectName).ToArray() }));
+                    AddColorForRangeCells(range, Color.LightGreen);
+                    range.Style.TextRotation = 90;
+                    range.Style.Font.Bold = true;
+                }
+
+                using (ExcelRange range = worksheet.Cells[1, 1, 1, header.Count + report.Projects.Count])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                    range.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+                }
+
+                //Header Two
+                worksheet.Cells[2, 2].Value = "Итого";
+                using (ExcelRange range = worksheet.Cells[2, header.Count, 2, header.Count + report.Projects.Count])
+                {
+                    for (int column = 1; column <= range.Columns; column++)
+                    {
+                        var cell = worksheet.Cells[range.Start.Row, column + header.Count - 1];
+                        var startCell = cell.Start;
+                        cell.Formula = $"SUM({worksheet.Cells[startCell.Row + 1, startCell.Column].Address}:{worksheet.Cells[startCell.Row + 1 + report.Users.Count, startCell.Column].Address})";
                     }
 
-                    row++;
-                    i++;
+                    range.Style.Font.Bold = true;
                 }
-                worksheet.Cells[1, 1, report.Users.Count + 2, report.Projects.Count + 5].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-                worksheet.Cells[1, 1, report.Users.Count + 2, report.Projects.Count + 5].Style.Border.Left.Style = ExcelBorderStyle.Thin;
-                worksheet.Cells[1, 1, report.Users.Count + 2, report.Projects.Count + 5].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-                worksheet.Cells[1, 1, report.Users.Count + 2, report.Projects.Count + 5].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-                AddColorForRangeCells(worksheet, 3, 6, 3 + report.Users.Count - 1, 6 + report.Projects.Count - 1, Color.FromArgb(204, 255, 204));
+                AddColorForRangeCells(worksheet, 2, 1, 2, header.Count + report.Projects.Count, Color.FromArgb(153, 204, 255));
+
+                //Data
+                var userIndex = 1;
+                foreach (var user in report.Users)
+                {
+                    using (ExcelRange range = worksheet.Cells[2 + userIndex, 1, 3 + userIndex, header.Count + report.Projects.Count])
+                    {
+                        var row = new List<string>()
+                        {
+                            userIndex.ToString(), $"{user.FirstName} {user.Surname}", user.Rate.ToString(CultureInfo.InvariantCulture), ""
+                        };
+                        range.LoadFromArrays(new List<string[]>(new[] {row.ToArray()}));
+                        var currentCell = worksheet.Cells[2 + userIndex, 5];
+                        currentCell.Formula = $"SUM({worksheet.Cells[2 + userIndex, currentCell.Start.Column + 1].Address}:{worksheet.Cells[2 + userIndex, range.End.Column].Address})";
+                        currentCell.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                        currentCell.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(204, 204, 255));
+
+                        using (ExcelRange headerProjectRange = worksheet.Cells[1, header.Count + 1, 1, header.Count + report.Projects.Count])
+                        {
+                            foreach (var project in user.Projects)
+                            {
+                                var projectCell = headerProjectRange.FirstOrDefault(h => (string) h.Value == project.ProjectName);
+                                if (projectCell == null) throw new Exception();
+
+                                worksheet.Cells[2 + userIndex, projectCell.Start.Column].Value = project.Hours;
+                            }
+                        }
+
+                        userIndex++;
+                    }
+                }
+
+                using (ExcelRange range = worksheet.Cells[3, header.Count + 1, 3 + report.Users.Count - 1, header.Count + report.Projects.Count])
+                {
+                    AddColorForRangeCells(range, Color.FromArgb(204, 255, 204));
+                }
+
+                using (ExcelRange range = worksheet.Cells[1, 1, report.Users.Count + 2, report.Projects.Count + 5])
+                {
+                    range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
+                    range.Style.Border.Left.Style = ExcelBorderStyle.Thin;
+                    range.Style.Border.Right.Style = ExcelBorderStyle.Thin;
+                    range.Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
+                    range.Style.Font.Size = 10;
+                }
+
+                worksheet.Cells.AutoFitColumns(0, 50);
+
                 fileContents = package.GetAsByteArray();
             }
 
@@ -113,6 +154,10 @@ namespace LTRegistratorApi.Controllers
             }
         }
 
-
+        private void AddColorForRangeCells(ExcelRange range, Color color)
+        {
+            range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            range.Style.Fill.BackgroundColor.SetColor(color);
+        }
     }
 }
