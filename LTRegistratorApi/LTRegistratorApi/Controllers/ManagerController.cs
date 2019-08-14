@@ -41,7 +41,7 @@ namespace LTRegistratorApi.Controllers
             var projects = DtoConverter.ToProjectDto(_db.ProjectEmployee.Join(_db.Project,
                                      p => p.ProjectId,
                                      pe => pe.Id,
-                                     (pe, p) => new { pe, p }).Where(w => w.pe.EmployeeId == employeeId && w.pe.Role == RoleType.Manager).Select(name => name.p).ToList());
+                                     (pe, p) => new { pe, p }).Where(w => w.pe.EmployeeId == employeeId && w.pe.Role == RoleType.Manager && w.p.SoftDeleted == false).Select(name => name.p).ToList());
             if (!projects.Any())
                 return NotFound();
             return Ok(projects);
@@ -126,7 +126,7 @@ namespace LTRegistratorApi.Controllers
         [Authorize(Policy = "IsManagerOrAdministrator")]
         [HttpGet("allprojects")]
         public async Task<IActionResult> GetProjects()
-        {
+        {//DO
             await _db.Project.LoadAsync();
             var projects = _db.Project.Local.ToList();
             return Ok(DtoConverter.ToProjectDto(projects));
@@ -208,8 +208,7 @@ namespace LTRegistratorApi.Controllers
             if (project != null)
             {
                 if (thisUserIdent.HasClaim(c =>
-                            (c.Type == ClaimTypes.Role && c.Value == "Administrator")) || (thisUserIdent.HasClaim(c =>
-                            (c.Type == ClaimTypes.Role && c.Value == "Manager")) && managerEmployee != null && managerEmployee.EmployeeId == thisUser.EmployeeId))
+                            (c.Type == ClaimTypes.Role && c.Value == "Administrator")))
                 {
                     var listEmployees = _db.ProjectEmployee.Where(pe => pe.ProjectId == id).ToList();
                     foreach (ProjectEmployee employee in listEmployees)
@@ -219,6 +218,14 @@ namespace LTRegistratorApi.Controllers
 
                     _db.Project.Remove(project);
                     await _db.SaveChangesAsync();
+
+                    return Ok();
+                }
+                else if (thisUserIdent.HasClaim(c =>
+                            (c.Type == ClaimTypes.Role && c.Value == "Manager"))
+                    && managerEmployee != null && managerEmployee.EmployeeId == thisUser.EmployeeId)
+                {
+                    project.SoftDeleted = true;
 
                     return Ok();
                 }
