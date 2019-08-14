@@ -126,10 +126,25 @@ namespace LTRegistratorApi.Controllers
         [Authorize(Policy = "IsManagerOrAdministrator")]
         [HttpGet("allprojects")]
         public async Task<IActionResult> GetProjects()
-        {//DO
+        {
+            var thisUserIdent = HttpContext.User.Identity as ClaimsIdentity;
             await _db.Project.LoadAsync();
-            var projects = _db.Project.Local.ToList();
-            return Ok(DtoConverter.ToProjectDto(projects));
+            if (thisUserIdent.HasClaim(c =>
+                            (c.Type == ClaimTypes.Role && c.Value == "Administrator")))
+            {
+                var projects = _db.Project.ToList();
+                return Ok(DtoConverter.ToProjectDto(projects));
+            }
+            else if(thisUserIdent.HasClaim(c =>
+                       (c.Type == ClaimTypes.Role && c.Value == "Manager")))
+            {
+                var projects = _db.Project.Where(w => w.SoftDeleted == false).ToList();
+                return Ok(DtoConverter.ToProjectDto(projects));
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
         /// <summary>
@@ -159,29 +174,26 @@ namespace LTRegistratorApi.Controllers
                     await _db.SaveChangesAsync();
                     return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
                 }
+                else if (thisUserIdent.HasClaim(c =>
+                            (c.Type == ClaimTypes.Role && c.Value == "Manager")))
+                {
+                    var project = new Project { Name = projectdto.Name };
+                    _db.Project.Add(project);
+                    _db.SaveChanges();
+                    ProjectEmployee projectEmployee = new ProjectEmployee
+                    {
+                        ProjectId = project.Id,
+                        EmployeeId = thisUser.EmployeeId,
+                        Role = RoleType.Manager
+                    };
+                    _db.ProjectEmployee.Add(projectEmployee);
+
+                    _db.SaveChanges();
+                    return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
+                }
                 else
                 {
-                    if (thisUserIdent.HasClaim(c =>
-                            (c.Type == ClaimTypes.Role && c.Value == "Manager")))
-                    {
-                        var project = new Project { Name = projectdto.Name };
-                        _db.Project.Add(project);
-                        _db.SaveChanges();
-                        ProjectEmployee projectEmployee = new ProjectEmployee
-                        {
-                            ProjectId = project.Id,
-                            EmployeeId = thisUser.EmployeeId,
-                            Role = RoleType.Manager
-                        };
-                        _db.ProjectEmployee.Add(projectEmployee);
-
-                        _db.SaveChanges();
-                        return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
-                    }
-                    else
-                    {
-                        return BadRequest();
-                    }
+                    return BadRequest();
                 }
             }
             else
