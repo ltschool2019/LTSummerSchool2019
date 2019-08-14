@@ -8,7 +8,6 @@ using LTRegistrator.BLL.Contracts;
 using LTRegistrator.BLL.Contracts.Contracts;
 using LTRegistrator.Domain.Entities;
 using LTRegistratorApi.Model;
-using Microsoft.AspNetCore.Authorization;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -16,7 +15,8 @@ namespace LTRegistratorApi.Controllers
     /// Controller providing basic employee operations
     /// </summary>
     [Route("api/[controller]")]
-    [ApiController, Authorize]
+    [ApiController]
+    //[ApiController, Authorize]
     public class EmployeeController : ControllerBase
     {
         private readonly IEmployeeService _employeeService;
