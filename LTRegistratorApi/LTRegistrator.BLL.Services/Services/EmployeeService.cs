@@ -13,6 +13,7 @@ using LTRegistrator.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Task = LTRegistrator.Domain.Entities.Task;
 
 namespace LTRegistrator.BLL.Services.Services
 {
@@ -50,19 +51,31 @@ namespace LTRegistrator.BLL.Services.Services
 
         public async Task<Response<Employee>> GetByIdAsync(int id)
         {
-            //if (!this.AccessAllowed(id).Result)
-            //{
-            //    return new Response<Employee>(HttpStatusCode.BadRequest, "You have not enough permissions to change data");
-            //}
+            if (!this.AccessAllowed(id).Result)
+            {
+                return new Response<Employee>(HttpStatusCode.BadRequest, "You have not enough permissions to change data");
+            }
+            var currentMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             var employee = await DbContext.Set<Employee>()
                 .Include(e => e.Manager)
                 .Include(e => e.Leaves)
                 .Include(e => e.ProjectEmployees).ThenInclude(pe => pe.Project)
                 .Include(e => e.ProjectEmployees).ThenInclude(pe => pe.Tasks).ThenInclude(t => t.TaskNotes)
                 .SingleOrDefaultAsync(e => e.Id == id);
-            return employee == null
-                ? new Response<Employee>(HttpStatusCode.NotFound, $"Employee with id = {id} not found")
-                : new Response<Employee>(employee);
+            if (employee == null)
+            {
+                return new Response<Employee>(HttpStatusCode.NotFound, $"Employee with id = {id} not found");
+            }
+
+            foreach (var projectEmployee in employee.ProjectEmployees)
+            {
+                foreach (var task in projectEmployee.Tasks)
+                {
+                    task.TaskNotes = task.TaskNotes.Where(tn => tn.Day >= currentMonth && tn.Day < currentMonth.AddMonths(1)).ToList();
+                }
+            }
+
+            return new Response<Employee>(employee);
         }
 
         public async Task<Response<Employee>> AddLeavesAsync(int userId, ICollection<Leave> leaves)
