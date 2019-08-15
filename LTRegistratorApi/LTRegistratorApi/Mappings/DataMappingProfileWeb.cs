@@ -19,7 +19,8 @@ namespace LTRegistratorApi.Mappings
 
             CreateMap<ProjectEmployee, ProjectDto>()
                 .ForMember(pd => pd.Id, opt => opt.MapFrom(src => src.ProjectId))
-                .ForMember(pd => pd.Name, opt => opt.MapFrom(src => src.Project.Name));
+                .ForMember(pd => pd.Name, opt => opt.MapFrom(src => src.Project.Name))
+                .ForMember(pd => pd.TotalHours, opt => opt.MapFrom(src => src.Tasks.Sum(t => t.TaskNotes.Sum(tn => tn.Hours))));
 
             CreateMap<LeaveDto, Leave>()
                 .ForMember(l => l.EmployeeId, opt => opt.Ignore())
