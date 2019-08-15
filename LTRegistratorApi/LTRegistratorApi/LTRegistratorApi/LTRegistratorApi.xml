@@ -62,12 +62,12 @@
             <param name="projectid"> id of the project whose manager should be deleted</param>
             <returns>"200 ok" or "404 not found"</returns>
         </member>
-        <member name="M:LTRegistratorApi.Controllers.AdministratorController.SetRole(System.Int32,System.String)">
+        <member name="M:LTRegistratorApi.Controllers.AdministratorController.SetRole(System.Int32,LTRegistrator.Domain.Enums.RoleType)">
             <summary>
             Update role claim of user
             </summary>
-            <param name="employeeid">id of user which should be assigned as employee</param>
-            <param name="AssignedRole">role to be assigned to the employee</param>
+            <param name="employeeId">id of user which should be assigned as employee</param>
+            <param name="assignedRole">role to be assigned to the employee</param>
             <response code="200">Claim updated</response>
             <response code="400">User cannot be assigned as employee</response>
             <response code="404">Cannot find user</response>

@@ -121,62 +121,41 @@ namespace LTRegistratorApi.Controllers
                 return NotFound();
             }
         }
-        
+
         /// <summary>
         /// Update role claim of user
         /// </summary>
-        /// <param name="employeeid">id of user which should be assigned as employee</param>
-        /// <param name="AssignedRole">role to be assigned to the employee</param>
+        /// <param name="employeeId">id of user which should be assigned as employee</param>
+        /// <param name="assignedRole">role to be assigned to the employee</param>
         /// <response code="200">Claim updated</response>
         /// <response code="400">User cannot be assigned as employee</response>
         /// <response code="404">Cannot find user</response>
-        [HttpPut("SetRole/{employeeid}/{AssignedRole}")]
+        [HttpPut("SetRole/{employeeId}/{assignedRole}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> SetRole([FromRoute] int employeeid, string AssignedRole)
+        public async Task<IActionResult> SetRole([FromRoute] int employeeId, RoleType assignedRole)
         {
-            var nameident = _db.Users.Where(u => u.EmployeeId == employeeid).FirstOrDefault().Id;
-            var user = await _userManager.FindByIdAsync(nameident);
-            if (user != null)
+            if (assignedRole == RoleType.Administrator) return BadRequest("You cannot designate an employee as an administrator");
+
+            var employee = await _db.Set<Employee>().Include(e => e.User).FirstOrDefaultAsync(e => e.Id == employeeId).ConfigureAwait(false);
+            if (employee != null)
             {
-                var oldclaims = await _userManager.GetClaimsAsync(user);
-                int numrole;
-                if (AssignedRole.ToLower() == "administrator")
+                var oldClaims = await _userManager.GetClaimsAsync(employee.User);
+                employee.MaxRole = assignedRole;
+                if (assignedRole == RoleType.Manager)
                 {
-                    numrole = 2;
-                    var employeeman = _db.Employee.Where(e => e.Id == employeeid).FirstOrDefault();
-                    employeeman.ManagerId = null;
-                    employeeman.MaxRole = RoleType.Administrator;
-                    await _db.SaveChangesAsync();
+                    employee.ManagerId = null;
                 }
-                else if (AssignedRole.ToLower() == "manager")
-                {
-                    numrole = 1;
-                    var employeeman = _db.Employee.Where(e => e.Id == employeeid).FirstOrDefault();
-                    employeeman.ManagerId = null;
-                    employeeman.MaxRole = RoleType.Manager;
-                    await _db.SaveChangesAsync();
-                }
-                else if (AssignedRole.ToLower() == "employee")
-                {
-                    numrole = 0;
-                    _db.Employee.Where(e => e.Id == employeeid).FirstOrDefault().MaxRole = RoleType.Employee;
-                    await _db.SaveChangesAsync();
-                }
-                else
-                {
-                    return BadRequest();
-                }
-                
-                await _userManager.RemoveClaimsAsync(user, oldclaims);
-                await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, Enum.GetName(typeof(RoleType), numrole)));
+
+                await _db.SaveChangesAsync().ConfigureAwait(false);
+
+                await _userManager.RemoveClaimsAsync(employee.User, oldClaims);
+                await _userManager.AddClaimAsync(employee.User, new Claim(ClaimTypes.Role, assignedRole.ToString()));
                 return Ok();
             }
-            else
-            {
-                return NotFound();
-            }
+
+            return NotFound($"Employee with id = {employeeId} not found");
         }
     }
 }
