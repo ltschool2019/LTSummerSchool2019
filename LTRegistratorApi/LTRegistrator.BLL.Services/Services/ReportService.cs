@@ -14,6 +14,7 @@ namespace LTRegistrator.BLL.Services.Services
 {
     public class ReportService: BaseService, IReportService
     {
+        private const int HoursInWorkingDay = 8;
         private readonly IWorkCalendarRepository _workCalendar;
         public ReportService(DbContext db, IWorkCalendarRepository workCalendar, IMapper mapper) : base(db, mapper)
         {
@@ -22,9 +23,8 @@ namespace LTRegistrator.BLL.Services.Services
 
         public async Task<HourReportBllModel> GetMonthlyReportAsync(int managerId, DateTime date)
         {
-            var a = await _workCalendar.CheckDay(date);
-            await _workCalendar.GetWorkCalendarByMonth(date);
             date = new DateTime(date.Year, date.Month, 1);
+            var countWorkingDays = await _workCalendar.GetCountOfWorkingDaysInMonth(date);
             var projects = await DbContext.Set<Project>().ToListAsync();
             var taskNotes = await DbContext.Set<TaskNote>()
                 .Where(t => t.Day >= date && t.Day < date.AddMonths(1) && t.Task.ProjectEmployee.Employee.ManagerId == managerId)
@@ -34,6 +34,10 @@ namespace LTRegistrator.BLL.Services.Services
 
             var report = Mapper.Map<HourReportBllModel>(projects);
             Mapper.Map(taskNotes.GroupBy(t => t.Task.ProjectEmployee.Employee).Select(g => g.Key).ToList(), report);
+            foreach (var user in report.Users)
+            {
+                Mapper.Map(countWorkingDays * HoursInWorkingDay, user);
+            }
 
             return report;
         }

@@ -29,7 +29,8 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("monthly/{date}")]
         public async Task<IActionResult> Test(DateTime date)
         {
-            var managerId = Convert.ToInt32(User.Identity.GetUserId());
+            //var managerId = Convert.ToInt32(User.Identity.GetUserId());
+            var managerId = 2;
             var report = await _reportService.GetMonthlyReportAsync(managerId, date);
 
             byte[] fileContents;
@@ -92,7 +93,7 @@ namespace LTRegistratorApi.Controllers
                     {
                         var row = new List<string>
                         {
-                            userIndex.ToString(), $"{user.FirstName} {user.Surname}", user.Rate.ToString(CultureInfo.InvariantCulture), ""
+                            userIndex.ToString(), $"{user.FirstName} {user.Surname}", user.Rate.ToString(CultureInfo.InvariantCulture), user.NormHours.ToString(CultureInfo.InvariantCulture)
                         };
                         range.LoadFromArrays(new List<string[]>(new[] { row.ToArray() }));
                         var currentCell = worksheet.Cells[2 + userIndex, 5];
@@ -139,7 +140,7 @@ namespace LTRegistratorApi.Controllers
                 return NotFound();
             }
 
-            return File(fileContents, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "test.xlsx");
+            return File(fileContents, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", $"monthly_report_{date.Year}_{date.Month}.xlsx");
         }
 
         private void AddColorForRangeCells(ExcelWorksheet worksheet, int startRow, int startColumn, int endRow, int endColumn, Color color)

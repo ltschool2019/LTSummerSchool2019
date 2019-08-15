@@ -7,5 +7,6 @@ namespace LTRegistrator.DAL.Contracts
     {
         Task<bool> CheckDay(DateTime date);
         Task GetWorkCalendarByMonth(DateTime date);
+        Task<int> GetCountOfWorkingDaysInMonth(DateTime date);
     }
 }
