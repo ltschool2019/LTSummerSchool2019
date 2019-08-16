@@ -3,6 +3,7 @@ using LTRegistratorApi.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using LTRegistrator.BLL.Services;
 using LTRegistrator.Domain.Entities;
@@ -197,21 +198,22 @@ namespace LTRegistratorApi.Controllers
         /// </summary>
         /// <param name="employeeId">Id Employee which must be untied from the manager</param>
         /// <response code="200">Employee untied from manager</response>
-        /// <response code="404">Employee not found or employee already untied from the manager</response>
+        /// <response code="400">Employee does not have a manager</response>
+        /// <response code="404">Employee not found </response>
         [HttpPut("untieemployee/{employeeId}")]
         [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         public async Task<ActionResult> UntieEmployeeFromManager([FromRoute] int employeeId)
         {
             var employee = await _db.Employee.FindAsync(employeeId);
-            if (employee != null && employee.ManagerId != null)
-            {
-                employee.ManagerId = null;
-                await _db.SaveChangesAsync();
-                return Ok();
-            }
-            else if (employee != null && employee.ManagerId == null) return BadRequest();
-            else return NotFound();
+            if (employee == null) return NotFound();
+
+            if (employee.ManagerId == null) return BadRequest();
+
+            employee.ManagerId = null;
+            await _db.SaveChangesAsync();
+            return Ok();
         }
     }
 }
