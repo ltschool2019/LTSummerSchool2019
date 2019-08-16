@@ -127,8 +127,7 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("allprojects")]
         public async Task<IActionResult> GetProjects()
         {
-            await _db.Project.LoadAsync();
-            var projects = _db.Project.Local.ToList();
+            var projects = await _db.Project.ToListAsync();
             return Ok(DtoConverter.ToProjectDto(projects));
         }
 
@@ -180,7 +179,7 @@ namespace LTRegistratorApi.Controllers
                     }
                     else
                     {
-                        return BadRequest();
+                        return Forbid("You do not have sufficient permissions to add a project");
                     }
                 }
             }

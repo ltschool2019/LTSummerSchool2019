@@ -121,5 +121,41 @@ namespace LTRegistratorApi.Controllers
                 return NotFound();
             }
         }
+
+        /// <summary>
+        /// Update role claim of user
+        /// </summary>
+        /// <param name="employeeId">id of user which should be assigned as employee</param>
+        /// <param name="assignedRole">role to be assigned to the employee</param>
+        /// <response code="200">Claim updated</response>
+        /// <response code="400">User cannot be assigned as employee</response>
+        /// <response code="404">Cannot find user</response>
+        [HttpPut("SetRole/{employeeId}/{assignedRole}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> SetRole([FromRoute] int employeeId, RoleType assignedRole)
+        {
+            if (assignedRole == RoleType.Administrator) return BadRequest("You cannot designate an employee as an administrator");
+
+            var employee = await _db.Set<Employee>().Include(e => e.User).FirstOrDefaultAsync(e => e.Id == employeeId).ConfigureAwait(false);
+            if (employee != null)
+            {
+                var oldClaims = await _userManager.GetClaimsAsync(employee.User);
+                employee.MaxRole = assignedRole;
+                if (assignedRole == RoleType.Manager)
+                {
+                    employee.ManagerId = null;
+                }
+
+                await _db.SaveChangesAsync().ConfigureAwait(false);
+
+                await _userManager.RemoveClaimsAsync(employee.User, oldClaims);
+                await _userManager.AddClaimAsync(employee.User, new Claim(ClaimTypes.Role, assignedRole.ToString()));
+                return Ok();
+            }
+
+            return NotFound($"Employee with id = {employeeId} not found");
+        }
     }
 }
