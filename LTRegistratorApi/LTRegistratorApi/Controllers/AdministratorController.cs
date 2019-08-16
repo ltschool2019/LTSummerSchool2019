@@ -210,6 +210,7 @@ namespace LTRegistratorApi.Controllers
                 await _db.SaveChangesAsync();
                 return Ok();
             }
+            else if (employee != null && employee.ManagerId == null) return BadRequest();
             else return NotFound();
         }
     }
