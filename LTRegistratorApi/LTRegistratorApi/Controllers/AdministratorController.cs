@@ -157,5 +157,60 @@ namespace LTRegistratorApi.Controllers
 
             return NotFound($"Employee with id = {employeeId} not found");
         }
+
+        /// <summary>
+        /// Assigning manager to employee
+        /// </summary>
+        /// <param name="managerId">Id Manager to be assigned to the employee</param>
+        /// <param name="employeeId">Id employee who is assigned manager</param>
+        /// <response code="200">Manager assigned to employee</response>
+        /// <response code="400">You have selected the manager or the employee does not have a matching role or manager already assigned to selected employee</response>
+        /// <response code="404">Manager or employee not found</response>
+        [HttpPut("assignmanager/{managerId}/employee/{employeeId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult> AssignManagerToEmployee([FromRoute] int managerId, int employeeId)
+        {
+            var employee = await _db.Employee.FindAsync(employeeId);
+            var manager = await _db.Employee.FindAsync(managerId);
+
+            if (employee != null && manager != null)
+            {
+                if (employee.MaxRole == RoleType.Employee && manager.MaxRole == RoleType.Manager)
+                {
+                    if (employee.ManagerId == null)
+                    {
+                        employee.ManagerId = managerId;
+                        await _db.SaveChangesAsync();
+                        return Ok();
+                    }
+                    else return BadRequest();
+                }
+                else return BadRequest();
+            }
+            else return NotFound();
+        }
+
+        /// <summary>
+        /// Untying employee from manager
+        /// </summary>
+        /// <param name="employeeId">Id Employee which must be untied from the manager</param>
+        /// <response code="200">Employee untied from manager</response>
+        /// <response code="404">Employee not found or employee already untied from the manager</response>
+        [HttpPut("untieemployee/{employeeId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult> UntieEmployeeFromManager([FromRoute] int employeeId)
+        {
+            var employee = await _db.Employee.FindAsync(employeeId);
+            if (employee != null && employee.ManagerId != null)
+            {
+                employee.ManagerId = null;
+                await _db.SaveChangesAsync();
+                return Ok();
+            }
+            else return NotFound();
+        }
     }
 }
