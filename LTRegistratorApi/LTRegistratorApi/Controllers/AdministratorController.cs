@@ -176,21 +176,13 @@ namespace LTRegistratorApi.Controllers
             var employee = await _db.Employee.FindAsync(employeeId);
             var manager = await _db.Employee.FindAsync(managerId);
 
-            if (employee != null && manager != null)
-            {
-                if (employee.MaxRole == RoleType.Employee && manager.MaxRole == RoleType.Manager)
-                {
-                    if (employee.ManagerId == null)
-                    {
-                        employee.ManagerId = managerId;
-                        await _db.SaveChangesAsync();
-                        return Ok();
-                    }
-                    else return BadRequest();
-                }
-                else return BadRequest();
-            }
-            else return NotFound();
+            if (employee == null || manager == null) return NotFound();
+
+            if (employee.MaxRole != RoleType.Employee || manager.MaxRole != RoleType.Manager || employee.ManagerId != null) return BadRequest();
+            
+            employee.ManagerId = managerId;
+            await _db.SaveChangesAsync();
+            return Ok();
         }
 
         /// <summary>
