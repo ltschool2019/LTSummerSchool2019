@@ -17,8 +17,9 @@
       </button>
 
       <!-- <input type="date" [value]="currentDate" formControlName="currentWeek"> -->
-      <mat-form-field (click)="getWeek()">
-        <input matInput [matDatepicker]="currentWeek" placeholder="week" formControlName="currentWeek">
+      <mat-form-field>
+        <input matInput [matDatepicker]="currentWeek" placeholder="week" formControlName="currentWeek"
+          (dateChange)="getWeek()">
         <mat-datepicker-toggle [for]="currentWeek" matSuffix></mat-datepicker-toggle>
         <mat-datepicker #currentWeek></mat-datepicker>
       </mat-form-field>
