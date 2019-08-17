@@ -15,13 +15,14 @@ import { NotFoundComponent } from './not-found/not-found.component';
 import { TimesheetComponent } from './timesheet/timesheet.component';
 import { AppRoutingModule } from './app-routing.module';
 import { UserComponent } from './user/user.component';
-
-import { MaterialModule } from './material.module';
+import { EmployeesTableComponent } from './employee-table/employee-table.component';
 import { LoginService } from 'src/app/core/service/login.service';
-import { EmployeesTable } from './admin/admin.component';
+import { MaterialModule } from './material.module';
+import { AdminComponent } from './admin/admin.component';
 import { VacationEditDialogComponent } from './vacation/vacation-edit-dialog/vacation-edit-dialog.component';
 import { VacationService } from './core/service/vacation.service';
 import { TimesheetResolverService } from './timesheet/timesheet-resolver.service';
+
 
 @NgModule({
   declarations: [
@@ -34,10 +35,11 @@ import { TimesheetResolverService } from './timesheet/timesheet-resolver.service
     SideMenuComponent,
     HeaderComponent,
     UserComponent,
-    EmployeesTable,
-    VacationEditDialogComponent
+    VacationEditDialogComponent,
+    EmployeesTableComponent,
+    AdminComponent,
   ],
-  entryComponents: [VacationEditDialogComponent],
+  entryComponents: [VacationEditDialogComponent, EmployeesTableComponent],
   imports: [
     BrowserModule,
     MaterialModule,
@@ -59,7 +61,7 @@ import { TimesheetResolverService } from './timesheet/timesheet-resolver.service
     AppRoutingModule,
     ReactiveFormsModule
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {
 }

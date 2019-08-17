@@ -17,6 +17,8 @@ namespace LTRegistrator.BLL.Services.Mappings.DbContext
             builder.Property(p => p.Id).ValueGeneratedOnAdd();
 
             builder.HasMany(p => p.ProjectEmployees).WithOne(pe => pe.Project).HasForeignKey(pe => pe.ProjectId);
+
+            builder.HasIndex(p => p.Name).IsUnique();
         }
     }
 }

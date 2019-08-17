@@ -24,6 +24,8 @@ namespace LTRegistratorApi
                 var leaveBob = new Leave[]
                 {
                     new Leave() { StartDate = new DateTime(2019, 1, 1), EndDate = new DateTime(2019, 1, 13), TypeLeave = TypeLeave.Vacation },
+                    new Leave() { StartDate = new DateTime(2019, 8, 6), EndDate = new DateTime(2019, 8, 8), TypeLeave = TypeLeave.Vacation },
+                    new Leave() { StartDate = new DateTime(2019, 8, 1), EndDate = new DateTime(2019, 8, 4), TypeLeave = TypeLeave.Vacation },
                     new Leave() { StartDate = new DateTime(2019, 2, 10), EndDate = new DateTime(2019, 2, 13), TypeLeave = TypeLeave.SickLeave }
                 };
                 var leaveEve = new Leave[]
@@ -102,7 +104,6 @@ namespace LTRegistratorApi
                 context.Task.Add(new Task() { ProjectId = 3, EmployeeId = 3, Name = "Area 9"});
                 context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 4, Name = "EMIAS"});
                 context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 5, Name = "EMIAS"});
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 6, Name = "EMIAS"});
                 context.SaveChanges();
             }
 

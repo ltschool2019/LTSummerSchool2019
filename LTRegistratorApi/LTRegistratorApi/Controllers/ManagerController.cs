@@ -127,8 +127,7 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("allprojects")]
         public async Task<IActionResult> GetProjects()
         {
-            await _db.Project.LoadAsync();
-            var projects = _db.Project.Local.ToList();
+            var projects = await _db.Project.ToListAsync();
             return Ok(DtoConverter.ToProjectDto(projects));
         }
 
@@ -154,7 +153,7 @@ namespace LTRegistratorApi.Controllers
                 if (thisUserIdent.HasClaim(c =>
                             (c.Type == ClaimTypes.Role && c.Value == "Administrator")))
                 {
-                    var project = new Project { Id = projectdto.Id, Name = projectdto.Name };
+                    var project = new Project {Name = projectdto.Name };
                     _db.Project.Add(project);
                     await _db.SaveChangesAsync();
                     return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
@@ -164,8 +163,9 @@ namespace LTRegistratorApi.Controllers
                     if (thisUserIdent.HasClaim(c =>
                             (c.Type == ClaimTypes.Role && c.Value == "Manager")))
                     {
-                        var project = new Project { Id = projectdto.Id, Name = projectdto.Name };
+                        var project = new Project { Name = projectdto.Name };
                         _db.Project.Add(project);
+                        _db.SaveChanges();
                         ProjectEmployee projectEmployee = new ProjectEmployee
                         {
                             ProjectId = project.Id,
@@ -179,7 +179,7 @@ namespace LTRegistratorApi.Controllers
                     }
                     else
                     {
-                        return BadRequest();
+                        return Forbid("You do not have sufficient permissions to add a project");
                     }
                 }
             }

@@ -27,6 +27,7 @@ namespace LTRegistratorApi.Controllers
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
 
+        /// <param name="db"></param>
         /// <param name="userManager">Allows you to manage users</param>
         /// <param name="signInManager">Provides the APIs for user sign in</param>
         /// <param name="configuration">To use the file setting</param>
