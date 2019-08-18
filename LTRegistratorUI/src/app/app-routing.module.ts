@@ -19,7 +19,6 @@ const userRoutes: Routes = [
   {path: 'vacation', component: VacationComponent},
   { path: 'admin', component: AdminComponent },
   { path: 'manager_projects', component: ManagerProjectsComponent},
-  {path: 'em_table', component: EmployeesTable},
   {path: 'timesheet/edit', component: EmployeeComponent} // FIXME:  сделать children
 ]
 

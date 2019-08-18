@@ -38,7 +38,6 @@ import { TimesheetResolverService } from './timesheet/timesheet-resolver.service
     HeaderComponent,
     UserComponent,
     VacationEditDialogComponent,
-    EmployeesTable,
     EmployeesTableComponent,
     ManagerProjectsComponent,
     AddProjectDialogComponent,
