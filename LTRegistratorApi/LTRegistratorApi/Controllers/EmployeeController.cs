@@ -88,7 +88,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="leaves">List of leaves that updated</param>
         /// <returns>Was the operation successful?</returns>
         [HttpPut("{id}/leaves")]
-        public async Task<ActionResult> UpdateLeaves(int id, [FromBody] List<LeaveDto> leaves)
+        public async Task<ActionResult> UpdateLeavesAsync(int id, [FromBody] List<LeaveDto> leaves)
         {
             if (leaves == null)
                 return BadRequest();
@@ -110,7 +110,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="id"> IDs of leaves that should be deleted</param>
         /// <returns>Was the operation successful?</returns>
         [HttpDelete("{userId}/leaves")]
-        public async Task<ActionResult> DeleteLeave(int userId, [FromQuery] List<int> leaveID)
+        public async Task<ActionResult> DeleteLeaveAsync(int userId, [FromQuery] List<int> leaveID)
         {
             if ( leaveID== null)
                 return BadRequest();
