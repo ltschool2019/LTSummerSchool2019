@@ -42,7 +42,7 @@ namespace LTRegistratorApi.Controllers
             var projects = DtoConverter.ToProjectDto(_db.ProjectEmployee.Join(_db.Project,
                                      p => p.ProjectId,
                                      pe => pe.Id,
-                                     (pe, p) => new { pe, p }).Where(w => w.pe.EmployeeId == employeeId && w.pe.Role == RoleType.Manager && w.p.SoftDeleted == false).Select(name => name.p).ToList());
+                                     (pe, p) => new { pe, p }).Where(w => w.pe.EmployeeId == employeeId && w.pe.Role == RoleType.Manager && !w.p.SoftDeleted).Select(name => name.p).ToList());
             if (!projects.Any())
                 return NotFound();
             return Ok(projects);
@@ -141,7 +141,7 @@ namespace LTRegistratorApi.Controllers
             else if(thisUserIdent.HasClaim(c =>
                        (c.Type == ClaimTypes.Role && c.Value == "Manager")))
             {
-                var projects = await _db.Project.Where(w => w.SoftDeleted == false).ToListAsync();
+                var projects = await _db.Project.Where(w => !w.SoftDeleted).ToListAsync();
                 return Ok(DtoConverter.ToProjectDto(projects));
             }
             else
