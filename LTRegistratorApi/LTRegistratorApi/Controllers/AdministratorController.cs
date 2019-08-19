@@ -3,6 +3,7 @@ using LTRegistratorApi.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using LTRegistrator.BLL.Services;
 using LTRegistrator.Domain.Entities;
@@ -120,6 +121,91 @@ namespace LTRegistratorApi.Controllers
             {
                 return NotFound();
             }
+        }
+
+        /// <summary>
+        /// Update role claim of user
+        /// </summary>
+        /// <param name="employeeId">id of user which should be assigned as employee</param>
+        /// <param name="assignedRole">role to be assigned to the employee</param>
+        /// <response code="200">Claim updated</response>
+        /// <response code="400">User cannot be assigned as employee</response>
+        /// <response code="404">Cannot find user</response>
+        [HttpPut("SetRole/{employeeId}/{assignedRole}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> SetRole([FromRoute] int employeeId, RoleType assignedRole)
+        {
+            if (assignedRole == RoleType.Administrator) return BadRequest("You cannot designate an employee as an administrator");
+
+            var employee = await _db.Set<Employee>().Include(e => e.User).FirstOrDefaultAsync(e => e.Id == employeeId).ConfigureAwait(false);
+            if (employee != null)
+            {
+                var oldClaims = await _userManager.GetClaimsAsync(employee.User);
+                employee.MaxRole = assignedRole;
+                if (assignedRole == RoleType.Manager)
+                {
+                    employee.ManagerId = null;
+                }
+
+                await _db.SaveChangesAsync().ConfigureAwait(false);
+
+                await _userManager.RemoveClaimsAsync(employee.User, oldClaims);
+                await _userManager.AddClaimAsync(employee.User, new Claim(ClaimTypes.Role, assignedRole.ToString()));
+                return Ok();
+            }
+
+            return NotFound($"Employee with id = {employeeId} not found");
+        }
+
+        /// <summary>
+        /// Assigning manager to employee
+        /// </summary>
+        /// <param name="managerId">Id Manager to be assigned to the employee</param>
+        /// <param name="employeeId">Id employee who is assigned manager</param>
+        /// <response code="200">Manager assigned to employee</response>
+        /// <response code="400">You have selected the manager or the employee does not have a matching role or manager already assigned to selected employee</response>
+        /// <response code="404">Manager or employee not found</response>
+        [HttpPut("assignmanager/{managerId}/employee/{employeeId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult> AssignManagerToEmployee([FromRoute] int managerId, int employeeId)
+        {
+            var employee = await _db.Employee.FindAsync(employeeId);
+            var manager = await _db.Employee.FindAsync(managerId);
+
+            if (employee == null || manager == null) return NotFound();
+
+            if (employee.MaxRole != RoleType.Employee || manager.MaxRole != RoleType.Manager || employee.ManagerId != null) return BadRequest();
+            
+            employee.ManagerId = managerId;
+            await _db.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>
+        /// Untying employee from manager
+        /// </summary>
+        /// <param name="employeeId">Id Employee which must be untied from the manager</param>
+        /// <response code="200">Employee untied from manager</response>
+        /// <response code="400">Employee does not have a manager</response>
+        /// <response code="404">Employee not found </response>
+        [HttpPut("untieemployee/{employeeId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult> UntieEmployeeFromManager([FromRoute] int employeeId)
+        {
+            var employee = await _db.Employee.FindAsync(employeeId);
+            if (employee == null) return NotFound();
+
+            if (employee.ManagerId == null) return BadRequest();
+
+            employee.ManagerId = null;
+            await _db.SaveChangesAsync();
+            return Ok();
         }
     }
 }

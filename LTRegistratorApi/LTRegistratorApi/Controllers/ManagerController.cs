@@ -29,6 +29,7 @@ namespace LTRegistratorApi.Controllers
             _db = context;
             _userManager = userManager;
         }
+
         /// <summary>
         /// GET api/manager/{EmployeeId}/projects
         /// Output of all projects of the manager. 
@@ -74,6 +75,7 @@ namespace LTRegistratorApi.Controllers
             }
             else return NotFound();
         }
+
         /// <summary>
         /// DELETE api/manager/project/{projectId}/reassign/{EmployeeId}
         /// Delete employee from project.
@@ -93,6 +95,7 @@ namespace LTRegistratorApi.Controllers
             await _db.SaveChangesAsync();
             return Ok();
         }
+
         /// <summary>
         /// Get api/manager/{EmployeeId}/project/{ProjectId}/employees
         /// Get employees in the project
@@ -138,7 +141,7 @@ namespace LTRegistratorApi.Controllers
             else if(thisUserIdent.HasClaim(c =>
                        (c.Type == ClaimTypes.Role && c.Value == "Manager")))
             {
-                var projects = _db.Project.Where(w => w.SoftDeleted == false).ToList();
+                var projects = await _db.Project.Where(w => w.SoftDeleted == false).ToListAsync();
                 return Ok(DtoConverter.ToProjectDto(projects));
             }
             else
@@ -187,13 +190,12 @@ namespace LTRegistratorApi.Controllers
                         Role = RoleType.Manager
                     };
                     _db.ProjectEmployee.Add(projectEmployee);
-
                     _db.SaveChanges();
                     return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
                 }
                 else
                 {
-                    return BadRequest();
+                    return Forbid("You do not have sufficient permissions to add a project");
                 }
             }
             else
