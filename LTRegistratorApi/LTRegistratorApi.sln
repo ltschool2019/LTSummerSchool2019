@@ -30,6 +30,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LTRegistrator.BLL.Services"
 		{F874FF9D-49CA-4F16-8CFE-7103FB4C72B2} = {F874FF9D-49CA-4F16-8CFE-7103FB4C72B2}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LTRegistrator.BLL.Services.Tests", "LTRegistrator.BLL.Services.Tests\LTRegistrator.BLL.Services.Tests.csproj", "{6BBB2EAE-C88C-4ED1-9CB4-DE6201415172}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{C80BA1EE-2B12-4074-BE53-629C6470A8DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C80BA1EE-2B12-4074-BE53-629C6470A8DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C80BA1EE-2B12-4074-BE53-629C6470A8DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BBB2EAE-C88C-4ED1-9CB4-DE6201415172}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BBB2EAE-C88C-4ED1-9CB4-DE6201415172}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BBB2EAE-C88C-4ED1-9CB4-DE6201415172}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BBB2EAE-C88C-4ED1-9CB4-DE6201415172}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
