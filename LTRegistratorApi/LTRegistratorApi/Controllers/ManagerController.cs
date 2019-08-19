@@ -29,6 +29,7 @@ namespace LTRegistratorApi.Controllers
             _db = context;
             _userManager = userManager;
         }
+
         /// <summary>
         /// GET api/manager/{EmployeeId}/projects
         /// Output of all projects of the manager. 
@@ -41,7 +42,7 @@ namespace LTRegistratorApi.Controllers
             var projects = DtoConverter.ToProjectDto(_db.ProjectEmployee.Join(_db.Project,
                                      p => p.ProjectId,
                                      pe => pe.Id,
-                                     (pe, p) => new { pe, p }).Where(w => w.pe.EmployeeId == employeeId && w.pe.Role == RoleType.Manager).Select(name => name.p).ToList());
+                                     (pe, p) => new { pe, p }).Where(w => w.pe.EmployeeId == employeeId && w.pe.Role == RoleType.Manager && !w.p.SoftDeleted).Select(name => name.p).ToList());
             if (!projects.Any())
                 return NotFound();
             return Ok(projects);
@@ -74,6 +75,7 @@ namespace LTRegistratorApi.Controllers
             }
             else return NotFound();
         }
+
         /// <summary>
         /// DELETE api/manager/project/{projectId}/reassign/{EmployeeId}
         /// Delete employee from project.
@@ -93,6 +95,7 @@ namespace LTRegistratorApi.Controllers
             await _db.SaveChangesAsync();
             return Ok();
         }
+
         /// <summary>
         /// Get api/manager/{EmployeeId}/project/{ProjectId}/employees
         /// Get employees in the project
@@ -127,8 +130,24 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("allprojects")]
         public async Task<IActionResult> GetProjects()
         {
-            var projects = await _db.Project.ToListAsync();
-            return Ok(DtoConverter.ToProjectDto(projects));
+            var thisUserIdent = HttpContext.User.Identity as ClaimsIdentity;
+            await _db.Project.LoadAsync();
+            if (thisUserIdent.HasClaim(c =>
+                            (c.Type == ClaimTypes.Role && c.Value == "Administrator")))
+            {
+                var projects = _db.Project.ToList();
+                return Ok(DtoConverter.ToProjectDto(projects));
+            }
+            else if(thisUserIdent.HasClaim(c =>
+                       (c.Type == ClaimTypes.Role && c.Value == "Manager")))
+            {
+                var projects = await _db.Project.Where(w => !w.SoftDeleted).ToListAsync();
+                return Ok(DtoConverter.ToProjectDto(projects));
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
         /// <summary>
@@ -158,29 +177,25 @@ namespace LTRegistratorApi.Controllers
                     await _db.SaveChangesAsync();
                     return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
                 }
+                else if (thisUserIdent.HasClaim(c =>
+                            (c.Type == ClaimTypes.Role && c.Value == "Manager")))
+                {
+                    var project = new Project { Name = projectdto.Name };
+                    _db.Project.Add(project);
+                    _db.SaveChanges();
+                    ProjectEmployee projectEmployee = new ProjectEmployee
+                    {
+                        ProjectId = project.Id,
+                        EmployeeId = thisUser.EmployeeId,
+                        Role = RoleType.Manager
+                    };
+                    _db.ProjectEmployee.Add(projectEmployee);
+                    _db.SaveChanges();
+                    return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
+                }
                 else
                 {
-                    if (thisUserIdent.HasClaim(c =>
-                            (c.Type == ClaimTypes.Role && c.Value == "Manager")))
-                    {
-                        var project = new Project { Name = projectdto.Name };
-                        _db.Project.Add(project);
-                        _db.SaveChanges();
-                        ProjectEmployee projectEmployee = new ProjectEmployee
-                        {
-                            ProjectId = project.Id,
-                            EmployeeId = thisUser.EmployeeId,
-                            Role = RoleType.Manager
-                        };
-                        _db.ProjectEmployee.Add(projectEmployee);
-
-                        _db.SaveChanges();
-                        return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
-                    }
-                    else
-                    {
-                        return Forbid("You do not have sufficient permissions to add a project");
-                    }
+                    return Forbid("You do not have sufficient permissions to add a project");
                 }
             }
             else
@@ -207,8 +222,7 @@ namespace LTRegistratorApi.Controllers
             if (project != null)
             {
                 if (thisUserIdent.HasClaim(c =>
-                            (c.Type == ClaimTypes.Role && c.Value == "Administrator")) || (thisUserIdent.HasClaim(c =>
-                            (c.Type == ClaimTypes.Role && c.Value == "Manager")) && managerEmployee != null && managerEmployee.EmployeeId == thisUser.EmployeeId))
+                            (c.Type == ClaimTypes.Role && c.Value == "Administrator")))
                 {
                     var listEmployees = _db.ProjectEmployee.Where(pe => pe.ProjectId == id).ToList();
                     foreach (ProjectEmployee employee in listEmployees)
@@ -218,6 +232,14 @@ namespace LTRegistratorApi.Controllers
 
                     _db.Project.Remove(project);
                     await _db.SaveChangesAsync();
+
+                    return Ok();
+                }
+                else if (thisUserIdent.HasClaim(c =>
+                            (c.Type == ClaimTypes.Role && c.Value == "Manager"))
+                    && managerEmployee != null && managerEmployee.EmployeeId == thisUser.EmployeeId)
+                {
+                    project.SoftDeleted = true;
 
                     return Ok();
                 }
