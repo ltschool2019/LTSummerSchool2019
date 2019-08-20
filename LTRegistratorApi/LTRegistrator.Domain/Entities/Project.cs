@@ -11,6 +11,7 @@ namespace LTRegistrator.Domain.Entities
     {
         public string Name { get; set; }
         public TemplateType TemplateType { get; set; }
+        public bool SoftDeleted { get; set; } = false;
 
         public virtual ICollection<ProjectEmployee> ProjectEmployees { get; set; }
     }
