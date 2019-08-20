@@ -15,6 +15,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace LTRegistratorApi.Controllers
 {
+    /// <summary>
+    /// Controller providing basic administrator operations
+    /// </summary>
     [Route("api/[controller]")]
     [Authorize(Policy = "IsAdministrator")]
     [ApiController]
@@ -33,18 +36,20 @@ namespace LTRegistratorApi.Controllers
         /// updating project information
         /// PUT: api/Administrator/Project
         /// </summary>
-        /// <param name="project">json {ProjectId, Name, projectEmployee}
-        /// Name and projectEmployee not obligatory</param>
-        /// <returns> "OK" or "not found"</returns>
+        /// <param name="projectdto"> Name and projectEmployee not obligatory</param>
+        /// <param name="projectid"> Id of the project, information about which will be updated </param>
+        /// <response code="200">Information updated</response>
+        /// <response code="404">Project not found</response>
         [HttpPut("Project/{projectid}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> UpdateProject([FromBody] ProjectDto projectdto, [FromRoute] int projectid)
         {
-            var temp = _db.Project.SingleOrDefault(p => p.Id == projectid);
-            if (temp != null)
+            var project = _db.Project.SingleOrDefault(p => p.Id == projectid);
+            if (project != null)
             {
-                temp.Id = projectid;
-                temp.Name = projectdto.Name;
-                _db.Project.Update(temp);
+                project.Name = projectdto.Name;
+                _db.Project.Update(project);
                 await _db.SaveChangesAsync();
                 return Ok();
             }
@@ -55,12 +60,14 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// method for assigning a project manager
-        /// POST: api/Administrator/setmanager/{managerID}/project/{projectID}
+        /// Method for assigning manager to project
         /// </summary>
         /// <param name="projectid">id of project</param>
         /// <param name="managerid">id of manager</param>
-        /// <returns>"200 ok" or "404 not found"</returns>
+        /// <response code="200"> Manager assigned to project</response>
+        /// <response code="400"> Incorrect input</response>
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
         [HttpPost("setmanager/{managerID}/project/{projectID}")]
         public async Task<IActionResult> SetManager([FromRoute] int projectid, int managerid)
         {
@@ -102,11 +109,13 @@ namespace LTRegistratorApi.Controllers
 
         /// <summary>
         /// method for removing the manager from the project
-        /// DELETE: api/Administrator/DeleteManager/project/{projectId}
         /// </summary>
         /// <param name="projectid"> id of the project whose manager should be deleted</param>
-        /// <returns>"200 ok" or "404 not found"</returns>
+        /// <response code="200"> Manager removed </response>
+        /// <response code="404"> Project or manager not found </response>
         [HttpDelete("DeleteManager/project/{projectId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteManager([FromRoute] int projectid)
         {
             var currentManager = _db.ProjectEmployee.Where(p => p.ProjectId == projectid && p.Role == RoleType.Manager).FirstOrDefault();

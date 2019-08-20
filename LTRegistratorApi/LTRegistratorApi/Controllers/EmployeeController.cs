@@ -21,6 +21,9 @@ namespace LTRegistratorApi.Controllers
     {
         private readonly IEmployeeService _employeeService;
         private readonly IMapper _mapper;
+        /// <summary> </summary>
+        /// <param name="employeeService"></param>
+        /// <param name="mapper"></param>
         public EmployeeController(IEmployeeService employeeService, IMapper mapper)
         {
             _employeeService = employeeService;
@@ -28,11 +31,15 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// GET api/employee/info
         /// Sends this user information.
         /// </summary>
-        /// <returns>Basic Employee information</returns>
+        /// <param name="id">UserId</param>
+        /// <returns> Basic Employee information </returns>
+        /// <response code="200">Basic Employee information</response>
+        /// <response code="404">User not found </response>
         [HttpGet("{id}/info")]
+        [ProducesResponseType(typeof(EmployeeDto), 200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> GetInfoAsync(int id)
         {
             var response = await _employeeService.GetByIdAsync(id);
@@ -43,12 +50,15 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// GET api/employee/{id}/leaves
         /// Gets a list of all human leaves.
         /// </summary>
         /// <param name="id">UserId</param>
         /// <returns>User's leave list</returns>
+        /// <response code="200">User's leave list</response>
+        /// <response code="404">User not found </response>
         [HttpGet("{id}/leaves")]
+        [ProducesResponseType(typeof(ICollection<LeaveDto>), 200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> GetLeavesAsync(int id)
         {
             var response = await _employeeService.GetByIdAsync(id);
@@ -65,7 +75,13 @@ namespace LTRegistratorApi.Controllers
         /// <param name="id">UserId</param>
         /// <param name="leaves">List of LeaveDto that is added to the user</param>
         /// <returns>Was the operation successful?</returns>
+        /// <response code="200">Operation successful</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="404">Employee not found</response>
         [HttpPost("{id}/leaves")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> SetLeavesAsync(int id, [FromBody] ICollection<LeaveInputDto> leaves)
         {
             if (leaves == null)
@@ -87,7 +103,13 @@ namespace LTRegistratorApi.Controllers
         /// <param name="id">UserId</param>
         /// <param name="leaves">List of leaves that updated</param>
         /// <returns>Was the operation successful?</returns>
+        /// <response code="200">Operation successful</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="404">Employee not found</response>
         [HttpPut("{id}/leaves")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> UpdateLeaves(int id, [FromBody] List<LeaveDto> leaves)
         {
             if (leaves == null)
@@ -107,9 +129,17 @@ namespace LTRegistratorApi.Controllers
         /// Deletes a leaves record.
         /// </summary>
         /// <param name="userId">UserId</param>
-        /// <param name="id"> IDs of leaves that should be deleted</param>
+        /// <param name="leaveID"> IDs of leaves that should be deleted</param>
         /// <returns>Was the operation successful?</returns>
+        /// <response code="200">Operation successful</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">You cannot change another employee’s leave</response>
+        /// <response code="404">Employee not found</response>
         [HttpDelete("{userId}/leaves")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> DeleteLeave(int userId, [FromQuery] List<int> leaveID)
         {
             if ( leaveID== null)

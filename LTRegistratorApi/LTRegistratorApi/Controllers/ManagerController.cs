@@ -24,6 +24,9 @@ namespace LTRegistratorApi.Controllers
     {
         private readonly LTRegistratorDbContext _db;
         private readonly UserManager<User> _userManager;
+        /// <summary></summary>
+        /// <param name="context"></param>
+        /// <param name="userManager"></param>
         public ManagerController(LTRegistratorDbContext context, UserManager<User> userManager)
         {
             _db = context;
@@ -31,12 +34,15 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// GET api/manager/{EmployeeId}/projects
         /// Output of all projects of the manager. 
         /// </summary>
         /// <param name="employeeId">EmployeeId</param>
         /// <returns>Manager's projects list</returns>
+        /// <response code="200">Manager's projects list</response>
+        /// <response code="404">Manager not found or manager have no projects</response>
         [HttpGet("{EmployeeId}/projects")]
+        [ProducesResponseType(typeof(List<ProjectDto>), 200)]
+        [ProducesResponseType(404)]
         public ActionResult<List<ProjectDto>> GetManagerProjects(int employeeId)
         {
             var projects = DtoConverter.ToProjectDto(_db.ProjectEmployee
@@ -51,13 +57,16 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// Post api/manager/project/{ProjectId}/assign/{EmployeeId} 
         /// Add a project to the employee.
         /// </summary>
         /// <param name="projectId">ProjectId</param>    
         /// <param name="employeeId">EmployeeId</param>
         /// <returns>Was the operation successful?</returns>
+        /// <response code="200">Project assigned to employee</response>
+        /// <response code="404">Employee or project not found</response>
         [HttpPost("project/{ProjectId}/assign/{EmployeeId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> AssignProjectToEmployee(int projectId, int employeeId)
         {
             var user = await _db.Employee.FindAsync(employeeId);
@@ -80,13 +89,16 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// DELETE api/manager/project/{projectId}/reassign/{EmployeeId}
         /// Delete employee from project.
         /// </summary>
         /// <param name="projectId">ProjectId</param>
         /// <param name="employeeId">EmployeeId</param>
         /// <returns>Was the operation successful?</returns>
+        /// <response code="200">Project reassigned to employee</response>
+        /// <response code="404">Employee or project not found</response>
         [HttpDelete("project/{ProjectId}/reassign/{EmployeeId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> ReassignEmployeeFromProject(int projectId, int employeeId)
         {
             var result = await _db.ProjectEmployee.SingleOrDefaultAsync(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId && !pe.Project.SoftDeleted);
@@ -100,14 +112,17 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// Get api/manager/{EmployeeId}/project/{ProjectId}/employees
         /// Get employees in the project
         /// First the manager people are displayed, then the rest
         /// </summary>
         /// <param name="projectId">ProjectId</param>
         /// <param name="employeeId">EmployeeId of manager</param>
         /// <returns>Employee list</returns>
+        /// <response code="200">Employees list</response>
+        /// <response code="404">Employees or project not found</response>
         [HttpGet("{EmployeeId}/project/{ProjectId}/employees")]
+        [ProducesResponseType(typeof(List<EmployeeDto>), 200)]
+        [ProducesResponseType(404)]
         public ActionResult<List<EmployeeDto>> GetEmployees(int projectId, int employeeId)
         {
             var userProject = _db.ProjectEmployee.SingleOrDefault(v => v.ProjectId == projectId && v.EmployeeId == employeeId && !v.Project.SoftDeleted);
@@ -125,12 +140,15 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// method for getting the the list of all projects
-        /// GET: api/Manager/allprojects
+        /// Method for getting the the list of all projects
         /// </summary>
-        /// <returns>list of projects in json {ProjectId, Name}</returns>
+        /// <returns>list of projects</returns>
+        /// <response code="200">Projects list</response>
+        /// <response code="204">There's no projects</response>
         [Authorize(Policy = "IsManagerOrAdministrator")]
         [HttpGet("allprojects")]
+        [ProducesResponseType(typeof(List<ProjectDto>), 200)]
+        [ProducesResponseType(204)]
         public async Task<IActionResult> GetProjects()
         {
             var thisUserIdent = HttpContext.User.Identity as ClaimsIdentity;
@@ -155,13 +173,17 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// adding a new project
-        /// POST: api/Manager/project
+        /// Adding a new project
         /// </summary>
-        /// <param name="project">json {Name}</param>
-        /// <returns>"201 created" and json {ProjectId, EmployeeId}</returns>
+        /// <param name="projectdto">Data transfer object, required containing Name of project</param>
+        /// <response code="200">Created project</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">You do not have sufficient permissions to add a project</response>
         [Authorize(Policy = "IsManagerOrAdministrator")]
         [HttpPost("project")]
+        [ProducesResponseType(typeof(ProjectDto), 200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> AddProject([FromBody] ProjectDto projectdto)
         {
             if (!ModelState.IsValid)
@@ -209,13 +231,19 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// deleting project by id
-        /// DELETE: api/Manager/project/{id}
+        /// Deleting project by id
         /// </summary>
         /// <param name="id">id of project to be deleted</param>
-        /// <returns>"200 ok" or "404 not found"</returns>
+        /// <response code="200">Created project</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">You do not have sufficient permissions to delete a project</response>
+        /// <response code="404">Project not found</response>
         [Authorize(Policy = "IsManagerOrAdministrator")]
         [HttpDelete("project/{id}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteProject([FromRoute] int id)
         {
             var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -250,7 +278,7 @@ namespace LTRegistratorApi.Controllers
                 }
                 else
                 {
-                    return BadRequest();
+                    return Forbid();
                 }
             }
             else
