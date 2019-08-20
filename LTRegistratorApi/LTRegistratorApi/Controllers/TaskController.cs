@@ -5,17 +5,10 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using LTRegistratorApi.Model;
-using LTRegistrator.BLL.Services;
-using LTRegistrator.Domain.Entities;
-using LTRegistrator.Domain.Enums;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
 using LTRegistrator.BLL.Contracts;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Http;
 using LTRegistrator.BLL.Contracts.Contracts;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -27,12 +20,16 @@ namespace LTRegistratorApi.Controllers
     public class TaskController : ControllerBase
     {
         private readonly ITaskService _taskService;
+        private readonly ILeaveService _leaveService;
         private readonly IMapper _mapper;
-        public TaskController(ITaskService taskService, IMapper mapper)
+
+        public TaskController(ITaskService taskService, ILeaveService leaveService, IMapper mapper)
         {
             _taskService = taskService;
+            _leaveService = leaveService;
             _mapper = mapper;
         }
+
         /// <summary>
         /// POST api/task/project/{projectId}/employee/{EmployeeId}
         /// Adding project tasks
@@ -43,7 +40,7 @@ namespace LTRegistratorApi.Controllers
         /// <returns>"200 ok" or "400 Bad Request" or "401 Unauthorized"</returns>
         [HttpPost("project/{projectId}/employee/{EmployeeId}")]
         public async Task<ActionResult> AddTask([FromRoute] int projectId, int employeeId, [FromBody] TaskInputDto task)
-        {          
+        {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -62,15 +59,29 @@ namespace LTRegistratorApi.Controllers
         /// <param name="startDate">period start date</param>
         /// <param name="endDate">period end date</param>
         /// <returns>Task information list</returns>
-        //[HttpGet("project/{projectId}/employee/{employeeId}")]
-        //public async Task<ActionResult> GetTasks([FromRoute] int projectId, int employeeId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
-        //{
-        //    var response = await _taskService.GetTasksAsync(projectId, employeeId, startDate, endDate);
+        [HttpGet("project/{projectId}/employee/{employeeId}")]
+        public async Task<ActionResult> GetTasks([FromRoute] int projectId, int employeeId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
+        {
+            var taskResponse = await _taskService.GetTasksAsync(projectId, employeeId, startDate, endDate);
+            if (taskResponse.Status == ResponseResult.Error)
+            {
+                return BadRequest();
+            }
 
-        //    return response.Status == ResponseResult.Success
-        //    ? Ok(_mapper.Map<TaskDto>(response.Result))
-        //    : StatusCode((int)response.Error.StatusCode, response.Error.Message);
-        //}        
+            var leaves = await _leaveService.GetLeavesByEmployeeIdAsync(employeeId, startDate, endDate);
+
+            foreach (var item in leaves)
+            {
+                item.StartDate = item.StartDate < startDate ? startDate : item.StartDate;
+                item.EndDate = item.EndDate < endDate ? item.EndDate : endDate;
+            }
+
+            var result = _mapper.Map<TaskDto>(taskResponse.Result.FirstOrDefault());
+            _mapper.Map(leaves, result);
+
+            return Ok(result);
+        }
+
         /// <summary>
         /// Updating task information
         /// PUT: api/Task/employee/{employeeId}
@@ -98,13 +109,13 @@ namespace LTRegistratorApi.Controllers
         /// <returns>"200 ok" or "404 not found"</returns>
         [HttpDelete("{taskId}/employee/{employeeId}")]
         public async Task<ActionResult> DeleteTask([FromRoute] int taskId, int employeeId)
-        {           
+        {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
             var response = await _taskService.DeleteTaskAsync(taskId, employeeId);
             return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, response.Error.Message);
-        }     
+        }
     }
 }

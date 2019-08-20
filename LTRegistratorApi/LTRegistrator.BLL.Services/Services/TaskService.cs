@@ -13,6 +13,7 @@ using LTRegistrator.Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Task = LTRegistrator.Domain.Entities.Task;
 
 namespace LTRegistrator.BLL.Services.Services
 {
@@ -42,60 +43,80 @@ namespace LTRegistrator.BLL.Services.Services
             _httpContext = httpContext;
         }
 
-        //public async Task<Response<List<Domain.Entities.Task>>> GetTasksAsync(int projectId, int employeeId, DateTime startDate, DateTime endDate)
-        //{
-        //    if (!this.AccessAllowed(employeeId).Result)
-        //    {
-        //        return new Response<List<Domain.Entities.Task>> (HttpStatusCode.BadRequest, $"User not allowed to change data for employee with {employeeId}.");
-        //    }
-        //    var intersectingEmployeeLeave = await DbContext.Set<Leave>().Join(DbContext.Set<Employee>(),
-        //                                                l => l.EmployeeId,
-        //                                                e => e.Id,
-        //                                                (l, e) => new { l, e }).Where(w => w.l.EmployeeId == employeeId && endDate >= w.l.StartDate && startDate <= w.l.EndDate).ToListAsync();
-        //    List<LeaveDto> leave = new List<LeaveDto>();
-        //    foreach (var item in intersectingEmployeeLeave)
-        //    {
-        //        var iStart = item.l.StartDate < startDate ? startDate : item.l.StartDate;
-        //        var iEnd = item.l.EndDate < endDate ? item.l.EndDate : endDate;
-        //        leave.Add(new LeaveDto { StartDate = iStart, EndDate = iEnd, Id = item.l.Id, TypeLeave = (TypeLeaveDto)item.l.TypeLeave });
-        //    }
-        //    var employeeTaskProject = DbContext.Set<Domain.Entities.Task>().Where(t => t.ProjectId == projectId && t.EmployeeId == employeeId).FirstOrDefault();
-        //    if (employeeTaskProject != null)
-        //    {
-        //        List<TaskNoteDto> taskNotes = new List<TaskNoteDto>();
-        //        var notes = await DbContext.Set<TaskNote>().Where(tn => tn.TaskId == employeeTaskProject.Id && tn.Day <= endDate && tn.Day >= startDate).ToListAsync();
-        //        foreach (var item in notes)
-        //            taskNotes.Add(new TaskNoteDto { Day = item.Day, Hours = item.Hours, Id = item.Id });
-        //        List<TaskDto> result = new List<TaskDto>();
-        //        result.Add(new TaskDto { Name = employeeTaskProject.Name, Leave = leave, TaskNotes = taskNotes, Id = employeeTaskProject.Id });
-        //        return new Response<List<Domain.Entities.Task>> (result);
-        //    }
-        //    return new Response<List<Domain.Entities.Task>>(HttpStatusCode.NotFound, "NotFound");
-        //}
-
-        public async Task<Response<Domain.Entities.Task>> AddTaskAsync( int projectId, int employeeId, Domain.Entities.Task task)
+        public async Task<Response<List<Task>>> GetTasksAsync(int projectId, int employeeId, DateTime startDate, DateTime endDate)
         {
-            if (!this.AccessAllowed(employeeId).Result)
-            {
-                return new Response<Domain.Entities.Task>(HttpStatusCode.BadRequest, $"User not allowed to change data for employee with {employeeId}.");
-            }
+            //if (!this.AccessAllowed(employeeId).Result)
+            //{
+            //    return new Response<List<Task>>(HttpStatusCode.BadRequest, $"User not allowed to change data for employee with {employeeId}.");
+            //}
 
-            var templateTypeProject = DbContext.Set<Project>().Where(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId).FirstOrDefault();
-            var employeeProject = DbContext.Set<ProjectEmployee>().Where(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId).FirstOrDefault();
-            var nameTask = DbContext.Set<Domain.Entities.Task>().Where(t => (t.Name == task.Name || t.Name == templateTypeProject.Name) && t.ProjectId == projectId && t.EmployeeId == employeeId).FirstOrDefault();
+            var tasks = await DbContext.Set<TaskNote>()
+                .Include(tn => tn.Task)
+                .Where(tn => tn.Task.EmployeeId == employeeId && tn.Task.ProjectId == projectId
+                                                              && tn.Day >= startDate && tn.Day <= endDate)
+                .Select(tn => new Task()
+                {
+                    Id = tn.TaskId,
+                    Name = tn.Task.Name,
+                    ProjectId = tn.Task.ProjectId,
+                    EmployeeId = tn.Task.EmployeeId,
+                    TaskNotes = tn.Task.TaskNotes
+                }).ToListAsync();
+
+
+            if (!tasks.Any()) return new Response<List<Task>>(HttpStatusCode.NotFound, "Tasks not found");
+
+            return new Response<List<Task>>(tasks);
+
+            //var intersectingEmployeeLeave = await DbContext.Set<Leave>()
+            //    .Join(DbContext.Set<Employee>(), l => l.EmployeeId, e => e.Id, (l, e) => new { l, e })
+            //    .Where(w => w.l.EmployeeId == employeeId && endDate >= w.l.StartDate && startDate <= w.l.EndDate)
+            //    .ToListAsync();
+
+            //List<LeaveDto> leave = new List<LeaveDto>();
+            //foreach (var item in intersectingEmployeeLeave)
+            //{
+            //    var iStart = item.l.StartDate < startDate ? startDate : item.l.StartDate;
+            //    var iEnd = item.l.EndDate < endDate ? item.l.EndDate : endDate;
+            //    leave.Add(new LeaveDto { StartDate = iStart, EndDate = iEnd, Id = item.l.Id, TypeLeave = (TypeLeaveDto)item.l.TypeLeave });
+            //}
+            //var employeeTaskProject = DbContext.Set<Task>().FirstOrDefault(t => t.ProjectId == projectId && t.EmployeeId == employeeId);
+            //if (employeeTaskProject != null)
+            //{
+            //    List<TaskNoteDto> taskNotes = new List<TaskNoteDto>();
+            //    var notes = await DbContext.Set<TaskNote>().Where(tn => tn.TaskId == employeeTaskProject.Id && tn.Day <= endDate && tn.Day >= startDate).ToListAsync();
+            //    foreach (var item in notes)
+            //        taskNotes.Add(new TaskNoteDto { Day = item.Day, Hours = item.Hours, Id = item.Id });
+            //    List<TaskDto> result = new List<TaskDto>();
+            //    result.Add(new TaskDto { Name = employeeTaskProject.Name, Leave = leave, TaskNotes = taskNotes, Id = employeeTaskProject.Id });
+            //    return new Response<List<Task>>(result);
+            //}
+            //return new Response<List<Task>>(HttpStatusCode.NotFound, "NotFound");
+        }
+
+        public async Task<Response<Task>> AddTaskAsync(int projectId, int employeeId, Task task)
+        {
+            //if (!AccessAllowed(employeeId).Result)
+            //{
+            //    return new Response<Task>(HttpStatusCode.BadRequest, $"User not allowed to change data for employee with {employeeId}.");
+            //}
+
+            var templateTypeProject = DbContext.Set<Project>().FirstOrDefault(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId);
+            var employeeProject = DbContext.Set<ProjectEmployee>().FirstOrDefault(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId);
+            var nameTask = DbContext.Set<Task>().FirstOrDefault(t => (t.Name == task.Name || t.Name == templateTypeProject.Name) && t.ProjectId == projectId && t.EmployeeId == employeeId);
             if (nameTask == null && templateTypeProject != null && task != null && templateTypeProject.Name == task.Name && employeeProject != null)
             {
                 using (var transaction = DbContext.Database.BeginTransaction())
                 {
                     try
                     {
-                        LTRegistrator.Domain.Entities.Task newTask = new LTRegistrator.Domain.Entities.Task
+                        Task newTask = new Task
                         {
                             EmployeeId = employeeId,
                             ProjectId = projectId,
                             Name = task.Name
                         };
-                        DbContext.Set<Domain.Entities.Task>().Add(newTask);
+                        DbContext.Set<Task>().Add(newTask);
 
                         foreach (var item in task.TaskNotes)
                         {
@@ -109,7 +130,7 @@ namespace LTRegistrator.BLL.Services.Services
                         }
                         await DbContext.SaveChangesAsync();
                         transaction.Commit();
-                        return new Response<Domain.Entities.Task>(HttpStatusCode.OK, "Ok");
+                        return new Response<Task>(HttpStatusCode.OK, "Ok");
                     }
                     catch (Exception ex)
                     {
@@ -117,16 +138,17 @@ namespace LTRegistrator.BLL.Services.Services
                     }
                 }
             }
-            return new Response<Domain.Entities.Task>(HttpStatusCode.BadRequest, "BadRequest");
+            return new Response<Task>(HttpStatusCode.BadRequest, "BadRequest");
         }
-        public async Task<Response<Domain.Entities.Task>> UpdateTaskAsync(int employeeId, Domain.Entities.Task task)
+
+        public async Task<Response<Task>> UpdateTaskAsync(int employeeId, Task task)
         {
             if (!this.AccessAllowed(employeeId).Result)
             {
-                return new Response<Domain.Entities.Task>(HttpStatusCode.BadRequest, $"User not allowed to change data for employee with {employeeId}.");
+                return new Response<Task>(HttpStatusCode.BadRequest, $"User not allowed to change data for employee with {employeeId}.");
             }
 
-            var temp = DbContext.Set<Domain.Entities.Task>().SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name);
+            var temp = DbContext.Set<Task>().SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name);
             if (temp != null)
             {
                 foreach (var item in task.TaskNotes)
@@ -172,5 +194,5 @@ namespace LTRegistrator.BLL.Services.Services
                 return new Response<Domain.Entities.Task>(HttpStatusCode.NotFound, "Not Found");
             }
         }
-    }       
+    }
 }
