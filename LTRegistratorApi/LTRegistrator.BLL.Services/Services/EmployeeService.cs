@@ -66,6 +66,7 @@ namespace LTRegistrator.BLL.Services.Services
                 return new Response<Employee>(HttpStatusCode.NotFound, $"Employee with id = {id} not found");
             }
 
+            employee.ProjectEmployees = employee.ProjectEmployees.Where(pe => !pe.Project.SoftDeleted).ToList();
             foreach (var projectEmployee in employee.ProjectEmployees)
             {
                 foreach (var task in projectEmployee.Tasks)

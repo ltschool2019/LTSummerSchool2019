@@ -73,7 +73,7 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest($"User not allowed to change data for employee with {employeeId}.");
             }
 
-            var templateTypeProject = _db.Project.Where(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId).FirstOrDefault();
+            var templateTypeProject = _db.Project.FirstOrDefault(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId && !p.SoftDeleted);
             var employeeProject = _db.ProjectEmployee.Where(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId).FirstOrDefault();
             var nameTask = _db.Task.Where(t => (t.Name == task.Name || t.Name == templateTypeProject.Name)  && t.ProjectId == projectId && t.EmployeeId == employeeId).FirstOrDefault(); 
             if (nameTask == null && templateTypeProject != null && task != null && templateTypeProject.Name == task.Name && employeeProject != null)
@@ -140,7 +140,7 @@ namespace LTRegistratorApi.Controllers
                 var iEnd = item.l.EndDate < endDate ? item.l.EndDate : endDate;
                 leave.Add(new LeaveDto { StartDate = iStart, EndDate = iEnd, Id = item.l.Id, TypeLeave = (TypeLeaveDto)item.l.TypeLeave});            
             }
-            var employeeTaskProject = _db.Task.Where(t => t.ProjectId == projectId && t.EmployeeId == employeeId).FirstOrDefault();
+            var employeeTaskProject = _db.Task.FirstOrDefault(t => t.ProjectId == projectId && t.EmployeeId == employeeId && !t.ProjectEmployee.Project.SoftDeleted);
             if (employeeTaskProject != null)
             {             
                 List<TaskNoteDto> taskNotes = new List<TaskNoteDto>();
@@ -173,7 +173,7 @@ namespace LTRegistratorApi.Controllers
             {
                 foreach (var item in task.TaskNotes)
                 {
-                    var note = _db.TaskNote.Where(tn => tn.Day == item.Day && tn.TaskId == task.Id).FirstOrDefault();
+                    var note = _db.TaskNote.FirstOrDefault(tn => tn.Day == item.Day && tn.TaskId == task.Id);
                     if (note != null && note.Hours != item.Hours)
                     {
                         note.Hours = item.Hours;
@@ -196,12 +196,13 @@ namespace LTRegistratorApi.Controllers
             }
             return NotFound();
         }
+
         /// <summary>
         /// Method for removing the task from the project
         /// DELETE: api/task/{taskId}/employee/{employeeId}
         /// </summary>
         /// <param name="taskId"> id of the task to be deleted</param>
-        /// <param name="EmployeeId">id of employee</param>
+        /// <param name="employeeId">id of employee</param>
         /// <returns>"200 ok" or "404 not found"</returns>
         [HttpDelete("{TaskId}/employee/{employeeId}")]
         public async Task<IActionResult> DeleteTask([FromRoute] int taskId, int employeeId)
