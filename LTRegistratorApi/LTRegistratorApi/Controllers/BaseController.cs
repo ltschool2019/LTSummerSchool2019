@@ -1,36 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
-using AutoMapper;
-using LTRegistrator.BLL.Contracts;
-using LTRegistrator.BLL.Contracts.Contracts;
-using LTRegistrator.Domain.Entities;
+using LTRegistrator.BLL.Services;
 using LTRegistrator.Domain.Enums;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
 
 namespace LTRegistratorApi.Controllers
 {
     [ApiController]
-    public class BaseController : ControllerBase
+    public abstract class BaseController : ControllerBase
     {
-        private UserManager<User> _userManager;
-        private HttpContext _httpContext;
-        private DbContext DbContext { get; set; }
+        private LTRegistratorDbContext _dbContext;
 
         protected BaseController() { }
-        protected BaseController(UserManager<User> userManager, HttpContext httpContext, DbContext db)
+        protected BaseController(LTRegistratorDbContext db)
         {
-            _userManager = userManager;
-            _httpContext = httpContext;
-            DbContext = db ?? throw new ArgumentNullException(nameof(db));
+            _dbContext = db ?? throw new ArgumentNullException(nameof(db));
         }
 
         /// <summary>
@@ -40,12 +26,10 @@ namespace LTRegistratorApi.Controllers
         /// <returns>Is it possible to change the data</returns>
         protected async Task<bool> AccessAllowed(int id)
         {
-            var thisUser = await _userManager.FindByIdAsync(
-                _httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier)); //We are looking for an authorized user.
+            var employeeIdFromClaim = User.FindFirstValue("EmployeeID");//We are looking for EmployeeID.
             var authorizedUser =
-                await DbContext.Set<Employee>().SingleOrDefaultAsync(
-                    e => e.Id ==
-                         thisUser.EmployeeId); //We load Employee table.
+                await _dbContext.Employee.SingleOrDefaultAsync(
+                    e => e.Id == Convert.ToInt32(employeeIdFromClaim)); //We load Employee table.
             var maxRole = authorizedUser.MaxRole;
 
             return authorizedUser.Id == id ||

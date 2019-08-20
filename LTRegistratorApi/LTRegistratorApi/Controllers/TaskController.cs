@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using LTRegistratorApi.Model;
@@ -10,10 +9,6 @@ using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
-using LTRegistrator.BLL.Contracts;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Http;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -22,35 +17,13 @@ namespace LTRegistratorApi.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController, Authorize]
-    public class TaskController : ControllerBase
+    public class TaskController : BaseController
     {
         private readonly LTRegistratorDbContext _db;
-        private readonly UserManager<User> _userManager;
-        private readonly HttpContext _httpContext;
 
-        /// <summary>
-        /// The method returns true if the user tries to change his data or he is a manager or administrator.
-        /// </summary>
-        /// <param name="id">User Id</param>
-        /// <returns>Is it possible to change the data</returns>
-        private async Task<bool> AccessAllowed(int id)
+        public TaskController(LTRegistratorDbContext context)
         {
-            var employeeIdFromClaim = User.FindFirstValue("EmployeeID");//We are looking for EmployeeID.
-            var authorizedUser =
-                await _db.Employee.SingleOrDefaultAsync(
-                    e => e.Id == Convert.ToInt32(employeeIdFromClaim)); //We load Employee table.
-            var maxRole = authorizedUser.MaxRole;
-
-            return authorizedUser.Id == id ||
-                   maxRole == RoleType.Manager ||
-                   maxRole == RoleType.Administrator;
-        }
-
-        public TaskController(LTRegistratorDbContext context, UserManager<User> userManager, HttpContext httpContext)
-        {
-            _httpContext = httpContext;
             _db = context;
-            _userManager = userManager;
         }
         /// <summary>
         /// POST api/task/project/{projectId}/employee/{EmployeeId}

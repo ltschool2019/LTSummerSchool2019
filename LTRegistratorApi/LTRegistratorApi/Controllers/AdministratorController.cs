@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using LTRegistratorApi.Model;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using LTRegistrator.BLL.Services;
 using LTRegistrator.Domain.Entities;
@@ -18,7 +15,7 @@ namespace LTRegistratorApi.Controllers
     [Route("api/[controller]")]
     [Authorize(Policy = "IsAdministrator")]
     [ApiController]
-    public class AdministratorController : ControllerBase
+    public class AdministratorController : BaseController
     {
         private readonly LTRegistratorDbContext _db;
         private readonly UserManager<User> _userManager;

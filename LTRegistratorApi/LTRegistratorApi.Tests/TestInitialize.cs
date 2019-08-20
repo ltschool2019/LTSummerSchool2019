@@ -1,15 +1,14 @@
-﻿using LTRegistrator.Domain.Entities;
+﻿using LTRegistrator.BLL.Services;
+using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace LTRegistratorApi.Tests
 {
     public static class Initializer
     {
-        public static void Initialize(DbContext db)
+        public static void Initialize(LTRegistratorDbContext db)
         {
             db.Database.EnsureCreated();
 

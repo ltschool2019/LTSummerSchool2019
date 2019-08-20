@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Mvc;
 using LTRegistrator.BLL.Services;
 using Microsoft.EntityFrameworkCore;
 using LTRegistrator.BLL.Services.Services;
-using Microsoft.AspNetCore.Identity;
 
 namespace LTRegistratorApi.Tests.Controllers
 {
