@@ -34,6 +34,16 @@ namespace LTRegistratorApi.Mappings
 
             #endregion
 
+            #region Task
+            CreateMap<LTRegistrator.Domain.Entities.Task, TaskDto>()
+                .ForMember(t => t.TaskNotes, opt => opt.MapFrom(src => src.TaskNotes))
+                .ForMember(t => t.Leave, opt => opt.MapFrom(src => src.ProjectEmployee.Employee.Leaves));
+
+            CreateMap<LTRegistrator.Domain.Entities.Task, TaskInputDto>()
+               .ForMember(t => t.TaskNotes, opt => opt.MapFrom(src => src.TaskNotes));    
+
+            #endregion
+
         }
     }
 }
