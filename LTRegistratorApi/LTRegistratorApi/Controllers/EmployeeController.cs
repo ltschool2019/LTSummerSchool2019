@@ -37,7 +37,7 @@ namespace LTRegistratorApi.Controllers
         {
             if (!AccessAllowed(id).Result)
             {
-                return StatusCode((int)new Response<Employee>(HttpStatusCode.BadRequest, "You have not enough permissions to change data").Error.StatusCode);
+                return StatusCode((int)HttpStatusCode.BadRequest, "You have not enough permissions to change data");
             }
             var response = await _employeeService.GetByIdAsync(id);
 
@@ -57,7 +57,7 @@ namespace LTRegistratorApi.Controllers
         {
             if (!AccessAllowed(id).Result)
             {
-                return StatusCode((int)new Response<Employee>(HttpStatusCode.BadRequest, "You have not enough permissions to change data").Error.StatusCode);
+                return StatusCode((int)HttpStatusCode.BadRequest, "You have not enough permissions to change data");
             }
             var response = await _employeeService.GetByIdAsync(id);
 
@@ -86,7 +86,7 @@ namespace LTRegistratorApi.Controllers
 
             if (!AccessAllowed(id).Result)
             {
-                return StatusCode((int)new Response<Employee>(HttpStatusCode.BadRequest, "You have not enough permissions to change data").Error.StatusCode);
+                return StatusCode((int)HttpStatusCode.BadRequest, "You have not enough permissions to change data");
             }
 
             var response = await _employeeService.AddLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
@@ -113,7 +113,7 @@ namespace LTRegistratorApi.Controllers
 
             if (!AccessAllowed(id).Result)
             {
-                return StatusCode((int)new Response<Employee>(HttpStatusCode.BadRequest, "You have not enough permissions to change data").Error.StatusCode);
+                return StatusCode((int)HttpStatusCode.BadRequest, "You have not enough permissions to change data");
             }
 
             var response = await _employeeService.UpdateLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
@@ -140,7 +140,7 @@ namespace LTRegistratorApi.Controllers
 
             if (!AccessAllowed(userId).Result)
             {
-                return StatusCode((int)new Response<Employee>(HttpStatusCode.BadRequest, "You have not enough permissions to change data").Error.StatusCode);
+                return StatusCode((int)HttpStatusCode.BadRequest, "You have not enough permissions to change data");
             }
 
             var response = await _employeeService.DeleteLeavesAsync(userId, leaveID);
