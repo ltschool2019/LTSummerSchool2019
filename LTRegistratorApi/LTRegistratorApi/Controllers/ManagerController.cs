@@ -244,6 +244,7 @@ namespace LTRegistratorApi.Controllers
                     && managerEmployee != null && managerEmployee.EmployeeId == thisUser.EmployeeId)
                 {
                     project.SoftDeleted = true;
+                    await _db.SaveChangesAsync();
 
                     return Ok();
                 }
