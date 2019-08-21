@@ -45,22 +45,33 @@ namespace LTRegistratorApi.Controllers
                    maxRole == RoleType.Manager ||
                    maxRole == RoleType.Administrator;
         }
-
+        
+        /// <summary> </summary>
+        /// <param name="context"></param>
+        /// <param name="userManager"></param>
+        /// <param name="httpContext"></param>
         public TaskController(LTRegistratorDbContext context, UserManager<User> userManager, HttpContext httpContext)
         {
             _httpContext = httpContext;
             _db = context;
             _userManager = userManager;
         }
+
         /// <summary>
         /// POST api/task/project/{projectId}/employee/{EmployeeId}
         /// Adding project tasks
         /// </summary>
         /// <param name="projectId">id of project</param>
         /// <param name="employeeId">id of employee</param>
-        /// <param name="task">json {Name, List<{Day, Hours}></param>
-        /// <returns>"200 ok" or "400 Bad Request" or "401 Unauthorized"</returns>
+        /// <param name="task">json {Name, List {Day, Hours} </param>
+        /// <returns>"200 ok" or "400 Bad Request" or "403 Forbidden"</returns>
+        /// <response code="200">Project task added</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
         [HttpPost("project/{projectId}/employee/{EmployeeId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
         public async Task<ActionResult> AddTask([FromRoute] int projectId, int employeeId, [FromBody] TaskInputDto task)
         {            
             if (!ModelState.IsValid)
@@ -70,7 +81,7 @@ namespace LTRegistratorApi.Controllers
 
             if (!this.AccessAllowed(employeeId).Result)
             {
-                return BadRequest($"User not allowed to change data for employee with {employeeId}.");
+                return Forbid($"User not allowed to change data for employee with {employeeId}.");
             }
 
             var templateTypeProject = _db.Project.FirstOrDefault(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId && !p.SoftDeleted);
@@ -121,12 +132,18 @@ namespace LTRegistratorApi.Controllers
         /// <param name="startDate">period start date</param>
         /// <param name="endDate">period end date</param>
         /// <returns>Task information list</returns>
+        /// <response code="200">Task information list</response>
+        /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
+        /// <response code="404">Tasks not found</response>
         [HttpGet("project/{projectId}/employee/{employeeId}")]
+        [ProducesResponseType(typeof(List<TaskDto>), 200)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult<List<TaskDto>>> GetTasks([FromRoute] int projectId, int employeeId,[FromQuery] DateTime startDate,[FromQuery] DateTime endDate)
         {
             if (!this.AccessAllowed(employeeId).Result)
             {
-                return BadRequest($"User not allowed to change data for employee with {employeeId}.");
+                return Forbid($"User not allowed to change data for employee with {employeeId}.");
             }
             
             var intersectingEmployeeLeave = await _db.Leave.Join(_db.Employee,
@@ -149,7 +166,7 @@ namespace LTRegistratorApi.Controllers
                     taskNotes.Add(new TaskNoteDto { Day = item.Day, Hours = item.Hours, Id = item.Id}) ;
                 List<TaskDto> result = new List<TaskDto>();
                 result.Add(new TaskDto { Name = employeeTaskProject.Name, Leave = leave, TaskNotes = taskNotes, Id = employeeTaskProject.Id});
-                return (result);
+                return Ok(result);
             }          
             return NotFound();
         }
@@ -158,14 +175,20 @@ namespace LTRegistratorApi.Controllers
         /// PUT: api/Task/employee/{employeeId}
         /// </summary>
         /// <param name="employeeId">id of employee</param>
-        /// <param name="task">json {Name, List<{Day, Hours}></param>
+        /// <param name="task">json {Name, List {Day, Hours} </param>
         /// <returns> "OK" or "not found"</returns>
+        /// <response code="200">Task updated</response>
+        /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
+        /// <response code="404">Task not found</response>
         [HttpPut("employee/{employeeId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> UpdateTask([FromBody] TaskInputDto task, int employeeId)
         {
             if (!this.AccessAllowed(employeeId).Result)
             {
-                return BadRequest($"User not allowed to change data for employee with {employeeId}.");
+                return Forbid($"User not allowed to change data for employee with {employeeId}.");
             }
 
             var temp = _db.Task.SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name);
@@ -204,12 +227,18 @@ namespace LTRegistratorApi.Controllers
         /// <param name="taskId"> id of the task to be deleted</param>
         /// <param name="employeeId">id of employee</param>
         /// <returns>"200 ok" or "404 not found"</returns>
+        /// <response code="200">Task deleted</response>
+        /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
+        /// <response code="404">Task not found</response>
         [HttpDelete("{TaskId}/employee/{employeeId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteTask([FromRoute] int taskId, int employeeId)
         {
             if (!this.AccessAllowed(employeeId).Result)
             {
-                return BadRequest($"User not allowed to change data for employee with {employeeId}.");
+                return Forbid($"User not allowed to change data for employee with {employeeId}.");
             }
 
             var task = _db.Task.Where(t => t.Id == taskId).FirstOrDefault();

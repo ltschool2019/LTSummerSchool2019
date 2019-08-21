@@ -45,10 +45,9 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// POST api/account/login
         /// The method tries to authorize the user and return the JWT-token.
         /// </summary>
-        /// <param name="model">LoginDto (user)</param>
+        /// <param name="model"> LoginDto model containing username and password </param>
         /// <returns>JWT-token</returns>
         [HttpPost]
         public async Task<object> Login([FromBody] LoginDto model)
@@ -64,7 +63,7 @@ namespace LTRegistratorApi.Controllers
         /// <summary>
         /// The method attempts to register a user and return the JWT-token.
         /// </summary>
-        /// <param name="model">User</param>
+        /// <param name="model"> RegisterDto model containing data necessary for registration </param>
         /// <returns>JWT-token</returns>
             /* Passwords must be at least 6 characters.
              * Passwords must have at least one non alphanumeric character.
