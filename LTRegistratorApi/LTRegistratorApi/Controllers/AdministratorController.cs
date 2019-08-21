@@ -31,34 +31,7 @@ namespace LTRegistratorApi.Controllers
             _db = context;
             _userManager = userManager;
         }
-
-        /// <summary>
-        /// updating project information
-        /// PUT: api/Administrator/Project
-        /// </summary>
-        /// <param name="projectdto"> Name and projectEmployee not obligatory</param>
-        /// <param name="projectid"> Id of the project, information about which will be updated </param>
-        /// <response code="200">Information updated</response>
-        /// <response code="404">Project not found</response>
-        [HttpPut("Project/{projectid}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> UpdateProject([FromBody] ProjectDto projectdto, [FromRoute] int projectid)
-        {
-            var project = _db.Project.SingleOrDefault(p => p.Id == projectid);
-            if (project != null)
-            {
-                project.Name = projectdto.Name;
-                _db.Project.Update(project);
-                await _db.SaveChangesAsync();
-                return Ok();
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
-
+        
         /// <summary>
         /// Method for assigning manager to project
         /// </summary>
