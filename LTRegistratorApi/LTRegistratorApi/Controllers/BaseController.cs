@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using LTRegistrator.BLL.Services;
 using LTRegistrator.Domain.Enums;
+using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,13 +27,11 @@ namespace LTRegistratorApi.Controllers
         /// <returns>Is it possible to change the data</returns>
         protected async Task<bool> AccessAllowed(int id)
         {
-            var employeeIdFromClaim = User.FindFirstValue("EmployeeID");//We are looking for EmployeeID.
-            var authorizedUser =
-                await _dbContext.Employee.SingleOrDefaultAsync(
-                    e => e.Id == Convert.ToInt32(employeeIdFromClaim)); //We load Employee table.
-            var maxRole = authorizedUser.MaxRole;
+            var userId = Convert.ToInt32(User.Identity.GetUserId());
+            var employee = await _dbContext.Employee.SingleOrDefaultAsync(e => e.Id == userId);
+            var maxRole = employee.MaxRole;
 
-            return authorizedUser.Id == id ||
+            return userId == id ||
                    maxRole == RoleType.Manager ||
                    maxRole == RoleType.Administrator;
         }
