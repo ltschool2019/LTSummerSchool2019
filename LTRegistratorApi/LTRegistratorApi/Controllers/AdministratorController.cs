@@ -188,7 +188,7 @@ namespace LTRegistratorApi.Controllers
             if (employee == null || manager == null) return NotFound();
 
             if (employee.MaxRole != RoleType.Employee || manager.MaxRole != RoleType.Manager || employee.ManagerId != null) return BadRequest();
-            
+
             employee.ManagerId = managerId;
             await _db.SaveChangesAsync();
             return Ok();
@@ -215,6 +215,28 @@ namespace LTRegistratorApi.Controllers
             employee.ManagerId = null;
             await _db.SaveChangesAsync();
             return Ok();
+        }
+        /// <summary>
+        /// Get employees in project without manager
+        /// </summary>
+        /// <param name="projectId">Id of project</param>
+        /// <response code="200">List employees</response>
+        /// <response code="404">Employees not found </response>
+        [HttpGet("project/{projectId}/employees")]
+        [ProducesResponseType(typeof(List<EmployeeDto>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult> GetEmployeesByProject([FromRoute] int projectId)
+        {
+            var projectEmployee = _db.ProjectEmployee.Where(v => v.ProjectId == projectId && v.Role != RoleType.Manager);
+            var employee = DtoConverter.ToEmployeeDto(_db.ProjectEmployee.Join(_db.Employee,
+                               e => e.EmployeeId,
+                               pe => pe.Id,
+                               (pe, e) => new { pe, e }).Where(w => w.pe.ProjectId == projectId && w.pe.Role == RoleType.Employee).Select(user => user.e).ToList());
+            if (!employee.Any())
+            {
+                return NotFound();
+            }
+            return Ok(employee);
         }
     }
 }
