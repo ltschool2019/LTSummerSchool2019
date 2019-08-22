@@ -4,15 +4,16 @@ using LTRegistrator.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace LTRegistratorApi.Tests
 {
     public static class Initializer
     {
-        public static void Initialize(LTRegistratorDbContext db)
+        public static void Initialize(DbContext db)
         {
             db.Database.EnsureCreated();
-            if (db.Employee.Any()) return;
+            if (db.Set<Employee>().Any()) return;
 
             var leaveBob = new Leave[]
             {

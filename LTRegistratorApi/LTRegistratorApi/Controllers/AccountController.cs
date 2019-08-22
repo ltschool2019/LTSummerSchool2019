@@ -10,6 +10,7 @@ using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -31,7 +32,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="signInManager">Provides the APIs for user sign in</param>
         /// <param name="configuration">To use the file setting</param>
         public AccountController(
-            LTRegistratorDbContext db,
+            DbContext db,
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             IConfiguration configuration

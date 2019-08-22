@@ -7,6 +7,7 @@ using System.Security.Claims;
 using LTRegistrator.BLL.Services;
 using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace LTRegistratorApi
 {
@@ -15,11 +16,11 @@ namespace LTRegistratorApi
     /// </summary>
     public class DbInitializer
     {
-        public static void Initialize(LTRegistratorDbContext context, UserManager<User> userManager)
+        public static void Initialize(DbContext context, UserManager<User> userManager)
         {
             context.Database.EnsureCreated();
 
-            if (!context.Employee.Any())
+            if (!context.Set<Employee>().Any())
             {
                 var leaveBob = new Leave[]
                 {
@@ -44,16 +45,16 @@ namespace LTRegistratorApi
                     new Leave() { StartDate = new DateTime(2019, 1, 1), EndDate = new DateTime(2019, 1, 13), TypeLeave = TypeLeave.Idle }
                 };
 
-                context.Employee.Add(new Employee() { FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", Rate = 1.5 });
-                context.Employee.Add(new Employee() { FirstName = "Bob", SecondName = "Johnson", Mail = "b0b@yandex.ru", Leaves = leaveBob, Rate = 1 });
-                context.Employee.Add(new Employee() { FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", Leaves = leaveEve, Rate = 1.25, ManagerId = 2 });
-                context.Employee.Add(new Employee() { FirstName = "Carol", SecondName = "Smith", Mail = "car0l@mail.ru", Leaves = leaveCarol, Rate = 1 });
-                context.Employee.Add(new Employee() { FirstName = "Dave", SecondName = "Jones", Mail = "dave.99@mail.ru", Rate = 1, ManagerId = 2 });
-                context.Employee.Add(new Employee() { FirstName = "Frank", SecondName = "Florence", Mail = "frank.99@mail.ru", Leaves = leaveFrank, Rate = 0.25, ManagerId = 4 });
+                context.Set<Employee>().Add(new Employee() { FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", Rate = 1.5 });
+                context.Set<Employee>().Add(new Employee() { FirstName = "Bob", SecondName = "Johnson", Mail = "b0b@yandex.ru", Leaves = leaveBob, Rate = 1 });
+                context.Set<Employee>().Add(new Employee() { FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", Leaves = leaveEve, Rate = 1.25, ManagerId = 2 });
+                context.Set<Employee>().Add(new Employee() { FirstName = "Carol", SecondName = "Smith", Mail = "car0l@mail.ru", Leaves = leaveCarol, Rate = 1 });
+                context.Set<Employee>().Add(new Employee() { FirstName = "Dave", SecondName = "Jones", Mail = "dave.99@mail.ru", Rate = 1, ManagerId = 2 });
+                context.Set<Employee>().Add(new Employee() { FirstName = "Frank", SecondName = "Florence", Mail = "frank.99@mail.ru", Leaves = leaveFrank, Rate = 0.25, ManagerId = 4 });
 
                 context.SaveChanges();
 
-                foreach (var employee in context.Employee)
+                foreach (var employee in context.Set<Employee>())
                 {
                     var user = new User
                     {
@@ -72,56 +73,56 @@ namespace LTRegistratorApi
                 }
             }
 
-            if (!context.Project.Any())
+            if (!context.Set<Project>().Any())
             {
-                context.Project.Add(new Project() { Name = "FOSS" });
-                context.Project.Add(new Project() { Name = "EMIAS" });
-                context.Project.Add(new Project() { Name = "Area 9" });
+                context.Set<Project>().Add(new Project() { Name = "FOSS" });
+                context.Set<Project>().Add(new Project() { Name = "EMIAS" });
+                context.Set<Project>().Add(new Project() { Name = "Area 9" });
                 context.SaveChanges();
             }
 
-            if (!context.ProjectEmployee.Any())
+            if (!context.Set<ProjectEmployee>().Any())
             {
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1 });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2 });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2 });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3 });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 3 });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 3 });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4 });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5 });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6 });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1 });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2 });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2 });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3 });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 3 });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 3 });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4 });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5 });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6 });
 
                 context.SaveChanges();
             }
-            if (!context.Task.Any())
+            if (!context.Set<Task>().Any())
             {
-                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 1, Name = "FOSS" });
-                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 2, Name = "FOSS" });
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 2, Name = "EMIAS" });
-                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 3, Name = "FOSS" });
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 3, Name = "EMIAS" });
-                context.Task.Add(new Task() { ProjectId = 3, EmployeeId = 3, Name = "Area 9" });
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 4, Name = "EMIAS" });
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 5, Name = "EMIAS" });
+                context.Set<Task>().Add(new Task() { ProjectId = 1, EmployeeId = 1, Name = "FOSS" });
+                context.Set<Task>().Add(new Task() { ProjectId = 1, EmployeeId = 2, Name = "FOSS" });
+                context.Set<Task>().Add(new Task() { ProjectId = 2, EmployeeId = 2, Name = "EMIAS" });
+                context.Set<Task>().Add(new Task() { ProjectId = 1, EmployeeId = 3, Name = "FOSS" });
+                context.Set<Task>().Add(new Task() { ProjectId = 2, EmployeeId = 3, Name = "EMIAS" });
+                context.Set<Task>().Add(new Task() { ProjectId = 3, EmployeeId = 3, Name = "Area 9" });
+                context.Set<Task>().Add(new Task() { ProjectId = 2, EmployeeId = 4, Name = "EMIAS" });
+                context.Set<Task>().Add(new Task() { ProjectId = 2, EmployeeId = 5, Name = "EMIAS" });
                 context.SaveChanges();
             }
 
-            if (!context.TaskNote.Any())
+            if (!context.Set<TaskNote>().Any())
             {
-                context.TaskNote.Add(new TaskNote() { TaskId = 1, Hours = 4, Day = new DateTime(2019, 1, 1) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 2, Hours = 7, Day = new DateTime(2019, 8, 2) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 2, Hours = 4, Day = new DateTime(2019, 8, 3) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 2, Hours = 7, Day = new DateTime(2019, 8, 4) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 3, Hours = 8, Day = new DateTime(2019, 8, 1) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 3, Hours = 4, Day = new DateTime(2019, 8, 2) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 3, Hours = 7, Day = new DateTime(2019, 8, 3) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 4, Hours = 5, Day = new DateTime(2019, 7, 3) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 5, Hours = 8, Day = new DateTime(2019, 7, 3) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 6, Hours = 1, Day = new DateTime(2019, 7, 11) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 8, Hours = 7, Day = new DateTime(2019, 6, 11) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 8, Hours = 4, Day = new DateTime(2019, 7, 11) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 7, Hours = 6, Day = new DateTime(2019, 7, 14) });
+                context.Set<TaskNote>().Add(new TaskNote() { TaskId = 1, Hours = 4, Day = new DateTime(2019, 1, 1) });
+                context.Set<TaskNote>().Add(new TaskNote() { TaskId = 2, Hours = 7, Day = new DateTime(2019, 8, 2) });
+                context.Set<TaskNote>().Add(new TaskNote() { TaskId = 2, Hours = 4, Day = new DateTime(2019, 8, 3) });
+                context.Set<TaskNote>().Add(new TaskNote() { TaskId = 2, Hours = 7, Day = new DateTime(2019, 8, 4) });
+                context.Set<TaskNote>().Add(new TaskNote() { TaskId = 3, Hours = 8, Day = new DateTime(2019, 8, 1) });
+                context.Set<TaskNote>().Add(new TaskNote() { TaskId = 3, Hours = 4, Day = new DateTime(2019, 8, 2) });
+                context.Set<TaskNote>().Add(new TaskNote() { TaskId = 3, Hours = 7, Day = new DateTime(2019, 8, 3) });
+                context.Set<TaskNote>().Add(new TaskNote() { TaskId = 4, Hours = 5, Day = new DateTime(2019, 7, 3) });
+                context.Set<TaskNote>().Add(new TaskNote() { TaskId = 5, Hours = 8, Day = new DateTime(2019, 7, 3) });
+                context.Set<TaskNote>().Add(new TaskNote() { TaskId = 6, Hours = 1, Day = new DateTime(2019, 7, 11) });
+                context.Set<TaskNote>().Add(new TaskNote() { TaskId = 8, Hours = 7, Day = new DateTime(2019, 6, 11) });
+                context.Set<TaskNote>().Add(new TaskNote() { TaskId = 8, Hours = 4, Day = new DateTime(2019, 7, 11) });
+                context.Set<TaskNote>().Add(new TaskNote() { TaskId = 7, Hours = 6, Day = new DateTime(2019, 7, 14) });
 
                 context.SaveChanges();
             }

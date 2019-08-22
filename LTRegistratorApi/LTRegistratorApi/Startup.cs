@@ -38,10 +38,10 @@ namespace LTRegistratorApi
         {
             string connectionString = "Server=(localdb)\\mssqllocaldb;Database=productsdb;Trusted_Connection=True;";
             //string connectionString = "Server=.\\SQLExpress;Database=productsdb.Project;Trusted_Connection=True;MultipleActiveResultSets=true";
-            services.AddDbContext<LTRegistratorDbContext>(options => options.UseSqlServer(connectionString));
-            services.AddScoped<DbContext, LTRegistratorDbContext>();
+            services.AddDbContext<DbContext, LTRegistratorDbContext>(options => options.UseSqlServer(connectionString));
+            //services.AddScoped<DbContext, LTRegistratorDbContext>();
             services.AddIdentity<User, IdentityRole>()
-              .AddEntityFrameworkStores<LTRegistratorDbContext>()
+              .AddEntityFrameworkStores<DbContext>()
               .AddDefaultTokenProviders();
 
             services.AddCors(options =>
@@ -114,7 +114,7 @@ namespace LTRegistratorApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, LTRegistratorDbContext dbContext)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DbContext dbContext)
         {
             if (env.IsDevelopment())
             {

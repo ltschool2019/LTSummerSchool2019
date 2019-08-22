@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using LTRegistrator.BLL.Services;
 using Microsoft.EntityFrameworkCore;
 using LTRegistrator.BLL.Services.Services;
+using LTRegistrator.Domain.Entities;
 using Microsoft.Extensions.Options;
 
 namespace LTRegistratorApi.Tests.Controllers
@@ -20,7 +21,7 @@ namespace LTRegistratorApi.Tests.Controllers
     {
         #region Private Variables
 
-        private readonly LTRegistratorDbContext _dbContext;
+        private readonly DbContext _dbContext;
         private readonly EmployeeController _employeeController;
         private readonly IEmployeeService _employeeService;
         #endregion
@@ -117,9 +118,8 @@ namespace LTRegistratorApi.Tests.Controllers
                 Assert.Equal((int)status, (result as StatusCodeResult).StatusCode);
                 if (status == HttpStatusCode.OK)
                 {
-                    var serviceResult = await _employeeService.GetByIdAsync(userId);
                     var testItem = testItems.FirstOrDefault();
-                    var leave = serviceResult.Result.Leaves.FirstOrDefault(l =>
+                    var leave = _dbContext.Set<Leave>().FirstOrDefault(l =>
                         l.StartDate == testItem.StartDate && l.EndDate == testItem.EndDate);
 
                     Assert.NotNull(leave);
