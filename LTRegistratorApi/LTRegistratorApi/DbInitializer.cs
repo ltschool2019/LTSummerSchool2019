@@ -64,7 +64,7 @@ namespace LTRegistratorApi
 
                     var result = userManager.CreateAsync(user, employee.Mail + "Password1").Result;
                     //Retrieves the name of the constant in the specified enumeration that has the specified value.
-                    var role = Enum.GetName(typeof(RoleType), employee.ManagerId == null ? RoleType.Manager : RoleType.Employee);
+                    var role = Enum.GetName(typeof(RoleType), employee.Mail == "alice@mail.ru" ? RoleType.Administrator : employee.ManagerId == null ? RoleType.Manager : RoleType.Employee);
 
                     var resultAddRole = userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
                     if (!(result.Succeeded && resultAddRole.Succeeded))

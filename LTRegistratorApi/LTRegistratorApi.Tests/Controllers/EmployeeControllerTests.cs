@@ -12,12 +12,15 @@ using Microsoft.AspNetCore.Mvc;
 using LTRegistrator.BLL.Services;
 using Microsoft.EntityFrameworkCore;
 using LTRegistrator.BLL.Services.Services;
+using Microsoft.Extensions.Options;
 
 namespace LTRegistratorApi.Tests.Controllers
 {
     public class EmployeeControllerTests
     {
         #region Private Variables
+
+        private readonly LTRegistratorDbContext _dbContext;
         private readonly EmployeeController _employeeController;
         private readonly IEmployeeService _employeeService;
         #endregion
@@ -33,12 +36,12 @@ namespace LTRegistratorApi.Tests.Controllers
 
             string connectionString = "Server=(localdb)\\mssqllocaldb;Database=productsdb;Trusted_Connection=True;";
             var options = new DbContextOptionsBuilder<LTRegistratorDbContext>()
-                .UseInMemoryDatabase(connectionString).Options;
-            var dbContext = new LTRegistratorDbContext(options);
-            Initializer.Initialize(dbContext);
+                .UseInMemoryDatabase(connectionString).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking).Options;
+            _dbContext = new LTRegistratorDbContext(options);
+            Initializer.Initialize(_dbContext);
 
-            _employeeService = new EmployeeService(dbContext, mapper);
-            _employeeController = new EmployeeController(_employeeService, mapper);
+            _employeeService = new EmployeeService(_dbContext, mapper);
+            _employeeController = new EmployeeController(_employeeService, mapper, _dbContext);
         }
         #endregion
 
@@ -133,7 +136,7 @@ namespace LTRegistratorApi.Tests.Controllers
         {
             var userId = 1;
 
-            var result = await _employeeController.UpdateLeavesAsync(userId, null);
+            var result = await _employeeController.UpdateLeaves(userId, null);
 
             Assert.IsType<BadRequestResult>(result);
         }
@@ -164,7 +167,7 @@ namespace LTRegistratorApi.Tests.Controllers
                 }
             };
 
-            var result = await _employeeController.UpdateLeavesAsync(userId, testItems);
+            var result = await _employeeController.UpdateLeaves(userId, testItems);
             var objectResult = result as ObjectResult;
 
             if (objectResult == null)

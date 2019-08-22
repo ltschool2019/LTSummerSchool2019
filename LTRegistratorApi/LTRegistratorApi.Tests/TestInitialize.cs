@@ -3,6 +3,7 @@ using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LTRegistratorApi.Tests
 {
@@ -11,6 +12,7 @@ namespace LTRegistratorApi.Tests
         public static void Initialize(LTRegistratorDbContext db)
         {
             db.Database.EnsureCreated();
+            if (db.Employee.Any()) return;
 
             var leaveBob = new Leave[]
             {
@@ -37,12 +39,12 @@ namespace LTRegistratorApi.Tests
 
             var employees = new List<Employee>()
             {
-                new Employee() {Id=1, FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", MaxRole = RoleType.Administrator, Rate = 1.5, Leaves = new List<Leave>()},
-                new Employee() {Id=2, FirstName = "Bob", SecondName = "Johnson", Mail = "b0b@yandex.ru", MaxRole = RoleType.Manager, Leaves = leaveBob, Rate = 1 },
-                new Employee() {Id=3, FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", MaxRole = RoleType.Employee, Leaves = leaveEve, Rate = 1.25, ManagerId = 2 },
-                new Employee() {Id=4, FirstName = "Carol", SecondName = "Smith", Mail = "car0l@mail.ru", MaxRole = RoleType.Manager, Leaves = leaveCarol, Rate = 1 },
-                new Employee() {Id=5, FirstName = "Dave", SecondName = "Jones", Mail = "dave.99@mail.ru", MaxRole = RoleType.Employee, Rate = 1, ManagerId = 2 ,Leaves = new List<Leave>()},
-                new Employee() {Id=6, FirstName = "Frank", SecondName = "Florence", Mail = "frank.99@mail.ru", MaxRole = RoleType.Employee, Leaves = leaveFrank, Rate = 0.25, ManagerId = 4 }
+                new Employee() {Id=1, FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", Rate = 1.5, Leaves = new List<Leave>()},
+                new Employee() {Id=2, FirstName = "Bob", SecondName = "Johnson", Mail = "b0b@yandex.ru", Leaves = leaveBob, Rate = 1 },
+                new Employee() {Id=3, FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", Leaves = leaveEve, Rate = 1.25, ManagerId = 2 },
+                new Employee() {Id=4, FirstName = "Carol", SecondName = "Smith", Mail = "car0l@mail.ru", Leaves = leaveCarol, Rate = 1 },
+                new Employee() {Id=5, FirstName = "Dave", SecondName = "Jones", Mail = "dave.99@mail.ru", Rate = 1, ManagerId = 2 ,Leaves = new List<Leave>()},
+                new Employee() {Id=6, FirstName = "Frank", SecondName = "Florence", Mail = "frank.99@mail.ru", Leaves = leaveFrank, Rate = 0.25, ManagerId = 4 }
             };
 
             var dbSet = db.Set<Employee>();
