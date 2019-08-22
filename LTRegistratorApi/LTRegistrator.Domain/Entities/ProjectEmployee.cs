@@ -9,8 +9,6 @@ namespace LTRegistrator.Domain.Entities
     /// </summary>
     public class ProjectEmployee
     {
-        public RoleType Role { get; set; }
-
         public int ProjectId { get; set; }
         public virtual Project Project { get; set; }
 

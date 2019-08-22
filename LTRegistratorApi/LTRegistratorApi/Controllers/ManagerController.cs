@@ -47,7 +47,7 @@ namespace LTRegistratorApi.Controllers
         {
             var projects = DtoConverter.ToProjectDto(_db.ProjectEmployee
                 .Join(_db.Project, p => p.ProjectId, pe => pe.Id, (pe, p) => new { pe, p })
-                .Where(w => w.pe.EmployeeId == employeeId && w.pe.Role == RoleType.Manager && !w.p.SoftDeleted)
+                .Where(w => w.pe.EmployeeId == employeeId && w.pe.Employee.ManagerId == null && !w.p.SoftDeleted)
                 .Select(name => name.p)
                 .ToList());
 
@@ -77,8 +77,7 @@ namespace LTRegistratorApi.Controllers
                 ProjectEmployee projectEmployee = new ProjectEmployee
                 {
                     ProjectId = projectId,
-                    EmployeeId = employeeId,
-                    Role = RoleType.Employee
+                    EmployeeId = employeeId
                 };
                 _db.ProjectEmployee.Add(projectEmployee);
                 await _db.SaveChangesAsync();
@@ -133,7 +132,7 @@ namespace LTRegistratorApi.Controllers
             var employee = DtoConverter.ToEmployeeDto(_db.ProjectEmployee.Join(_db.Employee,
                                e => e.EmployeeId,
                                pe => pe.Id,
-                               (pe, e) => new { pe, e }).Where(w => w.pe.ProjectId == projectId && w.pe.Role == RoleType.Employee).Select(user => user.e).OrderByDescending(o => o.ManagerId == employeeId).ToList());
+                               (pe, e) => new { pe, e }).Where(w => w.pe.ProjectId == projectId && w.pe.Employee.ManagerId != null).Select(user => user.e).OrderByDescending(o => o.ManagerId == employeeId).ToList());
             if (!employee.Any())
                 return NotFound();
             return Ok(employee);
@@ -212,8 +211,7 @@ namespace LTRegistratorApi.Controllers
                     ProjectEmployee projectEmployee = new ProjectEmployee
                     {
                         ProjectId = project.Id,
-                        EmployeeId = thisUser.EmployeeId,
-                        Role = RoleType.Manager
+                        EmployeeId = thisUser.EmployeeId
                     };
                     _db.ProjectEmployee.Add(projectEmployee);
                     _db.SaveChanges();
@@ -249,7 +247,7 @@ namespace LTRegistratorApi.Controllers
             var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var thisUserIdent = HttpContext.User.Identity as ClaimsIdentity;
             var project = await _db.Project.FindAsync(id);
-            var managerEmployee = await _db.ProjectEmployee.SingleOrDefaultAsync(V => V.ProjectId == id && V.Role == RoleType.Manager);
+            var managerEmployee = await _db.ProjectEmployee.SingleOrDefaultAsync(V => V.ProjectId == id && V.Employee.ManagerId == null);
 
             if (project != null)
             {

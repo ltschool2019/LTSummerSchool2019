@@ -81,8 +81,7 @@ namespace LTRegistratorApi.Controllers
                     {
                         FirstName = model.FirstName,
                         SecondName = model.SecondName,
-                        Mail = model.Email,
-                        MaxRole = model.Role
+                        Mail = model.Email
                     };
                     _context.Employee.Add(employee);
                     User user = new User
@@ -95,8 +94,8 @@ namespace LTRegistratorApi.Controllers
                     if (res.Succeeded)
                     {
                         //Retrieves the name of the constant in the specified enumeration that has the specified value.
-                        var role = Enum.GetName(typeof(RoleType), employee.MaxRole);
-                        var resAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
+                        var role = Enum.GetName(typeof(RoleType), model.Role);
+                        var resAddRole = await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).ConfigureAwait(false);
                         if (resAddRole.Succeeded)
                         {
                             transaction.Commit();

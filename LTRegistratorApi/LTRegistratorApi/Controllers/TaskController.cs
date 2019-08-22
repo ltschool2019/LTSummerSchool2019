@@ -10,10 +10,6 @@ using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
-using System.Security.Claims;
-using LTRegistrator.BLL.Contracts;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Http;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -25,36 +21,14 @@ namespace LTRegistratorApi.Controllers
     public class TaskController : ControllerBase
     {
         private readonly LTRegistratorDbContext _db;
-        private readonly UserManager<User> _userManager;
-        private readonly HttpContext _httpContext;
-
-        /// <summary>
-        /// The method returns true if the user tries to change his data or he is a manager or administrator.
-        /// </summary>
-        /// <param name="id">User Id</param>
-        /// <returns>Is it possible to change the data</returns>
-        private async Task<bool> AccessAllowed(int id)
-        {
-            var employeeIdFromClaim = User.FindFirstValue("EmployeeID");//We are looking for EmployeeID.
-            var authorizedUser =
-                await _db.Employee.SingleOrDefaultAsync(
-                    e => e.Id == Convert.ToInt32(employeeIdFromClaim)); //We load Employee table.
-            var maxRole = authorizedUser.MaxRole;
-
-            return authorizedUser.Id == id ||
-                   maxRole == RoleType.Manager ||
-                   maxRole == RoleType.Administrator;
-        }
         
         /// <summary> </summary>
         /// <param name="context"></param>
         /// <param name="userManager"></param>
         /// <param name="httpContext"></param>
-        public TaskController(LTRegistratorDbContext context, UserManager<User> userManager, HttpContext httpContext)
+        public TaskController(LTRegistratorDbContext context)
         {
-            _httpContext = httpContext;
             _db = context;
-            _userManager = userManager;
         }
 
         /// <summary>
@@ -72,16 +46,12 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
+        [Authorize(Policy = "AccessAllowed")]
         public async Task<ActionResult> AddTask([FromRoute] int projectId, int employeeId, [FromBody] TaskInputDto task)
         {            
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
-            }
-
-            if (!this.AccessAllowed(employeeId).Result)
-            {
-                return Forbid($"User not allowed to change data for employee with {employeeId}.");
             }
 
             var templateTypeProject = _db.Project.FirstOrDefault(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId && !p.SoftDeleted);
@@ -139,13 +109,9 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(typeof(List<TaskDto>), 200)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
+        [Authorize(Policy = "AccessAllowed")]
         public async Task<ActionResult<List<TaskDto>>> GetTasks([FromRoute] int projectId, int employeeId,[FromQuery] DateTime startDate,[FromQuery] DateTime endDate)
         {
-            if (!this.AccessAllowed(employeeId).Result)
-            {
-                return Forbid($"User not allowed to change data for employee with {employeeId}.");
-            }
-            
             var intersectingEmployeeLeave = await _db.Leave.Join(_db.Employee,
                                                         l => l.EmployeeId,
                                                         e => e.Id,
@@ -184,13 +150,9 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
+        [Authorize(Policy = "AccessAllowed")]
         public async Task<IActionResult> UpdateTask([FromBody] TaskInputDto task, int employeeId)
         {
-            if (!this.AccessAllowed(employeeId).Result)
-            {
-                return Forbid($"User not allowed to change data for employee with {employeeId}.");
-            }
-
             var temp = _db.Task.SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name);
             if (temp != null)
             {
@@ -234,13 +196,9 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
+        [Authorize(Policy = "AccessAllowed")]
         public async Task<IActionResult> DeleteTask([FromRoute] int taskId, int employeeId)
         {
-            if (!this.AccessAllowed(employeeId).Result)
-            {
-                return Forbid($"User not allowed to change data for employee with {employeeId}.");
-            }
-
             var task = _db.Task.Where(t => t.Id == taskId).FirstOrDefault();
             if (task != null)
             {

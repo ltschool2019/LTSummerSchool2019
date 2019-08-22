@@ -44,12 +44,12 @@ namespace LTRegistratorApi
                     new Leave() { StartDate = new DateTime(2019, 1, 1), EndDate = new DateTime(2019, 1, 13), TypeLeave = TypeLeave.Idle }
                 };
 
-                context.Employee.Add(new Employee() { FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", MaxRole = RoleType.Administrator, Rate = 1.5 });
-                context.Employee.Add(new Employee() { FirstName = "Bob", SecondName = "Johnson", Mail = "b0b@yandex.ru", MaxRole = RoleType.Manager, Leaves = leaveBob, Rate = 1 });
-                context.Employee.Add(new Employee() { FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", MaxRole = RoleType.Employee, Leaves = leaveEve, Rate = 1.25, ManagerId = 2 });
-                context.Employee.Add(new Employee() { FirstName = "Carol", SecondName = "Smith", Mail = "car0l@mail.ru", MaxRole = RoleType.Manager, Leaves = leaveCarol, Rate = 1 });
-                context.Employee.Add(new Employee() { FirstName = "Dave", SecondName = "Jones", Mail = "dave.99@mail.ru", MaxRole = RoleType.Employee, Rate = 1, ManagerId = 2 });
-                context.Employee.Add(new Employee() { FirstName = "Frank", SecondName = "Florence", Mail = "frank.99@mail.ru", MaxRole = RoleType.Employee, Leaves = leaveFrank, Rate = 0.25, ManagerId = 4 });
+                context.Employee.Add(new Employee() { FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", Rate = 1.5 });
+                context.Employee.Add(new Employee() { FirstName = "Bob", SecondName = "Johnson", Mail = "b0b@yandex.ru", Leaves = leaveBob, Rate = 1 });
+                context.Employee.Add(new Employee() { FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", Leaves = leaveEve, Rate = 1.25, ManagerId = 2 });
+                context.Employee.Add(new Employee() { FirstName = "Carol", SecondName = "Smith", Mail = "car0l@mail.ru", Leaves = leaveCarol, Rate = 1 });
+                context.Employee.Add(new Employee() { FirstName = "Dave", SecondName = "Jones", Mail = "dave.99@mail.ru", Rate = 1, ManagerId = 2 });
+                context.Employee.Add(new Employee() { FirstName = "Frank", SecondName = "Florence", Mail = "frank.99@mail.ru", Leaves = leaveFrank, Rate = 0.25, ManagerId = 4 });
 
                 context.SaveChanges();
 
@@ -64,7 +64,7 @@ namespace LTRegistratorApi
 
                     var result = userManager.CreateAsync(user, employee.Mail + "Password1").Result;
                     //Retrieves the name of the constant in the specified enumeration that has the specified value.
-                    var role = Enum.GetName(typeof(RoleType), employee.MaxRole);
+                    var role = Enum.GetName(typeof(RoleType), employee.ManagerId == null ? RoleType.Manager : RoleType.Employee);
 
                     var resultAddRole = userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
                     if (!(result.Succeeded && resultAddRole.Succeeded))
@@ -82,28 +82,28 @@ namespace LTRegistratorApi
 
             if (!context.ProjectEmployee.Any())
             {
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1, Role = RoleType.Employee });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2, Role = RoleType.Manager });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2, Role = RoleType.Employee });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3, Role = RoleType.Employee });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 3, Role = RoleType.Employee });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 3, Role = RoleType.Manager });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4, Role = RoleType.Manager });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5, Role = RoleType.Employee });
-                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6, Role = RoleType.Employee });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1 });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2 });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2 });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3 });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 3 });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 3 });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4 });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5 });
+                context.ProjectEmployee.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6 });
 
                 context.SaveChanges();
             }
             if (!context.Task.Any())
             {
-                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 1, Name = "FOSS"});
-                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 2, Name = "FOSS"});
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 2, Name = "EMIAS"});
-                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 3, Name = "FOSS"});
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 3, Name = "EMIAS"});
-                context.Task.Add(new Task() { ProjectId = 3, EmployeeId = 3, Name = "Area 9"});
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 4, Name = "EMIAS"});
-                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 5, Name = "EMIAS"});
+                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 1, Name = "FOSS" });
+                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 2, Name = "FOSS" });
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 2, Name = "EMIAS" });
+                context.Task.Add(new Task() { ProjectId = 1, EmployeeId = 3, Name = "FOSS" });
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 3, Name = "EMIAS" });
+                context.Task.Add(new Task() { ProjectId = 3, EmployeeId = 3, Name = "Area 9" });
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 4, Name = "EMIAS" });
+                context.Task.Add(new Task() { ProjectId = 2, EmployeeId = 5, Name = "EMIAS" });
                 context.SaveChanges();
             }
 
@@ -118,7 +118,7 @@ namespace LTRegistratorApi
                 context.TaskNote.Add(new TaskNote() { TaskId = 3, Hours = 7, Day = new DateTime(2019, 8, 3) });
                 context.TaskNote.Add(new TaskNote() { TaskId = 4, Hours = 5, Day = new DateTime(2019, 7, 3) });
                 context.TaskNote.Add(new TaskNote() { TaskId = 5, Hours = 8, Day = new DateTime(2019, 7, 3) });
-                context.TaskNote.Add(new TaskNote() { TaskId = 6, Hours = 1, Day = new DateTime(2019, 7, 11) });                
+                context.TaskNote.Add(new TaskNote() { TaskId = 6, Hours = 1, Day = new DateTime(2019, 7, 11) });
                 context.TaskNote.Add(new TaskNote() { TaskId = 8, Hours = 7, Day = new DateTime(2019, 6, 11) });
                 context.TaskNote.Add(new TaskNote() { TaskId = 8, Hours = 4, Day = new DateTime(2019, 7, 11) });
                 context.TaskNote.Add(new TaskNote() { TaskId = 7, Hours = 6, Day = new DateTime(2019, 7, 14) });

@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -77,9 +79,19 @@ namespace LTRegistratorApi
                 options.AddPolicy("IsAdministrator", policy => policy.RequireClaim(ClaimTypes.Role, "Administrator"));
 
                 options.AddPolicy("IsManagerOrAdministrator", policy => 
-                    policy.RequireAssertion(context => 
+                    policy.RequireAssertion(context =>
                         context.User.HasClaim(c => 
                             (c.Type == ClaimTypes.Role && (c.Value == "Manager" || c.Value == "Administrator")))));
+
+                options.AddPolicy("AccessAllowed", policy =>
+                    policy.RequireAssertion(context =>
+                    {
+                        var employeeId = Convert.ToInt32(context.User.FindFirstValue("EmployeeID"));
+                        var authContext = (AuthorizationFilterContext)context.Resource;
+                        var routeEmployeeId = Convert.ToInt32(authContext.HttpContext.GetRouteValue("employeeId"));
+                        return employeeId == routeEmployeeId || context.User.HasClaim(c =>
+                                   c.Type == ClaimTypes.Role && (c.Value == "Manager" || c.Value == "Administrator"));
+                    }));
             });
             services.AddTransient<HttpContext>(s =>
                 s.GetService<IHttpContextAccessor>().HttpContext);

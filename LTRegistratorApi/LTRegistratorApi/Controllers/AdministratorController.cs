@@ -62,74 +62,79 @@ namespace LTRegistratorApi.Controllers
         /// <summary>
         /// Method for assigning manager to project
         /// </summary>
-        /// <param name="projectid">id of project</param>
-        /// <param name="managerid">id of manager</param>
+        /// <param name="projectId">id of project</param>
+        /// <param name="managerId">id of manager</param>
         /// <response code="200"> Manager assigned to project</response>
         /// <response code="400"> Incorrect input</response>
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [HttpPost("setmanager/{managerID}/project/{projectID}")]
-        public async Task<IActionResult> SetManager([FromRoute] int projectid, int managerid)
+        public async Task<IActionResult> SetManager([FromRoute] int projectId, int managerId)
         {
-            var managerEmployee = _db.Employee.Where(e => e.Id == managerid).FirstOrDefault();
-            var projectManager = _db.ProjectEmployee.Where(pe => pe.ProjectId == projectid && pe.Role == RoleType.Manager).FirstOrDefault();
-            var projectEmployee = _db.ProjectEmployee.Where(pe => pe.ProjectId == projectid && pe.EmployeeId == managerid && pe.Role == RoleType.Employee).FirstOrDefault();
-            var newProjectManager = new ProjectEmployee { EmployeeId = managerid, ProjectId = projectid, Role = RoleType.Manager };
+            var manager = await _db.Set<Employee>().Include(e => e.User).FirstOrDefaultAsync(e => e.Id == managerId).ConfigureAwait(false);
+            if (manager == null)
+            {
+                return NotFound(new { Message = $"Employee with Id = {managerId} not found" });
+            }
 
-            if (managerEmployee.MaxRole == RoleType.Manager && projectManager != null && projectEmployee == null)
+            if (manager.ManagerId != null)
             {
-                _db.ProjectEmployee.Remove(projectManager);
-                _db.ProjectEmployee.Add(newProjectManager);
-                await _db.SaveChangesAsync();
-                return Ok();
+                return BadRequest(new { Message = $"Employee with Id = {managerId} belongs to the manager with id = {manager.ManagerId}" });
             }
-            else if (managerEmployee.MaxRole == RoleType.Manager && projectManager == null)
+
+            var project = await _db.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
+            if (project == null)
             {
-                if (projectEmployee != null)
-                {
-                    _db.ProjectEmployee.Remove(projectEmployee);
-                }
-                _db.ProjectEmployee.Add(newProjectManager);
-                await _db.SaveChangesAsync();
-                return Ok();
+                return NotFound(new { Message = $"Project with id = {projectId} not found" });
             }
-            else if (managerEmployee.MaxRole == RoleType.Manager && projectEmployee != null)
+
+            if (await _db.Set<ProjectEmployee>().AnyAsync(pe => pe.ProjectId == projectId && pe.EmployeeId == managerId).ConfigureAwait(false))
             {
-                _db.ProjectEmployee.Remove(projectEmployee);
-                _db.ProjectEmployee.Remove(projectManager);
-                _db.ProjectEmployee.Add(newProjectManager);
-                await _db.SaveChangesAsync();
-                return Ok();
+                return BadRequest(new { Message = $"Project with id = {projectId} already contains manager with id = {managerId}" });
             }
-            else
+
+            var employeeClaims = await _userManager.GetClaimsAsync(manager.User).ConfigureAwait(false);
+            if (!employeeClaims.Any(c => c.Type == ClaimTypes.Role && c.Value == RoleType.Manager.ToString()))
             {
-                return BadRequest();
+                return BadRequest(new { Message = "You cannot appoint an employee as a project manager" });
             }
+
+            _db.Set<ProjectEmployee>().Add(new ProjectEmployee
+            {
+                ProjectId = projectId,
+                EmployeeId = managerId
+            });
+            await _db.SaveChangesAsync().ConfigureAwait(false);
+
+            return Ok();
         }
 
         /// <summary>
         /// method for removing the manager from the project
         /// </summary>
-        /// <param name="projectid"> id of the project whose manager should be deleted</param>
+        /// <param name="projectId"> id of the project whose manager should be deleted</param>
         /// <response code="200"> Manager removed </response>
         /// <response code="404"> Project or manager not found </response>
         [HttpDelete("DeleteManager/project/{projectId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> DeleteManager([FromRoute] int projectid)
+        public async Task<IActionResult> DeleteManager([FromRoute] int projectId)
         {
-            var currentManager = _db.ProjectEmployee.Where(p => p.ProjectId == projectid && p.Role == RoleType.Manager).FirstOrDefault();
-            if (currentManager != null)
+            var project = await _db.Set<Project>().Include(p => p.ProjectEmployees).FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
+            if (project == null)
             {
-                _db.ProjectEmployee.Remove(currentManager);
+                return NotFound(new { Message = $"Project with id = {projectId} not found" });
+            }
 
-                await _db.SaveChangesAsync();
-                return Ok();
-            }
-            else
+            var managerProject = project.ProjectEmployees.FirstOrDefault(p => p.Employee.ManagerId == null);
+            if (managerProject == null)
             {
-                return NotFound();
+                return BadRequest(new { Message = "The project does not contain a manager" });
             }
+            _db.Set<ProjectEmployee>().Remove(managerProject);
+            await _db.SaveChangesAsync().ConfigureAwait(false);
+
+            return Ok();
         }
 
         /// <summary>
@@ -152,7 +157,6 @@ namespace LTRegistratorApi.Controllers
             if (employee != null)
             {
                 var oldClaims = await _userManager.GetClaimsAsync(employee.User);
-                employee.MaxRole = assignedRole;
                 if (assignedRole == RoleType.Manager)
                 {
                     employee.ManagerId = null;
@@ -187,8 +191,8 @@ namespace LTRegistratorApi.Controllers
 
             if (employee == null || manager == null) return NotFound();
 
-            if (employee.MaxRole != RoleType.Employee || manager.MaxRole != RoleType.Manager || employee.ManagerId != null) return BadRequest();
-            
+            if (employee.ManagerId == null || manager.ManagerId != null) return BadRequest();
+
             employee.ManagerId = managerId;
             await _db.SaveChangesAsync();
             return Ok();
