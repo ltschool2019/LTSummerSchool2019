@@ -115,7 +115,7 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteManager([FromRoute] int projectId)
         {
-            var project = await Db.Set<Project>().Include(p => p.ProjectEmployees).FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
+            var project = await Db.Set<Project>().Include(p => p.ProjectEmployees).ThenInclude(pe => pe.Employee).FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
             if (project == null)
             {
                 return NotFound(new { Message = $"Project with id = {projectId} not found" });
@@ -151,15 +151,15 @@ namespace LTRegistratorApi.Controllers
             var employee = await Db.Set<Employee>().Include(e => e.User).FirstOrDefaultAsync(e => e.Id == employeeId).ConfigureAwait(false);
             if (employee != null)
             {
-                var oldClaims = await _userManager.GetClaimsAsync(employee.User);
+                var oldClaims = await _userManager.GetClaimsAsync(employee.User).ConfigureAwait(false);
                 if (assignedRole == RoleType.Manager)
                 {
                     employee.ManagerId = null;
                 }
-
                 await Db.SaveChangesAsync().ConfigureAwait(false);
+                
 
-                await _userManager.RemoveClaimsAsync(employee.User, oldClaims);
+                await _userManager.RemoveClaimsAsync(employee.User, oldClaims).ConfigureAwait(false);
                 await _userManager.AddClaimAsync(employee.User, new Claim(ClaimTypes.Role, assignedRole.ToString()));
                 return Ok();
             }
