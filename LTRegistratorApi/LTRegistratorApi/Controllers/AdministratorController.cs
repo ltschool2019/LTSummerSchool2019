@@ -20,12 +20,10 @@ namespace LTRegistratorApi.Controllers
     [ApiController]
     public class AdministratorController : BaseController
     {
-        private readonly LTRegistratorDbContext _db;
         private readonly UserManager<User> _userManager;
 
-        public AdministratorController(LTRegistratorDbContext context, UserManager<User> userManager)
+        public AdministratorController(DbContext context, UserManager<User> userManager) : base(context)
         {
-            _db = context;
             _userManager = userManager;
         }
 
@@ -42,12 +40,12 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> UpdateProject([FromBody] ProjectDto projectdto, [FromRoute] int projectid)
         {
-            var project = _db.Project.SingleOrDefault(p => p.Id == projectid);
+            var project = Db.Set<Project>().SingleOrDefault(p => p.Id == projectid);
             if (project != null)
             {
                 project.Name = projectdto.Name;
-                _db.Project.Update(project);
-                await _db.SaveChangesAsync();
+                Db.Set<Project>().Update(project);
+                await Db.SaveChangesAsync();
                 return Ok();
             }
             else
@@ -68,7 +66,7 @@ namespace LTRegistratorApi.Controllers
         [HttpPost("setmanager/{managerID}/project/{projectID}")]
         public async Task<IActionResult> SetManager([FromRoute] int projectId, int managerId)
         {
-            var manager = await _db.Set<Employee>().Include(e => e.User).FirstOrDefaultAsync(e => e.Id == managerId).ConfigureAwait(false);
+            var manager = await Db.Set<Employee>().Include(e => e.User).FirstOrDefaultAsync(e => e.Id == managerId).ConfigureAwait(false);
             if (manager == null)
             {
                 return NotFound(new { Message = $"Employee with Id = {managerId} not found" });
@@ -79,13 +77,13 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(new { Message = $"Employee with Id = {managerId} belongs to the manager with id = {manager.ManagerId}" });
             }
 
-            var project = await _db.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
+            var project = await Db.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
             if (project == null)
             {
                 return NotFound(new { Message = $"Project with id = {projectId} not found" });
             }
 
-            if (await _db.Set<ProjectEmployee>().AnyAsync(pe => pe.ProjectId == projectId && pe.EmployeeId == managerId).ConfigureAwait(false))
+            if (await Db.Set<ProjectEmployee>().AnyAsync(pe => pe.ProjectId == projectId && pe.EmployeeId == managerId).ConfigureAwait(false))
             {
                 return BadRequest(new { Message = $"Project with id = {projectId} already contains manager with id = {managerId}" });
             }
@@ -96,12 +94,12 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(new { Message = "You cannot appoint an employee as a project manager" });
             }
 
-            _db.Set<ProjectEmployee>().Add(new ProjectEmployee
+            Db.Set<ProjectEmployee>().Add(new ProjectEmployee
             {
                 ProjectId = projectId,
                 EmployeeId = managerId
             });
-            await _db.SaveChangesAsync().ConfigureAwait(false);
+            await Db.SaveChangesAsync().ConfigureAwait(false);
 
             return Ok();
         }
@@ -117,7 +115,7 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteManager([FromRoute] int projectId)
         {
-            var project = await _db.Set<Project>().Include(p => p.ProjectEmployees).FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
+            var project = await Db.Set<Project>().Include(p => p.ProjectEmployees).FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
             if (project == null)
             {
                 return NotFound(new { Message = $"Project with id = {projectId} not found" });
@@ -128,8 +126,8 @@ namespace LTRegistratorApi.Controllers
             {
                 return BadRequest(new { Message = "The project does not contain a manager" });
             }
-            _db.Set<ProjectEmployee>().Remove(managerProject);
-            await _db.SaveChangesAsync().ConfigureAwait(false);
+            Db.Set<ProjectEmployee>().Remove(managerProject);
+            await Db.SaveChangesAsync().ConfigureAwait(false);
 
             return Ok();
         }
@@ -150,7 +148,7 @@ namespace LTRegistratorApi.Controllers
         {
             if (assignedRole == RoleType.Administrator) return BadRequest("You cannot designate an employee as an administrator");
 
-            var employee = await _db.Set<Employee>().Include(e => e.User).FirstOrDefaultAsync(e => e.Id == employeeId).ConfigureAwait(false);
+            var employee = await Db.Set<Employee>().Include(e => e.User).FirstOrDefaultAsync(e => e.Id == employeeId).ConfigureAwait(false);
             if (employee != null)
             {
                 var oldClaims = await _userManager.GetClaimsAsync(employee.User);
@@ -159,7 +157,7 @@ namespace LTRegistratorApi.Controllers
                     employee.ManagerId = null;
                 }
 
-                await _db.SaveChangesAsync().ConfigureAwait(false);
+                await Db.SaveChangesAsync().ConfigureAwait(false);
 
                 await _userManager.RemoveClaimsAsync(employee.User, oldClaims);
                 await _userManager.AddClaimAsync(employee.User, new Claim(ClaimTypes.Role, assignedRole.ToString()));
@@ -183,15 +181,15 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult> AssignManagerToEmployee([FromRoute] int managerId, int employeeId)
         {
-            var employee = await _db.Employee.FindAsync(employeeId);
-            var manager = await _db.Employee.FindAsync(managerId);
+            var employee = await Db.Set<Employee>().FindAsync(employeeId);
+            var manager = await Db.Set<Employee>().FindAsync(managerId);
 
             if (employee == null || manager == null) return NotFound();
 
             if (employee.ManagerId == null || manager.ManagerId != null) return BadRequest();
 
             employee.ManagerId = managerId;
-            await _db.SaveChangesAsync();
+            await Db.SaveChangesAsync();
             return Ok();
         }
 
@@ -208,13 +206,13 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult> UntieEmployeeFromManager([FromRoute] int employeeId)
         {
-            var employee = await _db.Employee.FindAsync(employeeId);
+            var employee = await Db.Set<Employee>().FindAsync(employeeId);
             if (employee == null) return NotFound();
 
             if (employee.ManagerId == null) return BadRequest();
 
             employee.ManagerId = null;
-            await _db.SaveChangesAsync();
+            await Db.SaveChangesAsync();
             return Ok();
         }
     }

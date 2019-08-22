@@ -22,7 +22,6 @@ namespace LTRegistratorApi.Controllers
     [ApiController]
     public class AccountController : BaseController
     {
-        private readonly LTRegistratorDbContext _context;
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
@@ -36,12 +35,11 @@ namespace LTRegistratorApi.Controllers
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             IConfiguration configuration
-            )
+            ) : base(db)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
-            _context = db;
         }
 
         /// <summary>
@@ -73,7 +71,7 @@ namespace LTRegistratorApi.Controllers
         [HttpPost]
         public async Task<object> Register([FromBody] RegisterDto model)
         {
-            using (var transaction = _context.Database.BeginTransaction())
+            using (var transaction = Db.Database.BeginTransaction())
             {
                 try
                 {
@@ -83,7 +81,7 @@ namespace LTRegistratorApi.Controllers
                         SecondName = model.SecondName,
                         Mail = model.Email
                     };
-                    _context.Employee.Add(employee);
+                    Db.Set<Employee>().Add(employee);
                     User user = new User
                     {
                         UserName = model.FirstName + "_" + model.SecondName,

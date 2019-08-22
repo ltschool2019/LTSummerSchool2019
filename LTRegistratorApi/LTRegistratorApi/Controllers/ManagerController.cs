@@ -20,14 +20,12 @@ namespace LTRegistratorApi.Controllers
     [ApiController]
     public class ManagerController : BaseController
     {
-        private readonly LTRegistratorDbContext _db;
         private readonly UserManager<User> _userManager;
         /// <summary></summary>
         /// <param name="context"></param>
         /// <param name="userManager"></param>
-        public ManagerController(LTRegistratorDbContext context, UserManager<User> userManager)
+        public ManagerController(DbContext context, UserManager<User> userManager) : base(context)
         {
-            _db = context;
             _userManager = userManager;
         }
 
@@ -43,8 +41,8 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(404)]
         public ActionResult<List<ProjectDto>> GetManagerProjects(int employeeId)
         {
-            var projects = DtoConverter.ToProjectDto(_db.ProjectEmployee
-                .Join(_db.Project, p => p.ProjectId, pe => pe.Id, (pe, p) => new { pe, p })
+            var projects = DtoConverter.ToProjectDto(Db.Set<ProjectEmployee>()
+                .Join(Db.Set<Project>(), p => p.ProjectId, pe => pe.Id, (pe, p) => new { pe, p })
                 .Where(w => w.pe.EmployeeId == employeeId && w.pe.Employee.ManagerId == null && !w.p.SoftDeleted)
                 .Select(name => name.p)
                 .ToList());
@@ -67,9 +65,9 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult> AssignProjectToEmployee(int projectId, int employeeId)
         {
-            var user = await _db.Employee.FindAsync(employeeId);
-            var project = await _db.Project.FirstOrDefaultAsync(p => p.Id == projectId && !p.SoftDeleted);
-            var userProject = await _db.ProjectEmployee.SingleOrDefaultAsync(v => v.ProjectId == projectId && v.EmployeeId == employeeId);
+            var user = await Db.Set<Employee>().FindAsync(employeeId);
+            var project = await Db.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId && !p.SoftDeleted);
+            var userProject = await Db.Set<ProjectEmployee>().SingleOrDefaultAsync(v => v.ProjectId == projectId && v.EmployeeId == employeeId);
             if (user != null && project != null && userProject == null && user.ManagerId != null)
             {
                 ProjectEmployee projectEmployee = new ProjectEmployee
@@ -77,8 +75,8 @@ namespace LTRegistratorApi.Controllers
                     ProjectId = projectId,
                     EmployeeId = employeeId
                 };
-                _db.ProjectEmployee.Add(projectEmployee);
-                await _db.SaveChangesAsync();
+                Db.Set<ProjectEmployee>().Add(projectEmployee);
+                await Db.SaveChangesAsync();
                 return Ok();
             }
 
@@ -98,13 +96,13 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult> ReassignEmployeeFromProject(int projectId, int employeeId)
         {
-            var result = await _db.ProjectEmployee.SingleOrDefaultAsync(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId && !pe.Project.SoftDeleted);
+            var result = await Db.Set<ProjectEmployee>().SingleOrDefaultAsync(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId && !pe.Project.SoftDeleted);
             if (result == null)
             {
                 return NotFound();
             }
-            _db.ProjectEmployee.Remove(result);
-            await _db.SaveChangesAsync();
+            Db.Set<ProjectEmployee>().Remove(result);
+            await Db.SaveChangesAsync();
             return Ok();
         }
 
@@ -122,12 +120,12 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(404)]
         public ActionResult<List<EmployeeDto>> GetEmployees(int projectId, int employeeId)
         {
-            var userProject = _db.ProjectEmployee.SingleOrDefault(v => v.ProjectId == projectId && v.EmployeeId == employeeId && !v.Project.SoftDeleted);
+            var userProject = Db.Set<ProjectEmployee>().SingleOrDefault(v => v.ProjectId == projectId && v.EmployeeId == employeeId && !v.Project.SoftDeleted);
             if (userProject == null)
             {
                 return NotFound();
             }
-            var employee = DtoConverter.ToEmployeeDto(_db.ProjectEmployee.Join(_db.Employee,
+            var employee = DtoConverter.ToEmployeeDto(Db.Set<ProjectEmployee>().Join(Db.Set<Employee>(),
                                e => e.EmployeeId,
                                pe => pe.Id,
                                (pe, e) => new { pe, e }).Where(w => w.pe.ProjectId == projectId && w.pe.Employee.ManagerId != null).Select(user => user.e).OrderByDescending(o => o.ManagerId == employeeId).ToList());
@@ -157,11 +155,11 @@ namespace LTRegistratorApi.Controllers
             List<Project> projects;
             if (thisUserIdent.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "Administrator"))
             {
-                projects = _db.Project.ToList();
+                projects = Db.Set<Project>().ToList();
             }
             else
             {
-                projects = await _db.Project.Where(w => !w.SoftDeleted).ToListAsync();
+                projects = await Db.Set<Project>().Where(w => !w.SoftDeleted).ToListAsync();
             }
 
             return projects.Any()
@@ -196,23 +194,23 @@ namespace LTRegistratorApi.Controllers
                             (c.Type == ClaimTypes.Role && c.Value == "Administrator")))
                 {
                     var project = new Project { Name = projectdto.Name };
-                    _db.Project.Add(project);
-                    await _db.SaveChangesAsync();
+                    Db.Set<Project>().Add(project);
+                    await Db.SaveChangesAsync();
                     return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
                 }
                 else if (thisUserIdent.HasClaim(c =>
                             (c.Type == ClaimTypes.Role && c.Value == "Manager")))
                 {
                     var project = new Project { Name = projectdto.Name };
-                    _db.Project.Add(project);
-                    _db.SaveChanges();
+                    Db.Set<Project>().Add(project);
+                    Db.SaveChanges();
                     ProjectEmployee projectEmployee = new ProjectEmployee
                     {
                         ProjectId = project.Id,
                         EmployeeId = thisUser.EmployeeId
                     };
-                    _db.ProjectEmployee.Add(projectEmployee);
-                    _db.SaveChanges();
+                    Db.Set<ProjectEmployee>().Add(projectEmployee);
+                    Db.SaveChanges();
                     return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
                 }
                 else
@@ -244,22 +242,22 @@ namespace LTRegistratorApi.Controllers
         {
             var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var thisUserIdent = HttpContext.User.Identity as ClaimsIdentity;
-            var project = await _db.Project.FindAsync(id);
-            var managerEmployee = await _db.ProjectEmployee.SingleOrDefaultAsync(V => V.ProjectId == id && V.Employee.ManagerId == null);
+            var project = await Db.Set<Project>().FindAsync(id);
+            var managerEmployee = await Db.Set<ProjectEmployee>().SingleOrDefaultAsync(V => V.ProjectId == id && V.Employee.ManagerId == null);
 
             if (project != null)
             {
                 if (thisUserIdent.HasClaim(c =>
                             (c.Type == ClaimTypes.Role && c.Value == "Administrator")))
                 {
-                    var listEmployees = _db.ProjectEmployee.Where(pe => pe.ProjectId == id).ToList();
+                    var listEmployees = Db.Set<ProjectEmployee>().Where(pe => pe.ProjectId == id).ToList();
                     foreach (ProjectEmployee employee in listEmployees)
                     {
-                        _db.ProjectEmployee.Remove(employee);
+                        Db.Set<ProjectEmployee>().Remove(employee);
                     }
 
-                    _db.Project.Remove(project);
-                    await _db.SaveChangesAsync();
+                    Db.Set<Project>().Remove(project);
+                    await Db.SaveChangesAsync();
 
                     return Ok();
                 }
@@ -268,7 +266,7 @@ namespace LTRegistratorApi.Controllers
                     && managerEmployee != null && managerEmployee.EmployeeId == thisUser.EmployeeId)
                 {
                     project.SoftDeleted = true;
-                    await _db.SaveChangesAsync();
+                    await Db.SaveChangesAsync();
 
                     return Ok();
                 }
