@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using LTRegistratorApi.Model;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,7 +9,6 @@ using LTRegistrator.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Authorization;
 
 namespace LTRegistratorApi.Controllers
@@ -20,7 +18,7 @@ namespace LTRegistratorApi.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController]
-    public class ManagerController : ControllerBase
+    public class ManagerController : BaseController
     {
         private readonly LTRegistratorDbContext _db;
         private readonly UserManager<User> _userManager;

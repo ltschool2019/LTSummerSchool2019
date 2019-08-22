@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using LTRegistratorApi.Model;
@@ -18,7 +17,7 @@ namespace LTRegistratorApi.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController, Authorize]
-    public class TaskController : ControllerBase
+    public class TaskController : BaseController
     {
         private readonly LTRegistratorDbContext _db;
         

@@ -20,7 +20,7 @@ namespace LTRegistratorApi.Controllers
     /// </summary>
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class AccountController : BaseController
     {
         private readonly LTRegistratorDbContext _context;
         private readonly SignInManager<User> _signInManager;
