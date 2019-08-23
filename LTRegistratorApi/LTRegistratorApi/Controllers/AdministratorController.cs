@@ -200,15 +200,16 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult> GetEmployeesByProject([FromRoute] int projectId)
         {
-            var projectEmployee = _db.ProjectEmployee.Where(v => v.ProjectId == projectId && v.Role != RoleType.Manager);
-            var employee = DtoConverter.ToEmployeeDto(_db.ProjectEmployee.
-                Where(w => w.ProjectId == projectId && w.Role == RoleType.Employee).
-                Join(_db.Employee, e => e.EmployeeId, pe => pe.Id, (pe, e) => new { pe, e }).Select(user => user.e).ToList());
-            if (!employee.Any())
+            var employees = await _db.Set<ProjectEmployee>()
+                .Include(pe => pe.Project)
+                .Include(pe => pe.Employee)
+                .Where(pe => pe.ProjectId == projectId && pe.Role == RoleType.Employee)
+                .Select(pe => pe.Employee).ToListAsync();
+            if (!employees.Any())
             {
                 return NotFound();
             }
-            return Ok(employee);
+            return Ok(DtoConverter.ToEmployeeDto(employees));
         }
     }
 }
