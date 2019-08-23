@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Security.Claims;
-using System.Threading.Tasks;
-using LTRegistrator.BLL.Services;
-using LTRegistrator.Domain.Enums;
-using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

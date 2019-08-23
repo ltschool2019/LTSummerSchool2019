@@ -28,12 +28,14 @@ namespace LTRegistratorApi.Tests.Controllers
         [InlineData(-1, HttpStatusCode.NotFound)] //User is not found.
         public async void GetInfoByIdAsync_Acess(int userId, HttpStatusCode status)
         {
-            var result = await _employeeController.GetInfoAsync(userId) as ObjectResult;
-            Assert.Equal((int)status, result.StatusCode);
-            if (result is OkObjectResult)
-                Assert.IsType<EmployeeDto>(result.Value);
+            var result = await _employeeController.GetInfoAsync(userId);
+            var objResult = result as ObjectResult;
+
+            Assert.Equal((int)status, ToHttpStatusCodeResult(result));
+            if (status == HttpStatusCode.OK)
+                Assert.IsType<EmployeeDto>(objResult.Value);
             else
-                Assert.False(string.IsNullOrWhiteSpace((string)result.Value));
+                Assert.False(string.IsNullOrWhiteSpace((string)objResult.Value));
         }
 
         [Theory]
@@ -41,17 +43,18 @@ namespace LTRegistratorApi.Tests.Controllers
         [InlineData(-1, HttpStatusCode.NotFound)] //User is not found.
         public async void GetLeavesAsync_Acess(int userId, HttpStatusCode status)
         {
-            var result = await _employeeController.GetLeavesAsync(userId) as ObjectResult;
+            var result = await _employeeController.GetLeavesAsync(userId);
+            var objResult = result as ObjectResult;
 
-            Assert.Equal((int)status, result.StatusCode);
-            if (result is OkObjectResult)
+            Assert.Equal((int)status, ToHttpStatusCodeResult(result));
+            if (status == HttpStatusCode.OK)
             {
-                Assert.IsType<List<LeaveDto>>(result.Value);
+                Assert.IsType<List<LeaveDto>>(objResult.Value);
             }
             else
             {
-                Assert.IsType<string>(result.Value);
-                Assert.False(string.IsNullOrWhiteSpace(result.Value as string));
+                Assert.IsType<string>(objResult.Value);
+                Assert.False(string.IsNullOrWhiteSpace(objResult.Value as string));
             }
         }
 

@@ -1,5 +1,4 @@
-﻿using LTRegistrator.BLL.Services;
-using LTRegistrator.Domain.Entities;
+﻿using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -16,6 +15,7 @@ namespace LTRegistratorApi.Tests
             if (db.Set<Employee>().Any() || db.Set<Project>().Any() || db.Set<ProjectEmployee>().Any() ||
                 db.Set<Task>().Any() || db.Set<TaskNote>().Any()) return;
 
+            #region Add Employees
             var leaveBob = new Leave[]
             {
                 new Leave() { Id = 1, StartDate = new DateTime(2019, 1, 1), EndDate = new DateTime(2019, 1, 13), TypeLeave = TypeLeave.Vacation },
@@ -57,7 +57,9 @@ namespace LTRegistratorApi.Tests
                 }
                 db.SaveChanges();
             }
+            #endregion
 
+            #region Add Projects
             {
                 var dbSet = db.Set<Project>();
                 dbSet.Add(new Project() { Name = "FOSS" });
@@ -65,7 +67,9 @@ namespace LTRegistratorApi.Tests
                 dbSet.Add(new Project() { Name = "Area 9" });
                 db.SaveChanges();
             }
+            #endregion
 
+            #region Add ProjectEmployees
             {
                 var dbSet = db.Set<ProjectEmployee>();
                 dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1 });
@@ -79,7 +83,9 @@ namespace LTRegistratorApi.Tests
                 dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6 });
                 db.SaveChanges();
             }
+            #endregion
 
+            #region Add Tasks
             {
                 var dbSet = db.Set<Task>();
                 dbSet.Add(new Task() { ProjectId = 1, EmployeeId = 1, Name = "FOSS" });
@@ -92,7 +98,9 @@ namespace LTRegistratorApi.Tests
                 dbSet.Add(new Task() { ProjectId = 2, EmployeeId = 5, Name = "EMIAS" });
                 db.SaveChanges();
             }
+            #endregion
 
+            #region Add TaskNotes
             {
                 var dbSet = db.Set<TaskNote>();
                 dbSet.Add(new TaskNote() { TaskId = 1, Hours = 4, Day = new DateTime(2019, 1, 1) });
@@ -110,6 +118,7 @@ namespace LTRegistratorApi.Tests
                 dbSet.Add(new TaskNote() { TaskId = 7, Hours = 6, Day = new DateTime(2019, 7, 14) });
                 db.SaveChanges();
             }
+            #endregion
         }
     }
 }

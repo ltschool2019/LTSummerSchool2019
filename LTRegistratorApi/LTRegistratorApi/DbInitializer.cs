@@ -1,10 +1,7 @@
-﻿using LTRegistratorApi.Model;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using LTRegistrator.BLL.Services;
 using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +17,7 @@ namespace LTRegistratorApi
         {
             context.Database.EnsureCreated();
 
+            #region Add Employees
             if (!context.Set<Employee>().Any())
             {
                 var leaveBob = new Leave[]
@@ -72,7 +70,9 @@ namespace LTRegistratorApi
                         throw new ApplicationException("ERROR_INITIALIZE_DB");
                 }
             }
+            #endregion
 
+            #region Add Projects
             if (!context.Set<Project>().Any())
             {
                 context.Set<Project>().Add(new Project() { Name = "FOSS" });
@@ -80,7 +80,9 @@ namespace LTRegistratorApi
                 context.Set<Project>().Add(new Project() { Name = "Area 9" });
                 context.SaveChanges();
             }
+            #endregion
 
+            #region Add ProjectEmployees
             if (!context.Set<ProjectEmployee>().Any())
             {
                 context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1, Role = RoleType.Employee });
@@ -95,6 +97,9 @@ namespace LTRegistratorApi
 
                 context.SaveChanges();
             }
+            #endregion
+
+            #region Add Tasks
             if (!context.Set<Task>().Any())
             {
                 context.Set<Task>().Add(new Task() { ProjectId = 1, EmployeeId = 1, Name = "FOSS" });
@@ -107,7 +112,9 @@ namespace LTRegistratorApi
                 context.Set<Task>().Add(new Task() { ProjectId = 2, EmployeeId = 5, Name = "EMIAS" });
                 context.SaveChanges();
             }
+            #endregion
 
+            #region Add TaskNotes
             if (!context.Set<TaskNote>().Any())
             {
                 context.Set<TaskNote>().Add(new TaskNote() { TaskId = 1, Hours = 4, Day = new DateTime(2019, 1, 1) });
@@ -126,6 +133,7 @@ namespace LTRegistratorApi
 
                 context.SaveChanges();
             }
+            #endregion
         }
     }
 }

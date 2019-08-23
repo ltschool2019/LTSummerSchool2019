@@ -7,7 +7,6 @@ using LTRegistrator.BLL.Contracts.Contracts;
 using LTRegistrator.Domain.Entities;
 using LTRegistratorApi.Model;
 using Microsoft.AspNetCore.Authorization;
-using System.Net;
 using Microsoft.EntityFrameworkCore;
 
 namespace LTRegistratorApi.Controllers
