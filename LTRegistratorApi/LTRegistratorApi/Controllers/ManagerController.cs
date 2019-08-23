@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using System.Collections.Generic;
+using System.Net;
 using Microsoft.AspNetCore.Authorization;
 
 namespace LTRegistratorApi.Controllers
@@ -123,20 +124,31 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("{EmployeeId}/project/{ProjectId}/employees")]
         [ProducesResponseType(typeof(List<EmployeeDto>), 200)]
         [ProducesResponseType(404)]
-        public ActionResult<List<EmployeeDto>> GetEmployees(int projectId, int employeeId)
+        public async Task<ActionResult> GetEmployees(int projectId, int employeeId)
         {
-            var userProject = _db.ProjectEmployee.SingleOrDefault(v => v.ProjectId == projectId && v.EmployeeId == employeeId && !v.Project.SoftDeleted);
-            if (userProject == null)
+            var manager = await _db.Set<Employee>().FirstOrDefaultAsync(e => e.Id == employeeId && e.ManagerId == null && e.MaxRole == RoleType.Manager).ConfigureAwait(false);
+            if (manager == null)
             {
-                return NotFound();
+                return NotFound(new { Message = $"Employee with id = {employeeId} not found or employee is not a manager" });
             }
-            var employee = DtoConverter.ToEmployeeDto(_db.ProjectEmployee.Join(_db.Employee,
-                               e => e.EmployeeId,
-                               pe => pe.Id,
-                               (pe, e) => new { pe, e }).Where(w => w.pe.ProjectId == projectId && w.pe.Role == RoleType.Employee).Select(user => user.e).OrderByDescending(o => o.ManagerId == employeeId).ToList());
-            if (!employee.Any())
-                return NotFound();
-            return Ok(employee);
+
+            var project = await _db.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
+            if (project == null)
+            {
+                return NotFound(new {Message = $"Project with id = {projectId} not found"});
+            }
+            //var userProject = _db.ProjectEmployee.SingleOrDefault(v => v.ProjectId == projectId && v.EmployeeId == employeeId && !v.Project.SoftDeleted);
+            //if (userProject == null)
+            //{
+            //    return NotFound();
+            //}
+            //var employee = DtoConverter.ToEmployeeDto(_db.ProjectEmployee.Join(_db.Employee,
+            //                   e => e.EmployeeId,
+            //                   pe => pe.Id,
+            //                   (pe, e) => new { pe, e }).Where(w => w.pe.ProjectId == projectId && w.pe.Role == RoleType.Employee).Select(user => user.e).OrderByDescending(o => o.ManagerId == employeeId).ToList());
+            //if (!employee.Any())
+            //    return NotFound();
+            //return Ok(employee);
         }
 
         /// <summary>
@@ -175,59 +187,60 @@ namespace LTRegistratorApi.Controllers
         /// <summary>
         /// Adding a new project
         /// </summary>
-        /// <param name="projectdto">Data transfer object, required containing Name of project</param>
+        /// <param name="projectDto">Data transfer object, required containing Name of project</param>
         /// <response code="200">Created project</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">You do not have sufficient permissions to add a project</response>
+        /// <response code="409">Project with this name already exist</response>
         [Authorize(Policy = "IsManagerOrAdministrator")]
         [HttpPost("project")]
         [ProducesResponseType(typeof(ProjectDto), 200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> AddProject([FromBody] ProjectDto projectdto)
+        [ProducesResponseType(409)]
+        public async Task<IActionResult> AddProject([FromBody] ProjectDto projectDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var thisUserIdent = HttpContext.User.Identity as ClaimsIdentity;
-            if (projectdto != null)
+            if (await _db.Set<Project>().AnyAsync(p => p.Name == projectDto.Name).ConfigureAwait(false))
             {
-                if (thisUserIdent.HasClaim(c =>
-                            (c.Type == ClaimTypes.Role && c.Value == "Administrator")))
+                return Conflict(new { Message = $"Project with name {projectDto.Name} already exist" });
+            }
+
+            var project = new Project
+            {
+                Name = projectDto.Name
+            };
+            var userClaims = (ClaimsIdentity)User.Identity;
+            var isManager = userClaims.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "Manager");
+            if (isManager)
+            {
+                var employeeIdFromClaims = User.FindFirstValue("EmployeeID");
+                if (!int.TryParse(employeeIdFromClaims, out var employeeId))
                 {
-                    var project = new Project { Name = projectdto.Name };
-                    _db.Project.Add(project);
-                    await _db.SaveChangesAsync();
-                    return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
+                    return StatusCode((int)HttpStatusCode.InternalServerError);
                 }
-                else if (thisUserIdent.HasClaim(c =>
-                            (c.Type == ClaimTypes.Role && c.Value == "Manager")))
+                var manager = await _db.Set<Employee>()
+                    .FirstOrDefaultAsync(e => e.Id == Convert.ToInt32(employeeId)).ConfigureAwait(false);
+                if (manager == null) return NotFound(new { Message = $"Employee with id = {employeeId}" });
+
+                project.ProjectEmployees = new List<ProjectEmployee>
                 {
-                    var project = new Project { Name = projectdto.Name };
-                    _db.Project.Add(project);
-                    _db.SaveChanges();
-                    ProjectEmployee projectEmployee = new ProjectEmployee
+                    new ProjectEmployee
                     {
-                        ProjectId = project.Id,
-                        EmployeeId = thisUser.EmployeeId,
+                        EmployeeId = employeeId,
                         Role = RoleType.Manager
-                    };
-                    _db.ProjectEmployee.Add(projectEmployee);
-                    _db.SaveChanges();
-                    return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
-                }
-                else
-                {
-                    return Forbid("You do not have sufficient permissions to add a project");
-                }
+                    }
+                };
             }
-            else
-            {
-                return BadRequest();
-            }
+
+            _db.Set<Project>().Add(project);
+            await _db.SaveChangesAsync().ConfigureAwait(false);
+
+            return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
         }
 
         /// <summary>
