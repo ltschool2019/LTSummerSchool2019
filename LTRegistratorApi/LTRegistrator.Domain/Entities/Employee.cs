@@ -15,7 +15,6 @@ namespace LTRegistrator.Domain.Entities
         public string FirstName { get; set; }
         public string SecondName { get; set; }
         public string Mail { get; set; }
-        public RoleType MaxRole { get; set; }
         public double Rate { get; set; }
 
         public virtual ICollection<ProjectEmployee> ProjectEmployees { get; set; }

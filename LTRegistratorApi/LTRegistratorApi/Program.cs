@@ -4,6 +4,7 @@ using LTRegistrator.Domain.Entities;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -20,7 +21,7 @@ namespace LTRegistratorApi
                 var services = scope.ServiceProvider;
                 try
                 {
-                    var context = services.GetRequiredService<LTRegistratorDbContext>();
+                    var context = services.GetRequiredService<DbContext>();
                     var userManager = services.GetRequiredService<UserManager<User>>();
                     DbInitializer.Initialize(context, userManager);
                 }

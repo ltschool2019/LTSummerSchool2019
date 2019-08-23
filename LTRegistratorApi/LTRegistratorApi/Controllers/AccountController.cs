@@ -10,6 +10,7 @@ using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -20,9 +21,8 @@ namespace LTRegistratorApi.Controllers
     /// </summary>
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class AccountController : BaseController
     {
-        private readonly LTRegistratorDbContext _context;
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
@@ -32,16 +32,15 @@ namespace LTRegistratorApi.Controllers
         /// <param name="signInManager">Provides the APIs for user sign in</param>
         /// <param name="configuration">To use the file setting</param>
         public AccountController(
-            LTRegistratorDbContext db,
+            DbContext db,
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             IConfiguration configuration
-            )
+            ) : base(db)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
-            _context = db;
         }
 
         /// <summary>
@@ -73,7 +72,7 @@ namespace LTRegistratorApi.Controllers
         [HttpPost]
         public async Task<object> Register([FromBody] RegisterDto model)
         {
-            using (var transaction = _context.Database.BeginTransaction())
+            using (var transaction = Db.Database.BeginTransaction())
             {
                 try
                 {
@@ -81,10 +80,9 @@ namespace LTRegistratorApi.Controllers
                     {
                         FirstName = model.FirstName,
                         SecondName = model.SecondName,
-                        Mail = model.Email,
-                        MaxRole = model.Role
+                        Mail = model.Email
                     };
-                    _context.Employee.Add(employee);
+                    Db.Set<Employee>().Add(employee);
                     User user = new User
                     {
                         UserName = model.FirstName + "_" + model.SecondName,
@@ -95,8 +93,8 @@ namespace LTRegistratorApi.Controllers
                     if (res.Succeeded)
                     {
                         //Retrieves the name of the constant in the specified enumeration that has the specified value.
-                        var role = Enum.GetName(typeof(RoleType), employee.MaxRole);
-                        var resAddRole = _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).Result;
+                        var role = Enum.GetName(typeof(RoleType), model.Role);
+                        var resAddRole = await _userManager.AddClaimAsync(user, new Claim(ClaimTypes.Role, role)).ConfigureAwait(false);
                         if (resAddRole.Succeeded)
                         {
                             transaction.Commit();

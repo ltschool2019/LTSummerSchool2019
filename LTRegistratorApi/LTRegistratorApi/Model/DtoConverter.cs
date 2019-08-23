@@ -54,7 +54,7 @@ namespace LTRegistratorApi.Model
                     FirstName = employee.FirstName,
                     SecondName = employee.SecondName,
                     Mail = employee.Mail,
-                    MaxRole = employee.MaxRole.ConvertToRoleTypeDto(),
+                    MaxRole = (employee.ManagerId == null ? RoleType.Manager : RoleType.Employee).ConvertToRoleTypeDto(),
                     Rate = employee.Rate,
                     ManagerId = employee.ManagerId,
                     Projects  = ToProjectDto(ToProject(employee.ProjectEmployees?.ToList()))

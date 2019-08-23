@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
-using System;
 using System.Threading.Tasks;
 using AutoMapper;
 using LTRegistrator.BLL.Contracts;
@@ -9,6 +7,8 @@ using LTRegistrator.BLL.Contracts.Contracts;
 using LTRegistrator.Domain.Entities;
 using LTRegistratorApi.Model;
 using Microsoft.AspNetCore.Authorization;
+using System.Net;
+using Microsoft.EntityFrameworkCore;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -17,14 +17,14 @@ namespace LTRegistratorApi.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController, Authorize]
-    public class EmployeeController : ControllerBase
+    public class EmployeeController : BaseController
     {
         private readonly IEmployeeService _employeeService;
         private readonly IMapper _mapper;
         /// <summary> </summary>
         /// <param name="employeeService"></param>
         /// <param name="mapper"></param>
-        public EmployeeController(IEmployeeService employeeService, IMapper mapper)
+        public EmployeeController(IEmployeeService employeeService, IMapper mapper, DbContext db): base(db)
         {
             _employeeService = employeeService;
             _mapper = mapper;
@@ -40,10 +40,11 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("{id}/info")]
         [ProducesResponseType(typeof(EmployeeDto), 200)]
         [ProducesResponseType(404)]
+        [Authorize(Policy = "AccessAllowed")]
         public async Task<ActionResult> GetInfoAsync(int id)
         {
             var response = await _employeeService.GetByIdAsync(id);
-            
+
             return response.Status == ResponseResult.Success 
             ? Ok(_mapper.Map<EmployeeDto>(response.Result)) 
             : StatusCode((int)response.Error.StatusCode, response.Error.Message);
@@ -93,7 +94,7 @@ namespace LTRegistratorApi.Controllers
             }
 
             var response = await _employeeService.AddLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
-            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message});
+            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { response.Error.Message});
         }
 
         /// <summary>
