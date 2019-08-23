@@ -3,7 +3,7 @@
 
     <mat-form-field class="task__name">
       <mat-label>Название проекта</mat-label>
-      <mat-select formControlName="type">
+      <mat-select formControlName="type" (selectionChange)="getTasks()">
         <mat-option *ngFor="let project of projects" [value]="project">
           {{project.name}}
         </mat-option>
@@ -12,7 +12,7 @@
 
     <div class="task__weekpicker">
 
-      <button mat-icon-button aria-label="Previous week" (click)="previousWeek()">
+      <button mat-icon-button aria-label="Previous week" (click)="previousWeek();getTasks();">
         <mat-icon>keyboard_arrow_left</mat-icon>
       </button>
 
@@ -20,7 +20,7 @@
       <!-- FIXME: отображать как выбор недели, а не дня-->
       <mat-form-field>
         <input matInput [matDatepicker]="currentWeek" placeholder="week" formControlName="currentWeek"
-          (dateChange)="getWeek()">
+          (dateChange)="getWeek();getTasks();">
         <mat-datepicker-toggle [for]="currentWeek" matSuffix></mat-datepicker-toggle>
         <mat-datepicker #currentWeek></mat-datepicker>
       </mat-form-field>
@@ -30,7 +30,7 @@
         <mat-datepicker #picker></mat-datepicker>
       </mat-form-field> -->
 
-      <button mat-icon-button aria-label="Next week" (click)="nextWeek()">
+      <button mat-icon-button aria-label="Next week" (click)="nextWeek();getTasks();">
         <mat-icon>keyboard_arrow_right</mat-icon>
       </button>
 
@@ -52,7 +52,7 @@
           <p class="task__days__day__container__weekday"> {{week[0].weekday}} </p>
 
           <mat-form-field class="task__days__day__container__hours">
-            <input matInput placeholder="" formControlName="Mon">
+            <input matInput placeholder="" formControlName="day0">
           </mat-form-field>
         </div>
 
@@ -64,7 +64,7 @@
           <p class="task__days__day__container__weekday"> {{week[1].weekday}} </p>
 
           <mat-form-field class="task__days__day__container__hours">
-            <input matInput placeholder="" formControlName="Tue">
+            <input matInput placeholder="" formControlName="day1">
           </mat-form-field>
         </div>
 
@@ -76,7 +76,7 @@
           <p class="task__days__day__container__weekday"> {{week[2].weekday}} </p>
 
           <mat-form-field class="task__days__day__container__hours">
-            <input matInput placeholder="" formControlName="Wed">
+            <input matInput placeholder="" formControlName="day2">
           </mat-form-field>
         </div>
 
@@ -88,7 +88,7 @@
           <p class="task__days__day__container__weekday"> {{week[3].weekday}} </p>
 
           <mat-form-field class="task__days__day__container__hours">
-            <input matInput placeholder="" formControlName="Thu">
+            <input matInput placeholder="" formControlName="day3">
           </mat-form-field>
         </div>
 
@@ -100,7 +100,7 @@
           <p class="task__days__day__container__weekday"> {{week[4].weekday}} </p>
 
           <mat-form-field class="task__days__day__container__hours">
-            <input matInput placeholder="" formControlName="Fri">
+            <input matInput placeholder="" formControlName="day4">
           </mat-form-field>
         </div>
 
@@ -112,7 +112,7 @@
           <p class="task__days__day__container__weekday"> {{week[5].weekday}} </p>
 
           <mat-form-field class="task__days__day__container__hours">
-            <input matInput placeholder="" formControlName="Sat">
+            <input matInput placeholder="" formControlName="day5">
           </mat-form-field>
         </div>
 
@@ -124,7 +124,7 @@
           <p class="task__days__day__container__weekday"> {{week[6].weekday}} </p>
 
           <mat-form-field class="task__days__day__container__hours">
-            <input matInput placeholder="" formControlName="Sun">
+            <input matInput placeholder="" formControlName="day6">
           </mat-form-field>
         </div>
 
@@ -135,7 +135,7 @@
         <p>Всего часов</p>
 
         <mat-form-field>
-          <input matInput placeholder=""  formControlName="total">
+          <input matInput placeholder="" formControlName="total">
         </mat-form-field>
 
       </div>
@@ -147,7 +147,6 @@
       <button mat-flat-button (click)="delete()">DELETE</button>
       <button mat-flat-button color="primary" (click)="editTask()">PUT</button>
     </div>
-    <button mat-flat-button color="primary" (click)="getTasks()">GET</button>
     <button mat-flat-button color="primary" (click)="addTask()">POST</button>
 
   </form>

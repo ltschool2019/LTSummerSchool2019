@@ -19,7 +19,7 @@ export class EmployeeService {
     return this.http.get<Task>(`${this.getUrl(userId, projectId)}/?startDate=${startDate}&EndDate=${endDate}
     `).pipe(
       map((data: any) =>
-        data.map((task: any) => { console.log(task.name); return new Task(task.id, task.name, task.taskNotes, task.leave); }))
+        data.map((task: any) => { return new Task(task.id, task.name, task.taskNotes, task.leave); }))
       // map((data: any) => { console.log(data); return new Task(data.id, data.name, data.taskNotes, data.leave); })
     )
   }
@@ -28,7 +28,7 @@ export class EmployeeService {
   public addTask(userId: any, projectId: any, task: Task): Observable<any> {
 
     let noId: noIdTaskNote[] = [];
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < task.taskNotes.length; i++) {
       noId.push({ Day: task.taskNotes[i].day, Hours: task.taskNotes[i].hours });
     }
 
@@ -40,22 +40,22 @@ export class EmployeeService {
     return this.http.post(this.getUrl(userId, projectId), body);
   }
   // put
-  public editTask(userId: any, projectId: any, task: Task): Observable<any> {
+  public editTask(userId: any, taskId: any, task: Task): Observable<any> {
     let noId: noIdTaskNote[] = [];
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < task.taskNotes.length; i++) {
       noId.push({ Day: task.taskNotes[i].day, Hours: task.taskNotes[i].hours });
     }
     let body = {
       Name: `${task.name}`,
-      Id: `${projectId}`,
+      Id: `${taskId}`,
       TaskNotes: noId
     }
     return this.http.put(`http://localhost:5000/api/Task/employee/${userId}`, body);
   }
   // delete
   // api/employee/{EmployeeID}/leaves?leaveID=2
-  public deleteTask(userId: number, projectId: number): Observable<any> {
-    return this.http.delete<Task>(`http://localhost:5000/api/task/${projectId}/employee/${userId}`);
+  public deleteTask(userId: number, taskId: number): Observable<any> {
+    return this.http.delete<Task>(`http://localhost:5000/api/task/${taskId}/employee/${userId}`);
   }
 
   private getUrl(userId: any, projectId: any) {
