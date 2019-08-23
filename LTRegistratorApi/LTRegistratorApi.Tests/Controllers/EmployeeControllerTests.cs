@@ -4,45 +4,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using AutoMapper;
-using LTRegistratorApi.Mappings;
 using LTRegistratorApi.Model;
 using Xunit;
 using Microsoft.AspNetCore.Mvc;
-using LTRegistrator.BLL.Services;
-using Microsoft.EntityFrameworkCore;
 using LTRegistrator.BLL.Services.Services;
+using LTRegistrator.Domain.Entities;
 
 namespace LTRegistratorApi.Tests.Controllers
 {
-    public class EmployeeControllerTests
+    public class EmployeeControllerTests : BaseControllerTests
     {
-        #region Private Variables
         private readonly EmployeeController _employeeController;
         private readonly IEmployeeService _employeeService;
-        #endregion
 
-        #region Constructor
         public EmployeeControllerTests()
         {
-            var mappingConfig = new MapperConfiguration(mc =>
-            {
-                mc.AddProfile<DataMappingProfileWeb>();
-            });
-            var mapper = mappingConfig.CreateMapper();
-
-            string connectionString = "Server=(localdb)\\mssqllocaldb;Database=productsdb;Trusted_Connection=True;";
-            var options = new DbContextOptionsBuilder<LTRegistratorDbContext>()
-                .UseInMemoryDatabase(connectionString).Options;
-            var dbContext = new LTRegistratorDbContext(options);
-            Initializer.Initialize(dbContext);
-
-            _employeeService = new EmployeeService(dbContext, mapper);
-            _employeeController = new EmployeeController(_employeeService, mapper);
+            _employeeService = new EmployeeService(Db, Mapper);
+            _employeeController = new EmployeeController(_employeeService, Mapper, Db);
         }
-        #endregion
 
-        #region GetInfoByIdAsync
         [Theory]
         [InlineData(2, HttpStatusCode.OK)]
         [InlineData(-1, HttpStatusCode.NotFound)] //User is not found.
@@ -55,9 +35,7 @@ namespace LTRegistratorApi.Tests.Controllers
             else
                 Assert.False(string.IsNullOrWhiteSpace((string)result.Value));
         }
-        #endregion
 
-        #region GetLeavesAsync
         [Theory]
         [InlineData(2, HttpStatusCode.OK)]
         [InlineData(-1, HttpStatusCode.NotFound)] //User is not found.
@@ -76,7 +54,6 @@ namespace LTRegistratorApi.Tests.Controllers
                 Assert.False(string.IsNullOrWhiteSpace(result.Value as string));
             }
         }
-        #endregion
 
         #region SetLeavesAsync
         [Fact]
@@ -107,23 +84,16 @@ namespace LTRegistratorApi.Tests.Controllers
             };
 
             var result = await _employeeController.SetLeavesAsync(userId, testItems);
-            var objectResult = result as ObjectResult;
-
-            if (objectResult == null)
+            
+            Assert.Equal((int)status, ToHttpStatusCodeResult(result));
+            if (status == HttpStatusCode.OK)
             {
-                Assert.Equal((int)status, (result as StatusCodeResult).StatusCode);
-                if (status == HttpStatusCode.OK)
-                {
-                    var serviceResult = await _employeeService.GetByIdAsync(userId);
-                    var testItem = testItems.FirstOrDefault();
-                    var leave = serviceResult.Result.Leaves.FirstOrDefault(l =>
-                        l.StartDate == testItem.StartDate && l.EndDate == testItem.EndDate);
+                var testItem = testItems.FirstOrDefault();
+                var leave = Db.Set<Leave>().FirstOrDefault(l =>
+                    l.StartDate == testItem.StartDate && l.EndDate == testItem.EndDate);
 
-                    Assert.NotNull(leave);
-                }
+                Assert.NotNull(leave);
             }
-            else
-                Assert.Equal((int)status, objectResult.StatusCode);
         }
         #endregion
 
@@ -132,7 +102,6 @@ namespace LTRegistratorApi.Tests.Controllers
         public async void UpdateLeaveAsync_LeavesNotTransferred_ReturnsBadRequest()
         {
             var userId = 1;
-
             var result = await _employeeController.UpdateLeavesAsync(userId, null);
 
             Assert.IsType<BadRequestResult>(result);
@@ -167,15 +136,14 @@ namespace LTRegistratorApi.Tests.Controllers
             var result = await _employeeController.UpdateLeavesAsync(userId, testItems);
             var objectResult = result as ObjectResult;
 
-            if (objectResult == null)
-                Assert.Equal((int)status, (result as StatusCodeResult).StatusCode);
-            else
-                Assert.Equal((int)status, objectResult.StatusCode);
+            Assert.Equal((int)status, ToHttpStatusCodeResult(result));
+            if (status == HttpStatusCode.NotFound) //Не умеем проверять для несуществующего пользователя изменения
+                return;
 
+            var user = await _employeeService.GetByIdAsync(userId);
+            var leave = user.Result.Leaves.FirstOrDefault(l => l.Id == testItems.First().Id);
             if (haveChanged) //We check that the leaves have changed.
             {
-                var user = await _employeeService.GetByIdAsync(userId);
-                var leave = user.Result.Leaves.FirstOrDefault(l => l.Id == testItems.First().Id);
                 Assert.True(leave.StartDate == testItems.First().StartDate
                             && leave.EndDate == testItems.First().EndDate);
 
@@ -183,10 +151,8 @@ namespace LTRegistratorApi.Tests.Controllers
                 Assert.True(leave.StartDate == testItems.Last().StartDate
                             && leave.EndDate == testItems.Last().EndDate);
             }
-            else if (status != HttpStatusCode.NotFound) //We check that the leaves have not changed.
+            else //We check that the leaves have not changed.
             {
-                var user = await _employeeService.GetByIdAsync(userId);
-                var leave = user.Result.Leaves.FirstOrDefault(l => l.Id == testItems.First().Id);
                 Assert.True(leave.StartDate != testItems.First().StartDate
                             && leave.EndDate != testItems.First().EndDate);
 

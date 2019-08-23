@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,10 +38,10 @@ namespace LTRegistratorApi
         {
             string connectionString = "Server=(localdb)\\mssqllocaldb;Database=productsdb;Trusted_Connection=True;";
             //string connectionString = "Server=.\\SQLExpress;Database=productsdb.Project;Trusted_Connection=True;MultipleActiveResultSets=true";
-            services.AddDbContext<LTRegistratorDbContext>(options => options.UseSqlServer(connectionString));
-            services.AddScoped<DbContext, LTRegistratorDbContext>();
+            services.AddDbContext<DbContext, LTRegistratorDbContext>(options => options.UseSqlServer(connectionString));
+            //services.AddScoped<DbContext, LTRegistratorDbContext>();
             services.AddIdentity<User, IdentityRole>()
-              .AddEntityFrameworkStores<LTRegistratorDbContext>()
+              .AddEntityFrameworkStores<DbContext>()
               .AddDefaultTokenProviders();
 
             services.AddCors(options =>
@@ -77,9 +79,19 @@ namespace LTRegistratorApi
                 options.AddPolicy("IsAdministrator", policy => policy.RequireClaim(ClaimTypes.Role, "Administrator"));
 
                 options.AddPolicy("IsManagerOrAdministrator", policy => 
-                    policy.RequireAssertion(context => 
+                    policy.RequireAssertion(context =>
                         context.User.HasClaim(c => 
                             (c.Type == ClaimTypes.Role && (c.Value == "Manager" || c.Value == "Administrator")))));
+
+                options.AddPolicy("AccessAllowed", policy =>
+                    policy.RequireAssertion(context =>
+                    {
+                        var employeeId = Convert.ToInt32(context.User.FindFirstValue("EmployeeID"));
+                        var authContext = (AuthorizationFilterContext)context.Resource;
+                        var routeEmployeeId = Convert.ToInt32(authContext.HttpContext.GetRouteValue("employeeId"));
+                        return employeeId == routeEmployeeId || context.User.HasClaim(c =>
+                                   c.Type == ClaimTypes.Role && (c.Value == "Manager" || c.Value == "Administrator"));
+                    }));
             });
             services.AddTransient<HttpContext>(s =>
                 s.GetService<IHttpContextAccessor>().HttpContext);
@@ -102,7 +114,7 @@ namespace LTRegistratorApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, LTRegistratorDbContext dbContext)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DbContext dbContext)
         {
             if (env.IsDevelopment())
             {

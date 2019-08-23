@@ -21,9 +21,9 @@ namespace LTRegistratorApi.Controllers
     {
         private readonly LTRegistratorDbContext _db;
 
-        public TaskController(LTRegistratorDbContext context)
+        public TaskController(LTRegistratorDbContext db) : base(db)
         {
-            _db = context;
+            _db = db;
         }
         /// <summary>
         /// POST api/task/project/{projectId}/employee/{EmployeeId}
@@ -34,16 +34,12 @@ namespace LTRegistratorApi.Controllers
         /// <param name="task">json {Name, List<{Day, Hours}></param>
         /// <returns>"200 ok" or "400 Bad Request" or "401 Unauthorized"</returns>
         [HttpPost("project/{projectId}/employee/{EmployeeId}")]
+        [Authorize(Policy = "AccessAllowed")]
         public async Task<ActionResult> AddTask([FromRoute] int projectId, int employeeId, [FromBody] TaskInputDto task)
         {            
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
-            }
-
-            if (!this.AccessAllowed(employeeId).Result)
-            {
-                return BadRequest($"User not allowed to change data for employee with {employeeId}.");
             }
 
             var templateTypeProject = _db.Project.Where(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId).FirstOrDefault();
@@ -95,13 +91,9 @@ namespace LTRegistratorApi.Controllers
         /// <param name="endDate">period end date</param>
         /// <returns>Task information list</returns>
         [HttpGet("project/{projectId}/employee/{employeeId}")]
-        public async Task<ActionResult<List<TaskDto>>> GetTasks([FromRoute] int projectId, int employeeId,[FromQuery] DateTime startDate,[FromQuery] DateTime endDate)
+        [Authorize(Policy = "AccessAllowed")]
+        public async Task<ActionResult> GetTasks([FromRoute] int projectId, int employeeId,[FromQuery] DateTime startDate,[FromQuery] DateTime endDate)
         {
-            if (!this.AccessAllowed(employeeId).Result)
-            {
-                return BadRequest($"User not allowed to change data for employee with {employeeId}.");
-            }
-            
             var intersectingEmployeeLeave = await _db.Leave.Join(_db.Employee,
                                                         l => l.EmployeeId,
                                                         e => e.Id,
@@ -122,7 +114,7 @@ namespace LTRegistratorApi.Controllers
                     taskNotes.Add(new TaskNoteDto { Day = item.Day, Hours = item.Hours, Id = item.Id}) ;
                 List<TaskDto> result = new List<TaskDto>();
                 result.Add(new TaskDto { Name = employeeTaskProject.Name, Leave = leave, TaskNotes = taskNotes, Id = employeeTaskProject.Id});
-                return (result);
+                return Ok(result);
             }          
             return NotFound();
         }
@@ -134,13 +126,9 @@ namespace LTRegistratorApi.Controllers
         /// <param name="task">json {Name, List<{Day, Hours}></param>
         /// <returns> "OK" or "not found"</returns>
         [HttpPut("employee/{employeeId}")]
+        [Authorize(Policy = "AccessAllowed")]
         public async Task<IActionResult> UpdateTask([FromBody] TaskInputDto task, int employeeId)
         {
-            if (!this.AccessAllowed(employeeId).Result)
-            {
-                return BadRequest($"User not allowed to change data for employee with {employeeId}.");
-            }
-
             var temp = _db.Task.SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name);
             if (temp != null)
             {
@@ -177,13 +165,9 @@ namespace LTRegistratorApi.Controllers
         /// <param name="EmployeeId">id of employee</param>
         /// <returns>"200 ok" or "404 not found"</returns>
         [HttpDelete("{TaskId}/employee/{employeeId}")]
+        [Authorize(Policy = "AccessAllowed")]
         public async Task<IActionResult> DeleteTask([FromRoute] int taskId, int employeeId)
         {
-            if (!this.AccessAllowed(employeeId).Result)
-            {
-                return BadRequest($"User not allowed to change data for employee with {employeeId}.");
-            }
-
             var task = _db.Task.Where(t => t.Id == taskId).FirstOrDefault();
             if (task != null)
             {

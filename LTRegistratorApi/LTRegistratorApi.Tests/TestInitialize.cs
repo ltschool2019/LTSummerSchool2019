@@ -1,16 +1,20 @@
 ﻿using LTRegistrator.BLL.Services;
 using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace LTRegistratorApi.Tests
 {
     public static class Initializer
     {
-        public static void Initialize(LTRegistratorDbContext db)
+        public static void Initialize(DbContext db)
         {
             db.Database.EnsureCreated();
+            if (db.Set<Employee>().Any() || db.Set<Project>().Any() || db.Set<ProjectEmployee>().Any() ||
+                db.Set<Task>().Any() || db.Set<TaskNote>().Any()) return;
 
             var leaveBob = new Leave[]
             {
@@ -37,20 +41,75 @@ namespace LTRegistratorApi.Tests
 
             var employees = new List<Employee>()
             {
-                new Employee() {Id=1, FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", MaxRole = RoleType.Administrator, Rate = 1.5, Leaves = new List<Leave>()},
-                new Employee() {Id=2, FirstName = "Bob", SecondName = "Johnson", Mail = "b0b@yandex.ru", MaxRole = RoleType.Manager, Leaves = leaveBob, Rate = 1 },
-                new Employee() {Id=3, FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", MaxRole = RoleType.Employee, Leaves = leaveEve, Rate = 1.25, ManagerId = 2 },
-                new Employee() {Id=4, FirstName = "Carol", SecondName = "Smith", Mail = "car0l@mail.ru", MaxRole = RoleType.Manager, Leaves = leaveCarol, Rate = 1 },
-                new Employee() {Id=5, FirstName = "Dave", SecondName = "Jones", Mail = "dave.99@mail.ru", MaxRole = RoleType.Employee, Rate = 1, ManagerId = 2 ,Leaves = new List<Leave>()},
-                new Employee() {Id=6, FirstName = "Frank", SecondName = "Florence", Mail = "frank.99@mail.ru", MaxRole = RoleType.Employee, Leaves = leaveFrank, Rate = 0.25, ManagerId = 4 }
+                new Employee() {Id=1, FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", Rate = 1.5, Leaves = new List<Leave>()},
+                new Employee() {Id=2, FirstName = "Bob", SecondName = "Johnson", Mail = "b0b@yandex.ru", Leaves = leaveBob, Rate = 1 },
+                new Employee() {Id=3, FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", Leaves = leaveEve, Rate = 1.25, ManagerId = 2 },
+                new Employee() {Id=4, FirstName = "Carol", SecondName = "Smith", Mail = "car0l@mail.ru", Leaves = leaveCarol, Rate = 1 },
+                new Employee() {Id=5, FirstName = "Dave", SecondName = "Jones", Mail = "dave.99@mail.ru", Rate = 1, ManagerId = 2 ,Leaves = new List<Leave>()},
+                new Employee() {Id=6, FirstName = "Frank", SecondName = "Florence", Mail = "frank.99@mail.ru", Leaves = leaveFrank, Rate = 0.25, ManagerId = 4 }
             };
 
-            var dbSet = db.Set<Employee>();
-            foreach (var employee in employees)
             {
-                dbSet.Add(employee);
+                var dbSet = db.Set<Employee>();
+                foreach (var employee in employees)
+                {
+                    dbSet.Add(employee);
+                }
+                db.SaveChanges();
             }
-            db.SaveChanges();
+
+            {
+                var dbSet = db.Set<Project>();
+                dbSet.Add(new Project() { Name = "FOSS" });
+                dbSet.Add(new Project() { Name = "EMIAS" });
+                dbSet.Add(new Project() { Name = "Area 9" });
+                db.SaveChanges();
+            }
+
+            {
+                var dbSet = db.Set<ProjectEmployee>();
+                dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1 });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2 });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2 });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3 });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 3 });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 3 });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4 });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5 });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6 });
+                db.SaveChanges();
+            }
+
+            {
+                var dbSet = db.Set<Task>();
+                dbSet.Add(new Task() { ProjectId = 1, EmployeeId = 1, Name = "FOSS" });
+                dbSet.Add(new Task() { ProjectId = 1, EmployeeId = 2, Name = "FOSS" });
+                dbSet.Add(new Task() { ProjectId = 2, EmployeeId = 2, Name = "EMIAS" });
+                dbSet.Add(new Task() { ProjectId = 1, EmployeeId = 3, Name = "FOSS" });
+                dbSet.Add(new Task() { ProjectId = 2, EmployeeId = 3, Name = "EMIAS" });
+                dbSet.Add(new Task() { ProjectId = 3, EmployeeId = 3, Name = "Area 9" });
+                dbSet.Add(new Task() { ProjectId = 2, EmployeeId = 4, Name = "EMIAS" });
+                dbSet.Add(new Task() { ProjectId = 2, EmployeeId = 5, Name = "EMIAS" });
+                db.SaveChanges();
+            }
+
+            {
+                var dbSet = db.Set<TaskNote>();
+                dbSet.Add(new TaskNote() { TaskId = 1, Hours = 4, Day = new DateTime(2019, 1, 1) });
+                dbSet.Add(new TaskNote() { TaskId = 2, Hours = 7, Day = new DateTime(2019, 8, 2) });
+                dbSet.Add(new TaskNote() { TaskId = 2, Hours = 4, Day = new DateTime(2019, 8, 3) });
+                dbSet.Add(new TaskNote() { TaskId = 2, Hours = 7, Day = new DateTime(2019, 8, 4) });
+                dbSet.Add(new TaskNote() { TaskId = 3, Hours = 8, Day = new DateTime(2019, 8, 1) });
+                dbSet.Add(new TaskNote() { TaskId = 3, Hours = 4, Day = new DateTime(2019, 8, 2) });
+                dbSet.Add(new TaskNote() { TaskId = 3, Hours = 7, Day = new DateTime(2019, 8, 3) });
+                dbSet.Add(new TaskNote() { TaskId = 4, Hours = 5, Day = new DateTime(2019, 7, 3) });
+                dbSet.Add(new TaskNote() { TaskId = 5, Hours = 8, Day = new DateTime(2019, 7, 3) });
+                dbSet.Add(new TaskNote() { TaskId = 6, Hours = 1, Day = new DateTime(2019, 7, 11) });
+                dbSet.Add(new TaskNote() { TaskId = 8, Hours = 7, Day = new DateTime(2019, 6, 11) });
+                dbSet.Add(new TaskNote() { TaskId = 8, Hours = 4, Day = new DateTime(2019, 7, 11) });
+                dbSet.Add(new TaskNote() { TaskId = 7, Hours = 6, Day = new DateTime(2019, 7, 14) });
+                db.SaveChanges();
+            }
         }
     }
 }

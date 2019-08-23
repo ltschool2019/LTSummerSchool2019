@@ -22,9 +22,9 @@ namespace LTRegistratorApi.Controllers
     {
         private readonly LTRegistratorDbContext _db;
         private readonly UserManager<User> _userManager;
-        public ManagerController(LTRegistratorDbContext context, UserManager<User> userManager)
+        public ManagerController(LTRegistratorDbContext db, UserManager<User> userManager) : base(db)
         {
-            _db = context;
+            _db = db;
             _userManager = userManager;
         }
         /// <summary>
