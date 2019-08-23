@@ -10,7 +10,7 @@ namespace LTRegistratorApi.Tests.Controllers
 {
     public abstract class BaseControllerTests
     {
-        protected readonly LTRegistratorDbContext Db;
+        protected readonly DbContext Db;
         protected readonly IMapper Mapper;
 
         protected BaseControllerTests()
@@ -31,13 +31,17 @@ namespace LTRegistratorApi.Tests.Controllers
             Initializer.Initialize(Db);
         }
 
-        protected static int ToHttpStatusCodeResult(ActionResult result)
+        protected int ToHttpStatusCodeResult(ActionResult result)
         {
-            if (result is ObjectResult)
-                return (int)(result as ObjectResult).StatusCode;
-            else if (result is StatusCodeResult)
-                return (result as StatusCodeResult).StatusCode;
-            else throw new ArgumentException();
+            switch (result)
+            {
+                case ObjectResult objectResult:
+                    return objectResult.StatusCode ?? throw new ArgumentException(nameof(objectResult.StatusCode));
+                case StatusCodeResult codeResult:
+                    return codeResult.StatusCode;
+                default:
+                    throw new ArgumentException();
+            }
         }
     }
 }

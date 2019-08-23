@@ -19,9 +19,8 @@ namespace LTRegistratorApi.Controllers
     [ApiController, Authorize]
     public class TaskController : BaseController
     {
-        public TaskController(LTRegistratorDbContext db) : base(db)
+        public TaskController(DbContext db) : base(db)
         {
-
         }
 
         /// <summary>
@@ -80,6 +79,7 @@ namespace LTRegistratorApi.Controllers
             }
             return BadRequest();      
         }
+
         /// <summary>
         /// GET api/task/project/{projectId}/employee/{employeeId}?StartDate={startDate}&EndDate={endDate}
         /// Output information on tasks for a certain period of time
@@ -117,6 +117,7 @@ namespace LTRegistratorApi.Controllers
             }          
             return NotFound();
         }
+
         /// <summary>
         /// Updating task information
         /// PUT: api/Task/employee/{employeeId}
@@ -156,6 +157,7 @@ namespace LTRegistratorApi.Controllers
             }
             return NotFound();
         }
+
         /// <summary>
         /// Method for removing the task from the project
         /// DELETE: api/task/{taskId}/employee/{employeeId}

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using LTRegistrator.Domain.Entities;
 using LTRegistratorApi.Model;
 using Xunit;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +42,7 @@ namespace LTRegistratorApi.Tests.Controllers
             var result = await _taskController.AddTask(projectId, employeeId, task);
             Assert.Equal((int)status, ToHttpStatusCodeResult(result));
             if (status == HttpStatusCode.OK) //Проверяем, что добавлено 
-                Assert.NotNull(Db.Task.FirstOrDefault(t => t.ProjectId == projectId && t.EmployeeId == employeeId));
+                Assert.NotNull(Db.Set<Task>().FirstOrDefault(t => t.ProjectId == projectId && t.EmployeeId == employeeId));
         }
 
         [Theory]
