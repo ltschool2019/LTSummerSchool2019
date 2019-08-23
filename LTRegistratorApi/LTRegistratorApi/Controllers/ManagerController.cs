@@ -137,18 +137,14 @@ namespace LTRegistratorApi.Controllers
             {
                 return NotFound(new {Message = $"Project with id = {projectId} not found"});
             }
-            //var userProject = _db.ProjectEmployee.SingleOrDefault(v => v.ProjectId == projectId && v.EmployeeId == employeeId && !v.Project.SoftDeleted);
-            //if (userProject == null)
-            //{
-            //    return NotFound();
-            //}
-            //var employee = DtoConverter.ToEmployeeDto(_db.ProjectEmployee.Join(_db.Employee,
-            //                   e => e.EmployeeId,
-            //                   pe => pe.Id,
-            //                   (pe, e) => new { pe, e }).Where(w => w.pe.ProjectId == projectId && w.pe.Role == RoleType.Employee).Select(user => user.e).OrderByDescending(o => o.ManagerId == employeeId).ToList());
-            //if (!employee.Any())
-            //    return NotFound();
-            //return Ok(employee);
+
+            var employees = await _db.Set<ProjectEmployee>()
+                .Where(pe => pe.Employee.ManagerId == employeeId && pe.ProjectId == projectId)
+                .Select(pe => pe.Employee)
+                .Include(p => p.ProjectEmployees).ThenInclude(pe => pe.Project)
+                .ToListAsync();
+
+            return Ok(DtoConverter.ToEmployeeDto(employees));
         }
 
         /// <summary>
