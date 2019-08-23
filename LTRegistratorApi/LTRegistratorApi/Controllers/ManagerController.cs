@@ -231,6 +231,27 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
+        /// updating project information
+        /// </summary>
+        /// <param name="projectDto"> Name and projectEmployee not obligatory</param>
+        /// <param name="projectId"> Id of the project, information about which will be updated </param>
+        /// <response code="200">Information updated</response>
+        /// <response code="404">Project not found</response>
+        [Authorize(Policy = "IsManagerOrAdministrator")]
+        [HttpPut("Project/{projectId}")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> UpdateProject([FromBody] ProjectDto projectDto, [FromRoute] int projectId)
+        {
+            var project = _db.Set<Project>().SingleOrDefault(p => p.Id == projectId);
+            if (project == null) return NotFound();
+
+            project.Name = projectDto.Name;
+            await _db.SaveChangesAsync();
+            return Ok();
+        }
+
+        /// <summary>
         /// Deleting project by id
         /// </summary>
         /// <param name="id">id of project to be deleted</param>

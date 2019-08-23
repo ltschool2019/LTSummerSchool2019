@@ -31,34 +31,7 @@ namespace LTRegistratorApi.Controllers
             _db = context;
             _userManager = userManager;
         }
-
-        /// <summary>
-        /// updating project information
-        /// PUT: api/Administrator/Project
-        /// </summary>
-        /// <param name="projectdto"> Name and projectEmployee not obligatory</param>
-        /// <param name="projectid"> Id of the project, information about which will be updated </param>
-        /// <response code="200">Information updated</response>
-        /// <response code="404">Project not found</response>
-        [HttpPut("Project/{projectid}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(404)]
-        public async Task<IActionResult> UpdateProject([FromBody] ProjectDto projectdto, [FromRoute] int projectid)
-        {
-            var project = _db.Project.SingleOrDefault(p => p.Id == projectid);
-            if (project != null)
-            {
-                project.Name = projectdto.Name;
-                _db.Project.Update(project);
-                await _db.SaveChangesAsync();
-                return Ok();
-            }
-            else
-            {
-                return NotFound();
-            }
-        }
-
+        
         /// <summary>
         /// Method for assigning manager to project
         /// </summary>
@@ -188,7 +161,7 @@ namespace LTRegistratorApi.Controllers
             if (employee == null || manager == null) return NotFound();
 
             if (employee.MaxRole != RoleType.Employee || manager.MaxRole != RoleType.Manager || employee.ManagerId != null) return BadRequest();
-            
+
             employee.ManagerId = managerId;
             await _db.SaveChangesAsync();
             return Ok();
@@ -215,6 +188,28 @@ namespace LTRegistratorApi.Controllers
             employee.ManagerId = null;
             await _db.SaveChangesAsync();
             return Ok();
+        }
+        /// <summary>
+        /// Get employees in project without manager
+        /// </summary>
+        /// <param name="projectId">Id of project</param>
+        /// <response code="200">List employees</response>
+        /// <response code="404">Employees not found </response>
+        [HttpGet("project/{projectId}/employees")]
+        [ProducesResponseType(typeof(List<EmployeeDto>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult> GetEmployeesByProject([FromRoute] int projectId)
+        {
+            var employees = await _db.Set<ProjectEmployee>()
+                .Include(pe => pe.Project)
+                .Include(pe => pe.Employee)
+                .Where(pe => pe.ProjectId == projectId && pe.Role == RoleType.Employee)
+                .Select(pe => pe.Employee).ToListAsync();
+            if (!employees.Any())
+            {
+                return NotFound();
+            }
+            return Ok(DtoConverter.ToEmployeeDto(employees));
         }
     }
 }
