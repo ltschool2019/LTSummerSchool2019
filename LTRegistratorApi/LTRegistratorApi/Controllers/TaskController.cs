@@ -19,12 +19,11 @@ namespace LTRegistratorApi.Controllers
     [ApiController, Authorize]
     public class TaskController : BaseController
     {
-        private readonly LTRegistratorDbContext _db;
-
         public TaskController(LTRegistratorDbContext db) : base(db)
         {
-            _db = db;
+
         }
+
         /// <summary>
         /// POST api/task/project/{projectId}/employee/{EmployeeId}
         /// Adding project tasks
@@ -42,12 +41,12 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var templateTypeProject = _db.Project.Where(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId).FirstOrDefault();
-            var employeeProject = _db.ProjectEmployee.Where(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId).FirstOrDefault();
-            var nameTask = _db.Task.Where(t => (t.Name == task.Name || t.Name == templateTypeProject.Name)  && t.ProjectId == projectId && t.EmployeeId == employeeId).FirstOrDefault(); 
+            var templateTypeProject = Db.Set<Project>().Where(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId).FirstOrDefault();
+            var employeeProject = Db.Set<ProjectEmployee>().Where(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId).FirstOrDefault();
+            var nameTask = Db.Set<LTRegistrator.Domain.Entities.Task>().Where(t => (t.Name == task.Name || t.Name == templateTypeProject.Name)  && t.ProjectId == projectId && t.EmployeeId == employeeId).FirstOrDefault(); 
             if (nameTask == null && templateTypeProject != null && task != null && templateTypeProject.Name == task.Name && employeeProject != null)
             {
-                using (var transaction = _db.Database.BeginTransaction())
+                using (var transaction = Db.Database.BeginTransaction())
                 {
                     try
                     {
@@ -57,7 +56,7 @@ namespace LTRegistratorApi.Controllers
                             ProjectId = projectId,
                             Name = task.Name
                         };
-                        _db.Task.Add(newTask);
+                        Db.Set<LTRegistrator.Domain.Entities.Task>().Add(newTask);
                         
                         foreach (var item in task.TaskNotes)
                         {                          
@@ -67,9 +66,9 @@ namespace LTRegistratorApi.Controllers
                                     Day = item.Day,
                                     Hours = item.Hours
                                 };
-                                _db.TaskNote.Add(taskNote);                          
+                                Db.Set<TaskNote>().Add(taskNote);                          
                         }
-                        await _db.SaveChangesAsync();
+                        await Db.SaveChangesAsync();
                         transaction.Commit();
                         return Ok();
                     }
@@ -94,7 +93,7 @@ namespace LTRegistratorApi.Controllers
         [Authorize(Policy = "AccessAllowed")]
         public async Task<ActionResult> GetTasks([FromRoute] int projectId, int employeeId,[FromQuery] DateTime startDate,[FromQuery] DateTime endDate)
         {
-            var intersectingEmployeeLeave = await _db.Leave.Join(_db.Employee,
+            var intersectingEmployeeLeave = await Db.Set<Leave>().Join(Db.Set<Employee>(),
                                                         l => l.EmployeeId,
                                                         e => e.Id,
                                                         (l, e) => new { l, e }).Where(w => w.l.EmployeeId == employeeId && endDate >= w.l.StartDate && startDate <= w.l.EndDate).ToListAsync();
@@ -105,11 +104,11 @@ namespace LTRegistratorApi.Controllers
                 var iEnd = item.l.EndDate < endDate ? item.l.EndDate : endDate;
                 leave.Add(new LeaveDto { StartDate = iStart, EndDate = iEnd, Id = item.l.Id, TypeLeave = (TypeLeaveDto)item.l.TypeLeave});            
             }
-            var employeeTaskProject = _db.Task.Where(t => t.ProjectId == projectId && t.EmployeeId == employeeId).FirstOrDefault();
+            var employeeTaskProject = Db.Set<LTRegistrator.Domain.Entities.Task>().Where(t => t.ProjectId == projectId && t.EmployeeId == employeeId).FirstOrDefault();
             if (employeeTaskProject != null)
             {             
                 List<TaskNoteDto> taskNotes = new List<TaskNoteDto>();
-                var notes = await _db.TaskNote.Where(tn => tn.TaskId == employeeTaskProject.Id && tn.Day <= endDate && tn.Day>=startDate).ToListAsync();
+                var notes = await Db.Set<TaskNote>().Where(tn => tn.TaskId == employeeTaskProject.Id && tn.Day <= endDate && tn.Day>=startDate).ToListAsync();
                 foreach (var item in notes)
                     taskNotes.Add(new TaskNoteDto { Day = item.Day, Hours = item.Hours, Id = item.Id}) ;
                 List<TaskDto> result = new List<TaskDto>();
@@ -129,17 +128,17 @@ namespace LTRegistratorApi.Controllers
         [Authorize(Policy = "AccessAllowed")]
         public async Task<IActionResult> UpdateTask([FromBody] TaskInputDto task, int employeeId)
         {
-            var temp = _db.Task.SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name);
+            var temp = Db.Set<LTRegistrator.Domain.Entities.Task>().SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name);
             if (temp != null)
             {
                 foreach (var item in task.TaskNotes)
                 {
-                    var note = _db.TaskNote.Where(tn => tn.Day == item.Day && tn.TaskId == task.Id).FirstOrDefault();
+                    var note = Db.Set<TaskNote>().Where(tn => tn.Day == item.Day && tn.TaskId == task.Id).FirstOrDefault();
                     if (note != null && note.Hours != item.Hours)
                     {
                         note.Hours = item.Hours;
-                        _db.TaskNote.Update(note);
-                        await _db.SaveChangesAsync();
+                        Db.Set<TaskNote>().Update(note);
+                        await Db.SaveChangesAsync();
                     }
                     if (note == null)
                     {
@@ -149,8 +148,8 @@ namespace LTRegistratorApi.Controllers
                             Day = item.Day,
                             Hours = item.Hours
                         };
-                        _db.TaskNote.Add(taskNote);
-                        await _db.SaveChangesAsync();                       
+                        Db.Set<TaskNote>().Add(taskNote);
+                        await Db.SaveChangesAsync();                       
                     }
                 }
                 return Ok();
@@ -168,12 +167,12 @@ namespace LTRegistratorApi.Controllers
         [Authorize(Policy = "AccessAllowed")]
         public async Task<IActionResult> DeleteTask([FromRoute] int taskId, int employeeId)
         {
-            var task = _db.Task.Where(t => t.Id == taskId).FirstOrDefault();
+            var task = Db.Set<LTRegistrator.Domain.Entities.Task>().Where(t => t.Id == taskId).FirstOrDefault();
             if (task != null)
             {
-                _db.Task.Remove(task);
+                Db.Set<LTRegistrator.Domain.Entities.Task>().Remove(task);
 
-                await _db.SaveChangesAsync();
+                await Db.SaveChangesAsync();
                 return Ok();
             }
             else

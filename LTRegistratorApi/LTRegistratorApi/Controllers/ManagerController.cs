@@ -20,13 +20,12 @@ namespace LTRegistratorApi.Controllers
     [ApiController]
     public class ManagerController : BaseController
     {
-        private readonly LTRegistratorDbContext _db;
         private readonly UserManager<User> _userManager;
         public ManagerController(LTRegistratorDbContext db, UserManager<User> userManager) : base(db)
         {
-            _db = db;
             _userManager = userManager;
         }
+
         /// <summary>
         /// GET api/manager/{EmployeeId}/projects
         /// Output of all projects of the manager. 
@@ -36,7 +35,7 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("{EmployeeId}/projects")]
         public ActionResult<List<ProjectDto>> GetManagerProjects(int employeeId)
         {
-            var projects = DtoConverter.ToProjectDto(_db.ProjectEmployee.Join(_db.Project,
+            var projects = DtoConverter.ToProjectDto(Db.Set<ProjectEmployee>().Join(Db.Set<Project>(),
                                      p => p.ProjectId,
                                      pe => pe.Id,
                                      (pe, p) => new { pe, p }).Where(w => w.pe.EmployeeId == employeeId && w.pe.Role == RoleType.Manager).Select(name => name.p).ToList());
@@ -55,9 +54,9 @@ namespace LTRegistratorApi.Controllers
         [HttpPost("project/{ProjectId}/assign/{EmployeeId}")]
         public async Task<ActionResult> AssignProjectToEmployee(int projectId, int employeeId)
         {
-            var user = await _db.Employee.FindAsync(employeeId);
-            var project = await _db.Project.FindAsync(projectId);
-            var userproject = await _db.ProjectEmployee.SingleOrDefaultAsync(V => V.ProjectId == projectId && V.EmployeeId == employeeId);
+            var user = await Db.Set<Employee>().FindAsync(employeeId);
+            var project = await Db.Set<Project>().FindAsync(projectId);
+            var userproject = await Db.Set<ProjectEmployee>().SingleOrDefaultAsync(V => V.ProjectId == projectId && V.EmployeeId == employeeId);
             if (user != null && project != null && userproject == null && user.ManagerId != null)
             {
                 ProjectEmployee projectEmployee = new ProjectEmployee
@@ -66,12 +65,13 @@ namespace LTRegistratorApi.Controllers
                     EmployeeId = employeeId,
                     Role = RoleType.Employee
                 };
-                _db.ProjectEmployee.Add(projectEmployee);
-                await _db.SaveChangesAsync();
+                Db.Set<ProjectEmployee>().Add(projectEmployee);
+                await Db.SaveChangesAsync();
                 return Ok();
             }
             else return NotFound();
         }
+
         /// <summary>
         /// DELETE api/manager/project/{projectId}/reassign/{EmployeeId}
         /// Delete employee from project.
@@ -82,15 +82,16 @@ namespace LTRegistratorApi.Controllers
         [HttpDelete("project/{ProjectId}/reassign/{EmployeeId}")]
         public async Task<ActionResult> ReassignEmployeeFromProject(int projectId, int employeeId)
         {
-            var result = await _db.ProjectEmployee.Where(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId).SingleOrDefaultAsync();
+            var result = await Db.Set<ProjectEmployee>().Where(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId).SingleOrDefaultAsync();
             if (result == null)
             {
                 return NotFound();
             }
-            _db.ProjectEmployee.Remove(result);
-            await _db.SaveChangesAsync();
+            Db.Set<ProjectEmployee>().Remove(result);
+            await Db.SaveChangesAsync();
             return Ok();
         }
+
         /// <summary>
         /// Get api/manager/{EmployeeId}/project/{ProjectId}/employees
         /// Get employees in the project
@@ -102,12 +103,12 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("{EmployeeId}/project/{ProjectId}/employees")]
         public ActionResult<List<EmployeeDto>> GetEmployees(int projectId, int employeeId)
         {
-            var userProject = _db.ProjectEmployee.SingleOrDefault(v => v.ProjectId == projectId && v.EmployeeId == employeeId);
+            var userProject = Db.Set<ProjectEmployee>().SingleOrDefault(v => v.ProjectId == projectId && v.EmployeeId == employeeId);
             if (userProject == null)
             {
                 return NotFound();
             }
-            var employee = DtoConverter.ToEmployeeDto(_db.ProjectEmployee.Join(_db.Employee,
+            var employee = DtoConverter.ToEmployeeDto(Db.Set<ProjectEmployee>().Join(Db.Set<Employee>(),
                                e => e.EmployeeId,
                                pe => pe.Id,
                                (pe, e) => new { pe, e }).Where(w => w.pe.ProjectId == projectId && w.pe.Role == RoleType.Employee).Select(user => user.e).OrderByDescending(o => o.ManagerId == employeeId).ToList());
@@ -125,7 +126,7 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("allprojects")]
         public async Task<IActionResult> GetProjects()
         {
-            var projects = await _db.Project.ToListAsync();
+            var projects = await Db.Set<Project>().ToListAsync();
             return Ok(DtoConverter.ToProjectDto(projects));
         }
 
@@ -152,8 +153,8 @@ namespace LTRegistratorApi.Controllers
                             (c.Type == ClaimTypes.Role && c.Value == "Administrator")))
                 {
                     var project = new Project {Name = projectdto.Name };
-                    _db.Project.Add(project);
-                    await _db.SaveChangesAsync();
+                    Db.Set<Project>().Add(project);
+                    await Db.SaveChangesAsync();
                     return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
                 }
                 else
@@ -162,17 +163,17 @@ namespace LTRegistratorApi.Controllers
                             (c.Type == ClaimTypes.Role && c.Value == "Manager")))
                     {
                         var project = new Project { Name = projectdto.Name };
-                        _db.Project.Add(project);
-                        _db.SaveChanges();
+                        Db.Set<Project>().Add(project);
+                        Db.SaveChanges();
                         ProjectEmployee projectEmployee = new ProjectEmployee
                         {
                             ProjectId = project.Id,
                             EmployeeId = thisUser.EmployeeId,
                             Role = RoleType.Manager
                         };
-                        _db.ProjectEmployee.Add(projectEmployee);
+                        Db.Set<ProjectEmployee>().Add(projectEmployee);
 
-                        _db.SaveChanges();
+                        Db.SaveChanges();
                         return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
                     }
                     else
@@ -199,8 +200,8 @@ namespace LTRegistratorApi.Controllers
         {
             var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var thisUserIdent = HttpContext.User.Identity as ClaimsIdentity;
-            var project = await _db.Project.FindAsync(id);
-            var managerEmployee = await _db.ProjectEmployee.SingleOrDefaultAsync(V => V.ProjectId == id && V.Role == RoleType.Manager);
+            var project = await Db.Set<Project>().FindAsync(id);
+            var managerEmployee = await Db.Set<ProjectEmployee>().SingleOrDefaultAsync(V => V.ProjectId == id && V.Role == RoleType.Manager);
 
             if (project != null)
             {
@@ -208,14 +209,14 @@ namespace LTRegistratorApi.Controllers
                             (c.Type == ClaimTypes.Role && c.Value == "Administrator")) || (thisUserIdent.HasClaim(c =>
                             (c.Type == ClaimTypes.Role && c.Value == "Manager")) && managerEmployee != null && managerEmployee.EmployeeId == thisUser.EmployeeId))
                 {
-                    var listEmployees = _db.ProjectEmployee.Where(pe => pe.ProjectId == id).ToList();
+                    var listEmployees = Db.Set<ProjectEmployee>().Where(pe => pe.ProjectId == id).ToList();
                     foreach (ProjectEmployee employee in listEmployees)
                     {
-                        _db.ProjectEmployee.Remove(employee);
+                        Db.Set<ProjectEmployee>().Remove(employee);
                     }
 
-                    _db.Project.Remove(project);
-                    await _db.SaveChangesAsync();
+                    Db.Set<Project>().Remove(project);
+                    await Db.SaveChangesAsync();
 
                     return Ok();
                 }
