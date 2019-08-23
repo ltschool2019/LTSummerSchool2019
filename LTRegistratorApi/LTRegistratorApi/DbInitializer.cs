@@ -83,15 +83,15 @@ namespace LTRegistratorApi
 
             if (!context.Set<ProjectEmployee>().Any())
             {
-                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1 });
-                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2 });
-                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2 });
-                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3 });
-                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 3 });
-                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 3 });
-                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4 });
-                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5 });
-                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6 });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1, Role = RoleType.Employee });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2, Role = RoleType.Manager });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2, Role = RoleType.Employee });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3, Role = RoleType.Employee });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 3, Role = RoleType.Employee });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 3, Role = RoleType.Manager });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4, Role = RoleType.Manager });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5, Role = RoleType.Employee });
+                context.Set<ProjectEmployee>().Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6, Role = RoleType.Employee });
 
                 context.SaveChanges();
             }
