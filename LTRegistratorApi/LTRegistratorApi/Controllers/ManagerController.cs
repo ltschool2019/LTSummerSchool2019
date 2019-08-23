@@ -233,29 +233,24 @@ namespace LTRegistratorApi.Controllers
         /// <summary>
         /// updating project information
         /// </summary>
-        /// <param name="projectdto"> Name and projectEmployee not obligatory</param>
-        /// <param name="projectid"> Id of the project, information about which will be updated </param>
+        /// <param name="projectDto"> Name and projectEmployee not obligatory</param>
+        /// <param name="projectId"> Id of the project, information about which will be updated </param>
         /// <response code="200">Information updated</response>
         /// <response code="404">Project not found</response>
         [Authorize(Policy = "IsManagerOrAdministrator")]
-        [HttpPut("Project/{projectid}")]
+        [HttpPut("Project/{projectId}")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> UpdateProject([FromBody] ProjectDto projectdto, [FromRoute] int projectid)
+        public async Task<IActionResult> UpdateProject([FromBody] ProjectDto projectDto, [FromRoute] int projectId)
         {
-            var project = _db.Project.SingleOrDefault(p => p.Id == projectid);
-            if (project != null)
-            {
-                project.Name = projectdto.Name;
-                _db.Project.Update(project);
-                await _db.SaveChangesAsync();
-                return Ok();
-            }
-            else
-            {
-                return NotFound();
-            }
+            var project = _db.Set<Project>().SingleOrDefault(p => p.Id == projectId);
+            if (project == null) return NotFound();
+
+            project.Name = projectDto.Name;
+            await _db.SaveChangesAsync();
+            return Ok();
         }
+
         /// <summary>
         /// Deleting project by id
         /// </summary>
