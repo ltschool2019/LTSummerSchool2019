@@ -29,10 +29,16 @@ namespace LTRegistratorApi.Controllers
         /// </summary>
         /// <param name="projectId">id of project</param>
         /// <param name="employeeId">id of employee</param>
-        /// <param name="task">json {Name, List<{Day, Hours}></param>
-        /// <returns>"200 ok" or "400 Bad Request" or "401 Unauthorized"</returns>
+        /// <param name="task">json {Name, List {Day, Hours} </param>
+        /// <returns>"200 ok" or "400 Bad Request" or "403 Forbidden"</returns>
+        /// <response code="200">Project task added</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
         [HttpPost("project/{projectId}/employee/{EmployeeId}")]
         [Authorize(Policy = "AccessAllowed")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
         public async Task<ActionResult> AddTask([FromRoute] int projectId, int employeeId, [FromBody] TaskInputDto task)
         {            
             if (!ModelState.IsValid)
@@ -40,7 +46,7 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var templateTypeProject = Db.Set<Project>().Where(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId).FirstOrDefault();
+            var templateTypeProject = Db.Set<Project>().FirstOrDefault(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId && !p.SoftDeleted);
             var employeeProject = Db.Set<ProjectEmployee>().Where(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId).FirstOrDefault();
             var nameTask = Db.Set<LTRegistrator.Domain.Entities.Task>().Where(t => (t.Name == task.Name || t.Name == templateTypeProject.Name)  && t.ProjectId == projectId && t.EmployeeId == employeeId).FirstOrDefault(); 
             if (nameTask == null && templateTypeProject != null && task != null && templateTypeProject.Name == task.Name && employeeProject != null)
@@ -89,6 +95,12 @@ namespace LTRegistratorApi.Controllers
         /// <param name="startDate">period start date</param>
         /// <param name="endDate">period end date</param>
         /// <returns>Task information list</returns>
+        /// <response code="200">Task information list</response>
+        /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
+        /// <response code="404">Tasks not found</response>
+        [ProducesResponseType(typeof(List<TaskDto>), 200)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
         [HttpGet("project/{projectId}/employee/{employeeId}")]
         [Authorize(Policy = "AccessAllowed")]
         public async Task<ActionResult> GetTasks([FromRoute] int projectId, int employeeId,[FromQuery] DateTime startDate,[FromQuery] DateTime endDate)
@@ -104,7 +116,9 @@ namespace LTRegistratorApi.Controllers
                 var iEnd = item.l.EndDate < endDate ? item.l.EndDate : endDate;
                 leave.Add(new LeaveDto { StartDate = iStart, EndDate = iEnd, Id = item.l.Id, TypeLeave = (TypeLeaveDto)item.l.TypeLeave});            
             }
-            var employeeTaskProject = Db.Set<LTRegistrator.Domain.Entities.Task>().Where(t => t.ProjectId == projectId && t.EmployeeId == employeeId).FirstOrDefault();
+
+            var employeeTaskProject = Db.Set<LTRegistrator.Domain.Entities.Task>().FirstOrDefault(t => t.ProjectId == projectId && t.EmployeeId == employeeId && !t.ProjectEmployee.Project.SoftDeleted);
+
             if (employeeTaskProject != null)
             {             
                 List<TaskNoteDto> taskNotes = new List<TaskNoteDto>();
@@ -123,18 +137,26 @@ namespace LTRegistratorApi.Controllers
         /// PUT: api/Task/employee/{employeeId}
         /// </summary>
         /// <param name="employeeId">id of employee</param>
-        /// <param name="task">json {Name, List<{Day, Hours}></param>
+        /// <param name="task">json {Name, List {Day, Hours} </param>
         /// <returns> "OK" or "not found"</returns>
+        /// <response code="200">Task updated</response>
+        /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
+        /// <response code="404">Task not found</response>
         [HttpPut("employee/{employeeId}")]
         [Authorize(Policy = "AccessAllowed")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> UpdateTask([FromBody] TaskInputDto task, int employeeId)
         {
             var temp = Db.Set<LTRegistrator.Domain.Entities.Task>().SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name);
+
             if (temp != null)
             {
                 foreach (var item in task.TaskNotes)
                 {
-                    var note = Db.Set<TaskNote>().Where(tn => tn.Day == item.Day && tn.TaskId == task.Id).FirstOrDefault();
+                    var note = Db.Set<TaskNote>().FirstOrDefault(tn => tn.Day == item.Day && tn.TaskId == task.Id);
+
                     if (note != null && note.Hours != item.Hours)
                     {
                         note.Hours = item.Hours;
@@ -163,13 +185,20 @@ namespace LTRegistratorApi.Controllers
         /// DELETE: api/task/{taskId}/employee/{employeeId}
         /// </summary>
         /// <param name="taskId"> id of the task to be deleted</param>
-        /// <param name="EmployeeId">id of employee</param>
+        /// <param name="employeeId">id of employee</param>
         /// <returns>"200 ok" or "404 not found"</returns>
+        /// <response code="200">Task deleted</response>
+        /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
+        /// <response code="404">Task not found</response>
         [HttpDelete("{TaskId}/employee/{employeeId}")]
         [Authorize(Policy = "AccessAllowed")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
         public async Task<IActionResult> DeleteTask([FromRoute] int taskId, int employeeId)
         {
             var task = Db.Set<LTRegistrator.Domain.Entities.Task>().Where(t => t.Id == taskId).FirstOrDefault();
+
             if (task != null)
             {
                 Db.Set<LTRegistrator.Domain.Entities.Task>().Remove(task);

@@ -20,6 +20,7 @@ namespace LTRegistratorApi.Controllers
     {
         private readonly IEmployeeService _employeeService;
         private readonly IMapper _mapper;
+
         /// <summary> </summary>
         /// <param name="employeeService"></param>
         /// <param name="mapper"></param>

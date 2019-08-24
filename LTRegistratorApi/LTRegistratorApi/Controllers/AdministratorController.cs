@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using System.Collections.Generic;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -175,7 +176,7 @@ namespace LTRegistratorApi.Controllers
 
             if (employee == null || manager == null) return NotFound();
 
-            if (employee.ManagerId == null || manager.ManagerId != null) return BadRequest();
+            if (employee.MaxRole != RoleType.Employee || manager.MaxRole != RoleType.Manager || employee.ManagerId != null) return BadRequest();
 
             employee.ManagerId = managerId;
             await Db.SaveChangesAsync();
@@ -203,6 +204,29 @@ namespace LTRegistratorApi.Controllers
             employee.ManagerId = null;
             await Db.SaveChangesAsync();
             return Ok();
+        }
+
+        /// <summary>
+        /// Get employees in project without manager
+        /// </summary>
+        /// <param name="projectId">Id of project</param>
+        /// <response code="200">List employees</response>
+        /// <response code="404">Employees not found </response>
+        [HttpGet("project/{projectId}/employees")]
+        [ProducesResponseType(typeof(List<EmployeeDto>), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult> GetEmployeesByProject([FromRoute] int projectId)
+        {
+            var employees = await Db.Set<ProjectEmployee>()
+                .Include(pe => pe.Project)
+                .Include(pe => pe.Employee)
+                .Where(pe => pe.ProjectId == projectId && pe.Role == RoleType.Employee)
+                .Select(pe => pe.Employee).ToListAsync();
+            if (!employees.Any())
+            {
+                return NotFound();
+            }
+            return Ok(DtoConverter.ToEmployeeDto(employees));
         }
     }
 }
