@@ -98,10 +98,10 @@ namespace LTRegistratorApi.Controllers
         /// <response code="200">Task information list</response>
         /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
         /// <response code="404">Tasks not found</response>
+        [HttpGet("project/{projectId}/employee/{employeeId}")]
         [ProducesResponseType(typeof(List<TaskDto>), 200)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
-        [HttpGet("project/{projectId}/employee/{employeeId}")]
         [Authorize(Policy = "AccessAllowed")]
         public async Task<ActionResult> GetTasks([FromRoute] int projectId, int employeeId,[FromQuery] DateTime startDate,[FromQuery] DateTime endDate)
         {
@@ -118,7 +118,6 @@ namespace LTRegistratorApi.Controllers
             }
 
             var employeeTaskProject = Db.Set<LTRegistrator.Domain.Entities.Task>().FirstOrDefault(t => t.ProjectId == projectId && t.EmployeeId == employeeId && !t.ProjectEmployee.Project.SoftDeleted);
-
             if (employeeTaskProject != null)
             {             
                 List<TaskNoteDto> taskNotes = new List<TaskNoteDto>();
@@ -156,7 +155,6 @@ namespace LTRegistratorApi.Controllers
                 foreach (var item in task.TaskNotes)
                 {
                     var note = Db.Set<TaskNote>().FirstOrDefault(tn => tn.Day == item.Day && tn.TaskId == task.Id);
-
                     if (note != null && note.Hours != item.Hours)
                     {
                         note.Hours = item.Hours;
