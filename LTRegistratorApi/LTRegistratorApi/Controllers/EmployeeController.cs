@@ -21,9 +21,12 @@ namespace LTRegistratorApi.Controllers
         private readonly IEmployeeService _employeeService;
         private readonly IMapper _mapper;
 
-        /// <summary> </summary>
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="employeeService"></param>
         /// <param name="mapper"></param>
+        /// <param name="db"></param>
         public EmployeeController(IEmployeeService employeeService, IMapper mapper, DbContext db): base(db)
         {
             _employeeService = employeeService;

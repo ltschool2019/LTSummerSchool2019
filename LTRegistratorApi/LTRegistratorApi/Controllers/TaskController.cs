@@ -19,6 +19,10 @@ namespace LTRegistratorApi.Controllers
     [ApiController, Authorize]
     public class TaskController : BaseController
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
         public TaskController(DbContext db) : base(db)
         {
         }

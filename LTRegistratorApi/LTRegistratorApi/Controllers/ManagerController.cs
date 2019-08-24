@@ -24,6 +24,12 @@ namespace LTRegistratorApi.Controllers
     public class ManagerController : BaseController
     {
         private readonly UserManager<User> _userManager;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="userManager"></param>
         public ManagerController(DbContext db, UserManager<User> userManager) : base(db)
         {
             _userManager = userManager;
@@ -154,10 +160,6 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(204)]
         public async Task<IActionResult> GetProjects()
         {
-<<<<<<< HEAD
-            var projects = await Db.Set<Project>().ToListAsync();
-            return Ok(DtoConverter.ToProjectDto(projects));
-=======
             var thisUserIdent = HttpContext.User.Identity as ClaimsIdentity;
             if (thisUserIdent == null) return BadRequest();
 
@@ -167,17 +169,16 @@ namespace LTRegistratorApi.Controllers
             List<Project> projects;
             if (thisUserIdent.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "Administrator"))
             {
-                projects = _db.Project.ToList();
+                projects = Db.Set<Project>().ToList();
             }
             else
             {
-                projects = await _db.Project.Where(w => !w.SoftDeleted).ToListAsync();
+                projects = await Db.Set<Project>().Where(w => !w.SoftDeleted).ToListAsync();
             }
 
             return projects.Any()
                 ? (IActionResult)Ok(DtoConverter.ToProjectDto(projects))
                 : NoContent();
->>>>>>> master
         }
 
         /// <summary>
@@ -217,14 +218,7 @@ namespace LTRegistratorApi.Controllers
                 var employeeIdFromClaims = User.FindFirstValue("EmployeeID");
                 if (!int.TryParse(employeeIdFromClaims, out var employeeId))
                 {
-<<<<<<< HEAD
-                    var project = new Project {Name = projectDto.Name };
-                    Db.Set<Project>().Add(project);
-                    await Db.SaveChangesAsync();
-                    return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
-=======
                     return StatusCode((int)HttpStatusCode.InternalServerError);
->>>>>>> master
                 }
                 var manager = await Db.Set<Employee>()
                     .FirstOrDefaultAsync(e => e.Id == Convert.ToInt32(employeeId)).ConfigureAwait(false);
@@ -234,30 +228,14 @@ namespace LTRegistratorApi.Controllers
                 {
                     new ProjectEmployee
                     {
-<<<<<<< HEAD
-                        var project = new Project { Name = projectDto.Name };
-                        Db.Set<Project>().Add(project);
-                        Db.SaveChanges();
-                        ProjectEmployee projectEmployee = new ProjectEmployee
-                        {
-                            ProjectId = project.Id,
-                            EmployeeId = thisUser.EmployeeId,
-                            Role = RoleType.Manager
-                        };
-                        Db.Set<ProjectEmployee>().Add(projectEmployee);
-
-                        Db.SaveChanges();
-                        return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
-=======
                         EmployeeId = employeeId,
                         Role = RoleType.Manager
->>>>>>> master
                     }
                 };
             }
 
-            _db.Set<Project>().Add(project);
-            await _db.SaveChangesAsync().ConfigureAwait(false);
+            Db.Set<Project>().Add(project);
+            await Db.SaveChangesAsync().ConfigureAwait(false);
 
             return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
         }

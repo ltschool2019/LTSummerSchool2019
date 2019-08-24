@@ -23,7 +23,12 @@ namespace LTRegistratorApi.Controllers
     {
         private readonly UserManager<User> _userManager;
 
-        public AdministratorController(DbContext context, UserManager<User> userManager) : base(context)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="db"></param>
+        /// <param name="userManager"></param>
+        public AdministratorController(DbContext db, UserManager<User> userManager) : base(db)
         {
             _userManager = userManager;
         }
