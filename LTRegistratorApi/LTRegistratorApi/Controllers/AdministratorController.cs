@@ -235,10 +235,20 @@ namespace LTRegistratorApi.Controllers
             return Ok(DtoConverter.ToEmployeeDto(employees));
         }
 
+        /// <summary>
+        /// Deletes a project marked as softDeletes
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <response code="204">The project was successfully deleted.</response>
+        /// <response code="404">If project was not found</response>
+        /// <response code="409">The found project does not contain the flag SoftDeleted = true</response>
         [HttpDelete("project/{projectId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(409)]
         public async Task<ActionResult> RemoveProject(int projectId)
         {
-            var project = await _db.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
+            var project = await Db.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
             if (project == null)
             {
                 return NotFound();
@@ -249,15 +259,25 @@ namespace LTRegistratorApi.Controllers
                 return Conflict();
             }
 
-            _db.Set<Project>().Remove(project);
-            await _db.SaveChangesAsync().ConfigureAwait(false);
+            Db.Set<Project>().Remove(project);
+            await Db.SaveChangesAsync().ConfigureAwait(false);
             return NoContent();
         }
 
+        /// <summary>
+        /// Restores property of project SoftDeleted = false
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <response code="204">The project was successfully restored.</response>
+        /// <response code="404">If project was not found</response>
+        /// <response code="409">The found project does not contain the flag SoftDeleted = true</response>
         [HttpPut("project/{projectId}/softDeleted")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(409)]
         public async Task<ActionResult> RestoreProject(int projectId)
         {
-            var project = await _db.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
+            var project = await Db.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
             if (project == null)
             {
                 return NotFound();
@@ -265,13 +285,13 @@ namespace LTRegistratorApi.Controllers
 
             if (!project.SoftDeleted)
             {
-                return BadRequest();
+                return Conflict();
             }
 
             project.SoftDeleted = false;
-            await _db.SaveChangesAsync().ConfigureAwait(false);
+            await Db.SaveChangesAsync().ConfigureAwait(false);
 
-            return Ok();
+            return NoContent();
         }
     } 
 }
