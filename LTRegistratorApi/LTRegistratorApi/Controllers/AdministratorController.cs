@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
+using Task = LTRegistrator.Domain.Entities.Task;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -233,5 +234,64 @@ namespace LTRegistratorApi.Controllers
             }
             return Ok(DtoConverter.ToEmployeeDto(employees));
         }
-    }
+
+        /// <summary>
+        /// Deletes a project marked as softDeletes
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <response code="204">The project was successfully deleted.</response>
+        /// <response code="404">If project was not found</response>
+        /// <response code="409">The found project does not contain the flag SoftDeleted = true</response>
+        [HttpDelete("project/{projectId}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(409)]
+        public async Task<ActionResult> RemoveProject(int projectId)
+        {
+            var project = await Db.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            if (!project.SoftDeleted)
+            {
+                return Conflict();
+            }
+
+            Db.Set<Project>().Remove(project);
+            await Db.SaveChangesAsync().ConfigureAwait(false);
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Restores property of project SoftDeleted = false
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <response code="204">The project was successfully restored.</response>
+        /// <response code="404">If project was not found</response>
+        /// <response code="409">The found project does not contain the flag SoftDeleted = true</response>
+        [HttpPut("project/{projectId}/softDeleted")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(409)]
+        public async Task<ActionResult> RestoreProject(int projectId)
+        {
+            var project = await Db.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            if (!project.SoftDeleted)
+            {
+                return Conflict();
+            }
+
+            project.SoftDeleted = false;
+            await Db.SaveChangesAsync().ConfigureAwait(false);
+
+            return NoContent();
+        }
+    } 
 }
