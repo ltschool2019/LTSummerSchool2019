@@ -9,6 +9,11 @@ using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using LTRegistrator.BLL.Contracts;
+using LTRegistratorApi.Filters;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -87,7 +92,7 @@ namespace LTRegistratorApi.Controllers
                     }
                 }
             }
-            return BadRequest();      
+            return BadRequest();
         }
 
         /// <summary>
@@ -118,20 +123,20 @@ namespace LTRegistratorApi.Controllers
             {
                 var iStart = item.l.StartDate < startDate ? startDate : item.l.StartDate;
                 var iEnd = item.l.EndDate < endDate ? item.l.EndDate : endDate;
-                leave.Add(new LeaveDto { StartDate = iStart, EndDate = iEnd, Id = item.l.Id, TypeLeave = (TypeLeaveDto)item.l.TypeLeave});            
+                leave.Add(new LeaveDto { StartDate = iStart, EndDate = iEnd, Id = item.l.Id, TypeLeave = (TypeLeaveDto)item.l.TypeLeave });
             }
 
             var employeeTaskProject = Db.Set<LTRegistrator.Domain.Entities.Task>().FirstOrDefault(t => t.ProjectId == projectId && t.EmployeeId == employeeId && !t.ProjectEmployee.Project.SoftDeleted);
             if (employeeTaskProject != null)
-            {             
+            {
                 List<TaskNoteDto> taskNotes = new List<TaskNoteDto>();
                 var notes = await Db.Set<TaskNote>().Where(tn => tn.TaskId == employeeTaskProject.Id && tn.Day <= endDate && tn.Day>=startDate).ToListAsync();
                 foreach (var item in notes)
-                    taskNotes.Add(new TaskNoteDto { Day = item.Day, Hours = item.Hours, Id = item.Id}) ;
+                    taskNotes.Add(new TaskNoteDto { Day = item.Day, Hours = item.Hours, Id = item.Id });
                 List<TaskDto> result = new List<TaskDto>();
-                result.Add(new TaskDto { Name = employeeTaskProject.Name, Leave = leave, TaskNotes = taskNotes, Id = employeeTaskProject.Id});
+                result.Add(new TaskDto { Name = employeeTaskProject.Name, Leave = leave, TaskNotes = taskNotes, Id = employeeTaskProject.Id });
                 return Ok(result);
-            }          
+            }
             return NotFound();
         }
 

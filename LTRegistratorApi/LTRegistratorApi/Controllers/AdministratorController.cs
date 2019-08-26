@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
+using Task = LTRegistrator.Domain.Entities.Task;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -233,5 +234,44 @@ namespace LTRegistratorApi.Controllers
             }
             return Ok(DtoConverter.ToEmployeeDto(employees));
         }
-    }
+
+        [HttpDelete("project/{projectId}")]
+        public async Task<ActionResult> RemoveProject(int projectId)
+        {
+            var project = await _db.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            if (!project.SoftDeleted)
+            {
+                return Conflict();
+            }
+
+            _db.Set<Project>().Remove(project);
+            await _db.SaveChangesAsync().ConfigureAwait(false);
+            return NoContent();
+        }
+
+        [HttpPut("project/{projectId}/softDeleted")]
+        public async Task<ActionResult> RestoreProject(int projectId)
+        {
+            var project = await _db.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            if (!project.SoftDeleted)
+            {
+                return BadRequest();
+            }
+
+            project.SoftDeleted = false;
+            await _db.SaveChangesAsync().ConfigureAwait(false);
+
+            return Ok();
+        }
+    } 
 }
