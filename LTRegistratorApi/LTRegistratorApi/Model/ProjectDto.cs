@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace LTRegistratorApi.Model
 {
@@ -8,6 +9,7 @@ namespace LTRegistratorApi.Model
     public class ProjectDto
     {
         public int Id { get; set; }
+        [Required]
         public string Name { get; set; }
         public int TotalHours { get; set; }
     }
