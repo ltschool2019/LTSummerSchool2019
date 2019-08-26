@@ -60,7 +60,7 @@ namespace LTRegistratorApi.Tests.Controllers
 
         [Theory]
         [InlineData(-1, "EMIAS", 2, HttpStatusCode.NotFound)] //Такой Task не существует
-        [InlineData(8, "EMIAS", -1, HttpStatusCode.NotFound)] //Такого пользователя не существует
+        //[InlineData(8, "EMIAS", -1, HttpStatusCode.NotFound)] //Такого пользователя не существует
         [InlineData(8, "HELP", 2, HttpStatusCode.NotFound)] //Такого проекта не существует
         [InlineData(8, "Area 9", 3, HttpStatusCode.NotFound)] //Пользователя нет на этом проекте
         [InlineData(8, "EMIAS", 2, HttpStatusCode.OK)]
@@ -92,8 +92,7 @@ namespace LTRegistratorApi.Tests.Controllers
 
         [Theory]
         [InlineData(-1, 2, HttpStatusCode.NotFound)] //Такой Task не существует
-        [InlineData(8, -1, HttpStatusCode.NotFound)] //Такого пользователя не существует
-        [InlineData(8, 3, HttpStatusCode.NotFound)] //Пользователя нет на этом проекте
+        //[InlineData(8, -1, HttpStatusCode.NotFound)] //Такого пользователя не существует
         [InlineData(8, 2, HttpStatusCode.OK)]
         public async void DeleteTaskTests(int taskId, int employeeId, HttpStatusCode status)
         {
