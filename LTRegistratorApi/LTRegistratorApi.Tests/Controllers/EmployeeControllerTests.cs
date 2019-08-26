@@ -136,7 +136,6 @@ namespace LTRegistratorApi.Tests.Controllers
             };
 
             var result = await _employeeController.UpdateLeavesAsync(userId, testItems);
-            var objectResult = result as ObjectResult;
 
             Assert.Equal((int)status, ToHttpStatusCodeResult(result));
             if (status == HttpStatusCode.NotFound) //Не умеем проверять для несуществующего пользователя изменения
