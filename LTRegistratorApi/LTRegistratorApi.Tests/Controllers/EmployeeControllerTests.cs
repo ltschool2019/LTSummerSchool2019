@@ -114,9 +114,8 @@ namespace LTRegistratorApi.Tests.Controllers
         [InlineData(2, 8, 6, 8, 8, 8, 7, 8, 10, HttpStatusCode.BadRequest, false)] //Leaves intersect.
         [InlineData(-1, 7, 1, 7, 2, 7, 4, 7, 5, HttpStatusCode.NotFound, false)] //User is not found.
         [InlineData(2, 7, 1, 7, 2, 7, 4, 7, 5, HttpStatusCode.OK, true)]
-
         public async void UpdateLeaveAsyncTests(int userId, int startMonth1, int startDay1, int endMonth1, int endDay1,
-            int startMonth2, int startDay2, int endMonth2, int endDay2, HttpStatusCode status, bool haveChanged)
+            int startMonth2, int startDay2, int endMonth2, int endDay2, HttpStatusCode status, bool hasChanges)
         {
             var testItems = new List<LeaveDto>()
             {
@@ -137,33 +136,49 @@ namespace LTRegistratorApi.Tests.Controllers
             };
 
             var result = await _employeeController.UpdateLeavesAsync(userId, testItems);
-            var objectResult = result as ObjectResult;
 
             Assert.Equal((int)status, ToHttpStatusCodeResult(result));
             if (status == HttpStatusCode.NotFound) //Не умеем проверять для несуществующего пользователя изменения
                 return;
 
             var user = await _employeeService.GetByIdAsync(userId);
-            var leave = user.Result.Leaves.FirstOrDefault(l => l.Id == testItems.First().Id);
-            if (haveChanged) //We check that the leaves have changed.
+            var firstLeave = user.Result.Leaves.FirstOrDefault(l => l.Id == testItems.First().Id);
+            var lastLeave = user.Result.Leaves.FirstOrDefault(l => l.Id == testItems.Last().Id);
+            if (hasChanges) //We check that the leaves have changed.
             {
-                Assert.True(leave.StartDate == testItems.First().StartDate
-                            && leave.EndDate == testItems.First().EndDate);
+                Assert.True(firstLeave.StartDate == testItems.First().StartDate
+                            && firstLeave.EndDate == testItems.First().EndDate);
 
-                leave = user.Result.Leaves.FirstOrDefault(l => l.Id == testItems.Last().Id);
-                Assert.True(leave.StartDate == testItems.Last().StartDate
-                            && leave.EndDate == testItems.Last().EndDate);
+                Assert.True(lastLeave.StartDate == testItems.Last().StartDate
+                            && lastLeave.EndDate == testItems.Last().EndDate);
             }
             else //We check that the leaves have not changed.
             {
-                Assert.True(leave.StartDate != testItems.First().StartDate
-                            && leave.EndDate != testItems.First().EndDate);
+                Assert.True(firstLeave.StartDate != testItems.First().StartDate
+                            && firstLeave.EndDate != testItems.First().EndDate);
 
-                leave = user.Result.Leaves.FirstOrDefault(l => l.Id == testItems.Last().Id);
-                Assert.True(leave.StartDate != testItems.Last().StartDate
-                            && leave.EndDate != testItems.Last().EndDate);
+                Assert.True(lastLeave.StartDate != testItems.Last().StartDate
+                            && lastLeave.EndDate != testItems.Last().EndDate);
             }
         }
         #endregion
+
+        [Theory]
+        [InlineData(1, HttpStatusCode.BadRequest)] //Invalid leave (null). 
+        [InlineData(-1, HttpStatusCode.NotFound, 1)] //User is not found.
+        [InlineData(2, HttpStatusCode.BadRequest, 1, 1)] //Leave intersects with myself.
+        [InlineData(2, HttpStatusCode.BadRequest, -1)] //Leave is not found.
+        [InlineData(2, HttpStatusCode.OK, 1, 2)]
+        public async void DeleteLeavesAsyncTests(int userId, HttpStatusCode status, params int[] leaves)
+        {
+            var result = await _employeeController.DeleteLeavesAsync(userId, leaves.ToList());
+
+            Assert.Equal((int)status, ToHttpStatusCodeResult(result));
+
+            if (status == HttpStatusCode.OK)
+            {
+                Assert.False(Db.Set<Leave>().Any(l => leaves.Contains(l.Id)));
+            }
+        }
     }
 }
