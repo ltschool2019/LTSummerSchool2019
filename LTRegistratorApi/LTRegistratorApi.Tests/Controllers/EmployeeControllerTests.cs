@@ -115,7 +115,7 @@ namespace LTRegistratorApi.Tests.Controllers
         [InlineData(-1, 7, 1, 7, 2, 7, 4, 7, 5, HttpStatusCode.NotFound, false)] //User is not found.
         [InlineData(2, 7, 1, 7, 2, 7, 4, 7, 5, HttpStatusCode.OK, true)]
         public async void UpdateLeaveAsyncTests(int userId, int startMonth1, int startDay1, int endMonth1, int endDay1,
-            int startMonth2, int startDay2, int endMonth2, int endDay2, HttpStatusCode status, bool haveChanged)
+            int startMonth2, int startDay2, int endMonth2, int endDay2, HttpStatusCode status, bool hasChanges)
         {
             var testItems = new List<LeaveDto>()
             {
@@ -144,7 +144,7 @@ namespace LTRegistratorApi.Tests.Controllers
             var user = await _employeeService.GetByIdAsync(userId);
             var firstLeave = user.Result.Leaves.FirstOrDefault(l => l.Id == testItems.First().Id);
             var lastLeave = user.Result.Leaves.FirstOrDefault(l => l.Id == testItems.Last().Id);
-            if (haveChanged) //We check that the leaves have changed.
+            if (hasChanges) //We check that the leaves have changed.
             {
                 Assert.True(firstLeave.StartDate == testItems.First().StartDate
                             && firstLeave.EndDate == testItems.First().EndDate);
