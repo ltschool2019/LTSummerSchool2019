@@ -27,7 +27,7 @@ namespace LTRegistratorApi.Controllers
         /// <param name="employeeService"></param>
         /// <param name="mapper"></param>
         /// <param name="db"></param>
-        public EmployeeController(IEmployeeService employeeService, IMapper mapper, DbContext db): base(db)
+        public EmployeeController(IEmployeeService employeeService, IMapper mapper, DbContext db) : base(db)
         {
             _employeeService = employeeService;
             _mapper = mapper;
@@ -48,8 +48,8 @@ namespace LTRegistratorApi.Controllers
         {
             var response = await _employeeService.GetByIdAsync(id);
 
-            return response.Status == ResponseResult.Success 
-            ? Ok(_mapper.Map<EmployeeDto>(response.Result)) 
+            return response.Status == ResponseResult.Success
+            ? Ok(_mapper.Map<EmployeeDto>(response.Result))
             : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
@@ -67,8 +67,8 @@ namespace LTRegistratorApi.Controllers
         {
             var response = await _employeeService.GetByIdAsync(id);
 
-            return response.Status == ResponseResult.Success 
-                ? Ok(_mapper.Map<ICollection<LeaveDto>>(response.Result.Leaves)) 
+            return response.Status == ResponseResult.Success
+                ? Ok(_mapper.Map<ICollection<LeaveDto>>(response.Result.Leaves))
                 : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
@@ -97,7 +97,7 @@ namespace LTRegistratorApi.Controllers
             }
 
             var response = await _employeeService.AddLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
-            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { response.Error.Message});
+            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { response.Error.Message });
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult> DeleteLeavesAsync(int userId, [FromQuery] List<int> leaveID)
         {
-            if ( leaveID== null)
+            if (leaveID == null)
                 return BadRequest();
 
             if (!ModelState.IsValid)

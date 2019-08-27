@@ -23,7 +23,7 @@ namespace LTRegistratorApi.Tests.Controllers
         [InlineData(1, 2, true, HttpStatusCode.BadRequest)] //Нельзя добавить второй проект с таким же именем
         [InlineData(3, 2, true, HttpStatusCode.BadRequest)] //Нельзя добавить Task для Employee, который не работает на этом проекте (ProjectEmployee)
         [InlineData(2, -1, true, HttpStatusCode.BadRequest)] //Такого пользователя не существует
-        //[InlineData(-1, 2, true, HttpStatusCode.BadRequest)] //Такого проекта не существует
+        [InlineData(-1, 2, true, HttpStatusCode.NotFound)] //Такого проекта не существует
         [InlineData(2, 6, false, HttpStatusCode.BadRequest)] //Нельзя в List<TaskNote> передать null
         [InlineData(2, 6, true, HttpStatusCode.OK)]
         public async void AddTaskTests(int projectId, int employeeId, bool correctTaskNotes, HttpStatusCode status)
