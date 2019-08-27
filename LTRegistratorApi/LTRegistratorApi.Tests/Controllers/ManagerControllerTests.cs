@@ -36,7 +36,7 @@ namespace LTRegistratorApi.Tests.Controllers
         [Theory]
         [InlineData(2, -1, HttpStatusCode.NotFound)] //Такого пользователя не существует
         [InlineData(-1, 2, HttpStatusCode.NotFound)] //Такого проекта не существует
-        [InlineData(2, 6, HttpStatusCode.BadRequest)] //Пользователь уже на этом проекте
+        [InlineData(2, 6, HttpStatusCode.NotFound)] //Пользователь уже на этом проекте
         [InlineData(1, 6, HttpStatusCode.OK)]
         public async void AssignProjectToEmployeeTests(int projectId, int employeeId, HttpStatusCode status)
         {
@@ -62,8 +62,8 @@ namespace LTRegistratorApi.Tests.Controllers
         [Theory]
         [InlineData(1, -1, HttpStatusCode.NotFound)] //Такого пользователя не существует
         [InlineData(-1, 2, HttpStatusCode.NotFound)] //Такого проекта не существует
-        [InlineData(3, 2, HttpStatusCode.NotFound)] //Пользователя нет на этом проекте
-        [InlineData(1, 2, HttpStatusCode.OK)]
+        [InlineData(3, 2, HttpStatusCode.OK)] //Найдутся пользователи с другого проекта, где этот менеджер не является менеджером
+        [InlineData(2, 4, HttpStatusCode.OK)]
         public async void GetEmployeesTests(int projectId, int employeeId, HttpStatusCode status)
         {
             var result = await _managerController.GetEmployees(projectId, employeeId);
