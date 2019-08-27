@@ -136,7 +136,7 @@ namespace LTRegistratorApi.Controllers
             var project = await Db.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId).ConfigureAwait(false);
             if (project == null)
             {
-                return NotFound(new {Message = $"Project with id = {projectId} not found"});
+                return NotFound(new { Message = $"Project with id = {projectId} not found" });
             }
 
             var employees = await Db.Set<ProjectEmployee>()
