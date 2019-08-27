@@ -45,7 +45,7 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("{EmployeeId}/projects")]
         [ProducesResponseType(typeof(List<ProjectDto>), 200)]
         [ProducesResponseType(404)]
-        public ActionResult<List<ProjectDto>> GetManagerProjects(int employeeId)
+        public ActionResult GetManagerProjects(int employeeId)
         {
             var projects = DtoConverter.ToProjectDto(Db.Set<ProjectEmployee>()
                 .Join(Db.Set<Project>(), p => p.ProjectId, pe => pe.Id, (pe, p) => new { pe, p })

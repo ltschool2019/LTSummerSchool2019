@@ -72,15 +72,16 @@ namespace LTRegistratorApi.Tests
             #region Add ProjectEmployees
             {
                 var dbSet = db.Set<ProjectEmployee>();
-                dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 3 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 3 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6 });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1, Role = RoleType.Employee });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2, Role = RoleType.Manager });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2, Role = RoleType.Employee });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3, Role = RoleType.Employee });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 3, Role = RoleType.Employee });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 3, Role = RoleType.Manager });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4, Role = RoleType.Manager });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5, Role = RoleType.Employee });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6, Role = RoleType.Employee });
+
                 db.SaveChanges();
             }
             #endregion
