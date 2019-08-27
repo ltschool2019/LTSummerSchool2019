@@ -176,8 +176,9 @@ namespace LTRegistratorApi.Tests.Controllers
             Assert.Equal((int)status, ToHttpStatusCodeResult(result));
 
             if (status == HttpStatusCode.OK)
-                foreach (var leaveId in leaves)
-                    Assert.Null(Db.Set<Leave>().FirstOrDefault(l => l.Id == leaveId));
+            {
+                Assert.False(Db.Set<Leave>().Any(l => leaves.Contains(l.Id)));
+            }
         }
     }
 }
