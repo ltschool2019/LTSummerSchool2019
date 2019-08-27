@@ -149,7 +149,7 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> UpdateTask([FromBody] TaskInputDto task, int employeeId)
+        public async Task<ActionResult> UpdateTask([FromBody] TaskInputDto task, int employeeId)
         {
             var temp = Db.Set<LTRegistrator.Domain.Entities.Task>().SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name);
 
@@ -196,7 +196,7 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
-        public async Task<IActionResult> DeleteTask([FromRoute] int taskId, int employeeId)
+        public async Task<ActionResult> DeleteTask([FromRoute] int taskId, int employeeId)
         {
             var task = Db.Set<LTRegistrator.Domain.Entities.Task>().Where(t => t.Id == taskId).FirstOrDefault();
 

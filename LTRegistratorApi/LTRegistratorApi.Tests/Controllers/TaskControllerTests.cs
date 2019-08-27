@@ -57,5 +57,52 @@ namespace LTRegistratorApi.Tests.Controllers
             if (status == HttpStatusCode.OK)
                 Assert.IsType<List<TaskDto>>((result as ObjectResult).Value);
         }
+
+        [Theory]
+        [InlineData(-1, "EMIAS", 2, HttpStatusCode.NotFound)] //Такой Task не существует
+        //[InlineData(8, "EMIAS", -1, HttpStatusCode.NotFound)] //Такого пользователя не существует
+        [InlineData(8, "HELP", 2, HttpStatusCode.NotFound)] //Такого проекта не существует
+        [InlineData(8, "Area 9", 3, HttpStatusCode.NotFound)] //Пользователя нет на этом проекте
+        [InlineData(8, "EMIAS", 2, HttpStatusCode.OK)]
+        public async void UpdateTaskTests(int taskId, string nameTask, int employeeId, HttpStatusCode status)
+        {
+            var result = await _taskController.UpdateTask(
+                new TaskInputDto()
+                {
+                    Id = taskId,
+                    Name = nameTask,
+                    TaskNotes = new List<TaskNoteDto>
+                    {
+                        new TaskNoteDto
+                        {
+                            Hours = 5,
+                            Day = new DateTime(2019, 7, 7)
+                        }
+                    }
+                }, employeeId);
+            Assert.Equal((int)status, ToHttpStatusCodeResult(result));
+
+            if(status == HttpStatusCode.OK)
+            {
+                var task = Db.Set<Task>().SingleOrDefault(t => t.Id == taskId);
+                Assert.NotNull(task);
+                Assert.Equal(nameTask, task.Name);
+            }
+        }
+
+        [Theory]
+        [InlineData(-1, 2, HttpStatusCode.NotFound)] //Такой Task не существует
+        //[InlineData(8, -1, HttpStatusCode.NotFound)] //Такого пользователя не существует
+        [InlineData(8, 2, HttpStatusCode.OK)]
+        public async void DeleteTaskTests(int taskId, int employeeId, HttpStatusCode status)
+        {
+            var result = await _taskController.DeleteTask(taskId, employeeId);
+            Assert.Equal((int)status, ToHttpStatusCodeResult(result));
+
+            if (status == HttpStatusCode.OK)
+            {
+                Assert.Null(Db.Set<Task>().FirstOrDefault(t => t.Id == taskId));
+            }
+        }
     }
 }
