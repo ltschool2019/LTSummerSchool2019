@@ -12,9 +12,9 @@ namespace LTRegistratorApi.Model
     {
         public int Id { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
-        public TypeLeaveDto TypeLeave { get ; set; }
+        public TypeLeaveDto TypeLeave { get; set; }
         [LeaveDate]
-        public DateTime StartDate { get ; set; }
+        public DateTime StartDate { get; set; }
         [LeaveDate(nameof(StartDate))]
         public DateTime EndDate { get; set; }
     }

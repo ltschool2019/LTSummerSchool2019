@@ -57,7 +57,7 @@ namespace LTRegistratorApi.Model
                     MaxRole = employee.MaxRole.ConvertToRoleTypeDto(),
                     Rate = employee.Rate,
                     ManagerId = employee.ManagerId,
-                    Projects  = ToProjectDto(ToProject(employee.ProjectEmployees?.ToList()))
+                    Projects = ToProjectDto(ToProject(employee.ProjectEmployees?.ToList()))
                 });
             }
             return result;
@@ -67,12 +67,12 @@ namespace LTRegistratorApi.Model
         /// Employee to EmployeeDto
         /// </summary>
         /// <returns>EmployeeDto, which contains basic information about the Employee</returns>
-        public static EmployeeDto ToEmployeeDto(Employee employee) 
+        public static EmployeeDto ToEmployeeDto(Employee employee)
             => ToEmployeeDto(new List<Employee> { employee })[0];
 
         public static RoleType ConvertToRoleType(this RoleTypeDto value)
         {
-            return (RoleType) Enum.ToObject(typeof(RoleType), (int) value);
+            return (RoleType)Enum.ToObject(typeof(RoleType), (int)value);
         }
 
         public static RoleTypeDto ConvertToRoleTypeDto(this RoleType value)

@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Linq;
-using System;
 using System.Threading.Tasks;
 using AutoMapper;
 using LTRegistrator.BLL.Contracts;
@@ -9,6 +7,7 @@ using LTRegistrator.BLL.Contracts.Contracts;
 using LTRegistrator.Domain.Entities;
 using LTRegistratorApi.Model;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -17,44 +16,59 @@ namespace LTRegistratorApi.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController, Authorize]
-    public class EmployeeController : ControllerBase
+    public class EmployeeController : BaseController
     {
         private readonly IEmployeeService _employeeService;
         private readonly IMapper _mapper;
-        public EmployeeController(IEmployeeService employeeService, IMapper mapper)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="employeeService"></param>
+        /// <param name="mapper"></param>
+        /// <param name="db"></param>
+        public EmployeeController(IEmployeeService employeeService, IMapper mapper, DbContext db) : base(db)
         {
             _employeeService = employeeService;
             _mapper = mapper;
         }
 
         /// <summary>
-        /// GET api/employee/info
         /// Sends this user information.
         /// </summary>
-        /// <returns>Basic Employee information</returns>
+        /// <param name="id">UserId</param>
+        /// <returns> Basic Employee information </returns>
+        /// <response code="200">Basic Employee information</response>
+        /// <response code="404">User not found </response>
         [HttpGet("{id}/info")]
+        [ProducesResponseType(typeof(EmployeeDto), 200)]
+        [ProducesResponseType(404)]
+        [Authorize(Policy = "AccessAllowed")]
         public async Task<ActionResult> GetInfoAsync(int id)
         {
             var response = await _employeeService.GetByIdAsync(id);
-            
-            return response.Status == ResponseResult.Success 
-            ? Ok(_mapper.Map<EmployeeDto>(response.Result)) 
+
+            return response.Status == ResponseResult.Success
+            ? Ok(_mapper.Map<EmployeeDto>(response.Result))
             : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
         /// <summary>
-        /// GET api/employee/{id}/leaves
         /// Gets a list of all human leaves.
         /// </summary>
         /// <param name="id">UserId</param>
         /// <returns>User's leave list</returns>
+        /// <response code="200">User's leave list</response>
+        /// <response code="404">User not found </response>
         [HttpGet("{id}/leaves")]
+        [ProducesResponseType(typeof(ICollection<LeaveDto>), 200)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> GetLeavesAsync(int id)
         {
             var response = await _employeeService.GetByIdAsync(id);
 
-            return response.Status == ResponseResult.Success 
-                ? Ok(_mapper.Map<ICollection<LeaveDto>>(response.Result.Leaves)) 
+            return response.Status == ResponseResult.Success
+                ? Ok(_mapper.Map<ICollection<LeaveDto>>(response.Result.Leaves))
                 : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
 
@@ -65,7 +79,13 @@ namespace LTRegistratorApi.Controllers
         /// <param name="id">UserId</param>
         /// <param name="leaves">List of LeaveDto that is added to the user</param>
         /// <returns>Was the operation successful?</returns>
+        /// <response code="200">Operation successful</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="404">Employee not found</response>
         [HttpPost("{id}/leaves")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> SetLeavesAsync(int id, [FromBody] ICollection<LeaveInputDto> leaves)
         {
             if (leaves == null)
@@ -77,7 +97,7 @@ namespace LTRegistratorApi.Controllers
             }
 
             var response = await _employeeService.AddLeavesAsync(id, _mapper.Map<ICollection<Leave>>(leaves));
-            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message});
+            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { response.Error.Message });
         }
 
         /// <summary>
@@ -87,8 +107,14 @@ namespace LTRegistratorApi.Controllers
         /// <param name="id">UserId</param>
         /// <param name="leaves">List of leaves that updated</param>
         /// <returns>Was the operation successful?</returns>
+        /// <response code="200">Operation successful</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="404">Employee not found</response>
         [HttpPut("{id}/leaves")]
-        public async Task<ActionResult> UpdateLeaves(int id, [FromBody] List<LeaveDto> leaves)
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult> UpdateLeavesAsync(int id, [FromBody] List<LeaveDto> leaves)
         {
             if (leaves == null)
                 return BadRequest();
@@ -107,12 +133,20 @@ namespace LTRegistratorApi.Controllers
         /// Deletes a leaves record.
         /// </summary>
         /// <param name="userId">UserId</param>
-        /// <param name="id"> IDs of leaves that should be deleted</param>
+        /// <param name="leaveID"> IDs of leaves that should be deleted</param>
         /// <returns>Was the operation successful?</returns>
+        /// <response code="200">Operation successful</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="403">You cannot change another employee’s leave</response>
+        /// <response code="404">Employee not found</response>
         [HttpDelete("{userId}/leaves")]
-        public async Task<ActionResult> DeleteLeave(int userId, [FromQuery] List<int> leaveID)
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult> DeleteLeavesAsync(int userId, [FromQuery] List<int> leaveID)
         {
-            if ( leaveID== null)
+            if (leaveID == null)
                 return BadRequest();
 
             if (!ModelState.IsValid)

@@ -10,6 +10,7 @@ using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
@@ -20,9 +21,8 @@ namespace LTRegistratorApi.Controllers
     /// </summary>
     [Route("api/[controller]/[action]")]
     [ApiController]
-    public class AccountController : ControllerBase
+    public class AccountController : BaseController
     {
-        private readonly LTRegistratorDbContext _context;
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
@@ -32,23 +32,21 @@ namespace LTRegistratorApi.Controllers
         /// <param name="signInManager">Provides the APIs for user sign in</param>
         /// <param name="configuration">To use the file setting</param>
         public AccountController(
-            LTRegistratorDbContext db,
+            DbContext db,
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             IConfiguration configuration
-            )
+            ) : base(db)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _configuration = configuration;
-            _context = db;
         }
 
         /// <summary>
-        /// POST api/account/login
         /// The method tries to authorize the user and return the JWT-token.
         /// </summary>
-        /// <param name="model">LoginDto (user)</param>
+        /// <param name="model"> LoginDto model containing username and password </param>
         /// <returns>JWT-token</returns>
         [HttpPost]
         public async Task<object> Login([FromBody] LoginDto model)
@@ -64,7 +62,7 @@ namespace LTRegistratorApi.Controllers
         /// <summary>
         /// The method attempts to register a user and return the JWT-token.
         /// </summary>
-        /// <param name="model">User</param>
+        /// <param name="model"> RegisterDto model containing data necessary for registration </param>
         /// <returns>JWT-token</returns>
             /* Passwords must be at least 6 characters.
              * Passwords must have at least one non alphanumeric character.
@@ -74,7 +72,7 @@ namespace LTRegistratorApi.Controllers
         [HttpPost]
         public async Task<object> Register([FromBody] RegisterDto model)
         {
-            using (var transaction = _context.Database.BeginTransaction())
+            using (var transaction = Db.Database.BeginTransaction())
             {
                 try
                 {
@@ -82,10 +80,9 @@ namespace LTRegistratorApi.Controllers
                     {
                         FirstName = model.FirstName,
                         SecondName = model.SecondName,
-                        Mail = model.Email,
-                        MaxRole = model.Role
+                        Mail = model.Email
                     };
-                    _context.Employee.Add(employee);
+                    Db.Set<Employee>().Add(employee);
                     User user = new User
                     {
                         UserName = model.FirstName + "_" + model.SecondName,
