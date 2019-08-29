@@ -46,7 +46,7 @@ namespace LTRegistratorApi.Mappings
 
             CreateMap<Task, TaskDto>();
 
-            CreateMap<ICollection<Leave>, TaskDto>()
+            CreateMap<List<Leave>, TaskDto>()
                 .ForMember(td => td.Leave, opt => opt.MapFrom(src => src));
 
             CreateMap<Leave, LeaveDto>();

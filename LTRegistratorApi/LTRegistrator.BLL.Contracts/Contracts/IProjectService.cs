@@ -5,8 +5,8 @@ using LTRegistrator.Domain.Entities;
 
 namespace LTRegistrator.BLL.Contracts.Contracts
 {
-    public interface ILeaveService
+    public interface IProjectService
     {
-        Task<Response<List<Leave>>> GetLeavesByEmployeeIdAsync(int employeeId, DateTime startDate, DateTime endDate);
+        Task<Response<Project>> GetProjectByIdAsync(int projectId);
     }
 }

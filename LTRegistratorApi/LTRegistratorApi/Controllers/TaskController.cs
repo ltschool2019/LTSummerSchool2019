@@ -21,12 +21,16 @@ namespace LTRegistratorApi.Controllers
     {
         private readonly ITaskService _taskService;
         private readonly ILeaveService _leaveService;
+        private readonly IEmployeeService _employeeService;
+        private readonly IProjectService _projectService;
         private readonly IMapper _mapper;
 
-        public TaskController(ITaskService taskService, ILeaveService leaveService, IMapper mapper)
+        public TaskController(ITaskService taskService, ILeaveService leaveService, IEmployeeService employeeService, IProjectService projectService, IMapper mapper)
         {
             _taskService = taskService;
             _leaveService = leaveService;
+            _employeeService = employeeService;
+            _projectService = projectService;
             _mapper = mapper;
         }
 
@@ -62,22 +66,28 @@ namespace LTRegistratorApi.Controllers
         [HttpGet("project/{projectId}/employee/{employeeId}")]
         public async Task<ActionResult> GetTasks([FromRoute] int projectId, int employeeId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
-            var taskResponse = await _taskService.GetTasksAsync(projectId, employeeId, startDate, endDate);
-            if (taskResponse.Status == ResponseResult.Error)
+            if (startDate > endDate)
             {
-                return BadRequest();
+                return BadRequest($"Period entered incorrectly. StartDate > EndDate ({startDate} > {endDate})");
             }
+            var employeeResponse = await _employeeService.GetByIdAsync(employeeId);
+            var projectResponse = await _projectService.GetProjectByIdAsync(projectId);
+            var tasksResponse = await _taskService.GetTasksAsync(projectId, employeeId, startDate, endDate);
+            var leavesResponse = await _leaveService.GetLeavesByEmployeeIdAsync(employeeId, startDate, endDate);
 
-            var leaves = await _leaveService.GetLeavesByEmployeeIdAsync(employeeId, startDate, endDate);
-
-            foreach (var item in leaves)
+            foreach (var item in leavesResponse.Result)
             {
                 item.StartDate = item.StartDate < startDate ? startDate : item.StartDate;
                 item.EndDate = item.EndDate < endDate ? item.EndDate : endDate;
             }
-
-            var result = _mapper.Map<TaskDto>(taskResponse.Result.FirstOrDefault());
-            _mapper.Map(leaves, result);
+            if (tasksResponse.Status == ResponseResult.Error || employeeResponse.Status == ResponseResult.Error ||
+                projectResponse.Status == ResponseResult.Error || leavesResponse.Status == ResponseResult.Error )
+            {
+                StatusCode((int)employeeResponse.Error.StatusCode, employeeResponse.Error.Message);
+            }
+          
+            var result = _mapper.Map<TaskDto>(tasksResponse.Result.FirstOrDefault());
+            _mapper.Map(leavesResponse, result);
 
             return Ok(result);
         }

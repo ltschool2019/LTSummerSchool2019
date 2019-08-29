@@ -86,6 +86,7 @@ namespace LTRegistratorApi
             services.AddTransient(typeof(IEmployeeService), typeof(EmployeeService));
             services.AddTransient(typeof(ITaskService), typeof(TaskService));
             services.AddTransient(typeof(ILeaveService), typeof(LeaveService));
+            services.AddTransient(typeof(IProjectService), typeof(ProjectService));
 
             var mappingConfig = new MapperConfiguration(mc =>
             {

@@ -45,53 +45,26 @@ namespace LTRegistrator.BLL.Services.Services
 
         public async Task<Response<List<Task>>> GetTasksAsync(int projectId, int employeeId, DateTime startDate, DateTime endDate)
         {
-            //if (!this.AccessAllowed(employeeId).Result)
-            //{
-            //    return new Response<List<Task>>(HttpStatusCode.BadRequest, $"User not allowed to change data for employee with {employeeId}.");
-            //}
-
+            if (!this.AccessAllowed(employeeId).Result)
+            {
+                return new Response<List<Task>>(HttpStatusCode.BadRequest, $"User not allowed to change data for employee with {employeeId}.");
+            }
             var tasks = await DbContext.Set<TaskNote>()
-                .Include(tn => tn.Task)
-                .Where(tn => tn.Task.EmployeeId == employeeId && tn.Task.ProjectId == projectId
-                                                              && tn.Day >= startDate && tn.Day <= endDate)
-                .Select(tn => new Task()
-                {
-                    Id = tn.TaskId,
-                    Name = tn.Task.Name,
-                    ProjectId = tn.Task.ProjectId,
-                    EmployeeId = tn.Task.EmployeeId,
-                    TaskNotes = tn.Task.TaskNotes
-                }).ToListAsync();
-
-
-            if (!tasks.Any()) return new Response<List<Task>>(HttpStatusCode.NotFound, "Tasks not found");
-
+                 .Include(tn => tn.Task)
+                 .Where(tn => tn.Task.EmployeeId == employeeId && tn.Task.ProjectId == projectId)
+                 .Select(tn => new Task()
+                 {
+                     Id = tn.TaskId,
+                     Name = tn.Task.Name,
+                     ProjectId = tn.Task.ProjectId,
+                     EmployeeId = tn.Task.EmployeeId,
+                     TaskNotes = tn.Task.TaskNotes.Where(n => n.Day >= startDate && n.Day <= endDate && n.TaskId == n.Task.Id).ToList()
+                 }).ToListAsync();
+            if (tasks == null)
+            {
+                return new Response<List<Task>>(HttpStatusCode.NotFound, "Tasks not found");
+            }
             return new Response<List<Task>>(tasks);
-
-            //var intersectingEmployeeLeave = await DbContext.Set<Leave>()
-            //    .Join(DbContext.Set<Employee>(), l => l.EmployeeId, e => e.Id, (l, e) => new { l, e })
-            //    .Where(w => w.l.EmployeeId == employeeId && endDate >= w.l.StartDate && startDate <= w.l.EndDate)
-            //    .ToListAsync();
-
-            //List<LeaveDto> leave = new List<LeaveDto>();
-            //foreach (var item in intersectingEmployeeLeave)
-            //{
-            //    var iStart = item.l.StartDate < startDate ? startDate : item.l.StartDate;
-            //    var iEnd = item.l.EndDate < endDate ? item.l.EndDate : endDate;
-            //    leave.Add(new LeaveDto { StartDate = iStart, EndDate = iEnd, Id = item.l.Id, TypeLeave = (TypeLeaveDto)item.l.TypeLeave });
-            //}
-            //var employeeTaskProject = DbContext.Set<Task>().FirstOrDefault(t => t.ProjectId == projectId && t.EmployeeId == employeeId);
-            //if (employeeTaskProject != null)
-            //{
-            //    List<TaskNoteDto> taskNotes = new List<TaskNoteDto>();
-            //    var notes = await DbContext.Set<TaskNote>().Where(tn => tn.TaskId == employeeTaskProject.Id && tn.Day <= endDate && tn.Day >= startDate).ToListAsync();
-            //    foreach (var item in notes)
-            //        taskNotes.Add(new TaskNoteDto { Day = item.Day, Hours = item.Hours, Id = item.Id });
-            //    List<TaskDto> result = new List<TaskDto>();
-            //    result.Add(new TaskDto { Name = employeeTaskProject.Name, Leave = leave, TaskNotes = taskNotes, Id = employeeTaskProject.Id });
-            //    return new Response<List<Task>>(result);
-            //}
-            //return new Response<List<Task>>(HttpStatusCode.NotFound, "NotFound");
         }
 
         public async Task<Response<Task>> AddTaskAsync(int projectId, int employeeId, Task task)
