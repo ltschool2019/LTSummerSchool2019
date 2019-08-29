@@ -11,7 +11,7 @@ export class Task {
         this.id = id;
         this.name = name;
         this.taskNotes = taskNotes.map((task: any) => new TaskNote(task.id, task.day, task.hours));
-        this.vacation = vacation.map((leave: any) => new Vacation(leave.leaveId, leave.typeLeave, leave.startDate, leave.endDate));
+        this.vacation = vacation.map((leave: any) => new Vacation(leave.id, leave.typeLeave, leave.startDate, leave.endDate));
         
     }
 }

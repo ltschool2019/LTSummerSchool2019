@@ -41,11 +41,15 @@ export class EmployeeComponent implements OnInit {
     //this.dateAdapter.setLocale('ru-Latn');
     this.getWeek();
   }
-  previousWeek() {//выбранный день -7 назад
-    this.week = [];
+  clear() {//очистить инпуты формы
     for (let i = 0; i < 7; i++) {
       this.taskForm.controls[`day${i}`].setValue("");
-    }
+    };
+    this.getTotalHours();
+  }
+  previousWeek() {//выбранный день -7 назад
+    this.week = [];
+    this.clear();
     let curr = new Date(this.taskForm.get('currentWeek').value);
     let first = curr.getDate() - 7;
     let day = new Date(curr.setDate(first));
@@ -57,9 +61,7 @@ export class EmployeeComponent implements OnInit {
   getWeek() {//получить текущую неделю
     //FIXME: ночью неверные значения
     this.week = [];
-    for (let i = 0; i < 7; i++) {
-      this.taskForm.controls[`day${i}`].setValue("");
-    };
+    this.clear();
     let curr = new Date(this.taskForm.get('currentWeek').value);
     for (let i = 1; i <= 7; i++) {//getDate() - Получить число месяца, от 1 до 31.
       let first = curr.getDate() - curr.getDay() + i;//getDay() - Получить номер дня в неделе.(от 0(вс) до 6 (сб)). В итоге получаем дни с пн по вс
@@ -68,12 +70,11 @@ export class EmployeeComponent implements OnInit {
       let newDay = new Day(day, i);
       this.week.push(newDay);//добавить в массив дней недели
     };
+    this.getTasks();
   }
   nextWeek() {//выбранный +7 вперед
     this.week = [];
-    for (let i = 0; i < 7; i++) {
-      this.taskForm.controls[`day${i}`].setValue("");
-    }
+    this.clear();
     let curr = new Date(this.taskForm.get('currentWeek').value);
     let first = curr.getDate() + 7;
     let day = new Date(curr.setDate(first));
@@ -86,7 +87,7 @@ export class EmployeeComponent implements OnInit {
   getTotalHours() {//часы за неделю
     let sum = +0;
     for (let i = 0; i < 7; i++) {
-      sum += this.taskForm.controls[`day${i}`].value;
+      sum += +this.taskForm.controls[`day${i}`].value;
     }
     this.taskForm.controls[`total`].setValue(`${sum}`);
   }
@@ -94,20 +95,34 @@ export class EmployeeComponent implements OnInit {
   // get
   getTasks(): void {
     this.employeeService.getTasks(+localStorage.getItem('userId'), this.taskForm.controls['type'].value.id, this.week[0].date, this.week[6].date)
-      .subscribe(tasks => {
-        this.task = tasks;
-        tasks.map(
-          (task: any) => {
-            task.taskNotes.map((taskNote: any) => {
-              let index = this.week.findIndex(item => item.date == taskNote.day.slice(0, 10));
-              this.taskForm.controls[`day${index}`].setValue(taskNote.hours);
+      .subscribe(
+        tasks => {
+          this.task = tasks;
+          tasks.map(
+            (task: any) => {
+              task.taskNotes.map((taskNote: any) => {
+                let index = this.week.findIndex(item => item.date == taskNote.day.slice(0, 10));
+                this.taskForm.controls[`day${index}`].setValue(taskNote.hours);
+              }
+              );
+              task.vacation.map((leave: any) => {
+                let startIndex = this.week.findIndex(item => item.date == leave.start.slice(0, 10));
+                let endIndex = this.week.findIndex(item => item.date == leave.end.slice(0, 10));
+                let element = document.querySelectorAll(`.task__days__day__container__hours`);
+                for (let i = startIndex; i <= endIndex; i++) {
+                  (<HTMLElement>element[i]).style.backgroundColor = 'rgba(255, 194, 0, 0.3)';
+                }
+              });
             }
-            );
-          }
-        );
-        this.canPut = true;//если прошло, то делаем put запросы
-        this.getTotalHours();
-      });
+          );
+          this.canPut = true;//если прошло, то делаем put запросы
+          this.getTotalHours();
+        },
+        error => { error.status == 404 ? this.canPut = false : console.log(error) }
+      )
+  }
+  save() {
+    this.canPut ? this.editTask() : this.addTask();
   }
   //post
   addTask() {
@@ -120,7 +135,7 @@ export class EmployeeComponent implements OnInit {
     const newTask = new Task(+localStorage.getItem('userId'), this.taskForm.controls['type'].value.name, newTaskNotes, []);
 
     this.employeeService.addTask(+localStorage.getItem('userId'), this.taskForm.controls['type'].value.id, newTask)
-      .subscribe(() => { });
+      .subscribe(() => { this.canPut = true });
   }
   // put
   editTask() {
@@ -136,7 +151,6 @@ export class EmployeeComponent implements OnInit {
   }
   //delete
   delete(): void {
-    // this.vacations = this.vacations.filter(v => v !== vacation);
     this.employeeService.deleteTask(+this.userId, this.task[0].id).subscribe();
   }
 
