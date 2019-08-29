@@ -84,6 +84,18 @@ namespace LTRegistratorApi.Controllers
             {
                 StatusCode((int)employeeResponse.Error.StatusCode, employeeResponse.Error.Message);
             }
+            if (projectResponse.Status == ResponseResult.Error)
+            {
+                StatusCode((int)projectResponse.Error.StatusCode, projectResponse.Error.Message);
+            }
+            if (tasksResponse.Status == ResponseResult.Error)
+            {
+                StatusCode((int)tasksResponse.Error.StatusCode, tasksResponse.Error.Message);
+            }
+            if (leavesResponse.Status == ResponseResult.Error)
+            {
+                StatusCode((int)leavesResponse.Error.StatusCode, leavesResponse.Error.Message);
+            }
 
             var result = _mapper.Map<TaskDto>(tasksResponse.Result.FirstOrDefault());
             _mapper.Map(leavesResponse.Result, result);
