@@ -13,7 +13,7 @@ import { EmployeesTableComponent } from './employee-table/employee-table.compone
 import { AdminComponent } from './admin/admin.component';
 
 const userRoutes: Routes = [
-  { path: 'timesheet', component: TimesheetComponent },
+  { path: 'timesheet', component: TimesheetComponent, resolve: {user: TimesheetResolverService}},
   { path: '', redirectTo: 'timesheet', pathMatch: 'full' },
   { path: 'vacation', component: VacationComponent },
   { path: 'admin', component: AdminComponent },
