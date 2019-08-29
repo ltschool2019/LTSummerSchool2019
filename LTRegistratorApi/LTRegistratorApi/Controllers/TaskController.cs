@@ -80,14 +80,13 @@ namespace LTRegistratorApi.Controllers
                 item.StartDate = item.StartDate < startDate ? startDate : item.StartDate;
                 item.EndDate = item.EndDate < endDate ? item.EndDate : endDate;
             }
-            if (tasksResponse.Status == ResponseResult.Error || employeeResponse.Status == ResponseResult.Error ||
-                projectResponse.Status == ResponseResult.Error || leavesResponse.Status == ResponseResult.Error )
+            if (employeeResponse.Status == ResponseResult.Error)
             {
                 StatusCode((int)employeeResponse.Error.StatusCode, employeeResponse.Error.Message);
             }
-          
+
             var result = _mapper.Map<TaskDto>(tasksResponse.Result.FirstOrDefault());
-            _mapper.Map(leavesResponse, result);
+            _mapper.Map(leavesResponse.Result, result);
 
             return Ok(result);
         }

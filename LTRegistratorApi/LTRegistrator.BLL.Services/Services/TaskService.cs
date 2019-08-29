@@ -58,7 +58,7 @@ namespace LTRegistrator.BLL.Services.Services
                      Name = tn.Task.Name,
                      ProjectId = tn.Task.ProjectId,
                      EmployeeId = tn.Task.EmployeeId,
-                     TaskNotes = tn.Task.TaskNotes.Where(n => n.Day >= startDate && n.Day <= endDate && n.TaskId == n.Task.Id).ToList()
+                     TaskNotes = tn.Task.TaskNotes.Where(n => n.Day >= startDate && n.Day <= endDate && n.TaskId == n.Task.Id).ToList()                    
                  }).ToListAsync();
             if (tasks == null)
             {
