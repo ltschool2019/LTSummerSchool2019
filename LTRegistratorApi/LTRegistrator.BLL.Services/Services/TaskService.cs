@@ -19,36 +19,9 @@ namespace LTRegistrator.BLL.Services.Services
 {
     public class TaskService : BaseService, ITaskService
     {
-        private readonly HttpContext _httpContext;
-
-        /// <summary>
-        /// The method returns true if the user tries to change his data or he is a manager or administrator.
-        /// </summary>
-        /// <param name="id">User Id</param>
-        /// <returns>Is it possible to change the data</returns>
-        private async Task<bool> AccessAllowed(int id)
-        {
-            var employeeIdFromClaim = _httpContext.User.FindFirstValue("EmployeeID");//We are looking for EmployeeID.
-            var authorizedUser =
-                await DbContext.Set<Employee>().SingleOrDefaultAsync(
-                    e => e.Id == Convert.ToInt32(employeeIdFromClaim)); //We load Employee table.
-            var maxRole = authorizedUser.MaxRole;
-
-            return authorizedUser.Id == id ||
-                   maxRole == RoleType.Manager ||
-                   maxRole == RoleType.Administrator;
-        }
-        public TaskService(DbContext db, IMapper mapper, HttpContext httpContext) : base(db, mapper)
-        {
-            _httpContext = httpContext;
-        }
-
+        public TaskService(DbContext db, IMapper mapper) : base(db, mapper){}
         public async Task<Response<List<Task>>> GetTasksAsync(int projectId, int employeeId, DateTime startDate, DateTime endDate)
-        {
-            if (!this.AccessAllowed(employeeId).Result)
-            {
-                return new Response<List<Task>>(HttpStatusCode.BadRequest, $"User not allowed to change data for employee with {employeeId}.");
-            }
+        {         
             var tasks = await DbContext.Set<TaskNote>()
                  .Include(tn => tn.Task)
                  .Where(tn => tn.Task.EmployeeId == employeeId && tn.Task.ProjectId == projectId)
@@ -67,17 +40,10 @@ namespace LTRegistrator.BLL.Services.Services
             return new Response<List<Task>>(tasks);
         }
 
-        public async Task<Response<Task>> AddTaskAsync(int projectId, int employeeId, Task task)
-        {
-            //if (!AccessAllowed(employeeId).Result)
-            //{
-            //    return new Response<Task>(HttpStatusCode.BadRequest, $"User not allowed to change data for employee with {employeeId}.");
-            //}
-
-            var templateTypeProject = DbContext.Set<Project>().FirstOrDefault(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId);
-            var employeeProject = DbContext.Set<ProjectEmployee>().FirstOrDefault(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId);
+        public async Task<Response<Task>> AddTaskAsync(int projectId, int employeeId, Project templateTypeProject, Task task)
+        {                        
             var nameTask = DbContext.Set<Task>().FirstOrDefault(t => (t.Name == task.Name || t.Name == templateTypeProject.Name) && t.ProjectId == projectId && t.EmployeeId == employeeId);
-            if (nameTask == null && templateTypeProject != null && task != null && templateTypeProject.Name == task.Name && employeeProject != null)
+            if (nameTask == null  && templateTypeProject.Name == task.Name )
             {
                 using (var transaction = DbContext.Database.BeginTransaction())
                 {
@@ -103,7 +69,7 @@ namespace LTRegistrator.BLL.Services.Services
                         }
                         await DbContext.SaveChangesAsync();
                         transaction.Commit();
-                        return new Response<Task>(HttpStatusCode.OK, "Ok");
+                        return new Response<Task>(newTask);
                     }
                     catch (Exception ex)
                     {
@@ -111,16 +77,11 @@ namespace LTRegistrator.BLL.Services.Services
                     }
                 }
             }
-            return new Response<Task>(HttpStatusCode.BadRequest, "BadRequest");
+            return new Response<Task>(HttpStatusCode.BadRequest, "Task is not correct");
         }
 
         public async Task<Response<Task>> UpdateTaskAsync(int employeeId, Task task)
         {
-            if (!this.AccessAllowed(employeeId).Result)
-            {
-                return new Response<Task>(HttpStatusCode.BadRequest, $"User not allowed to change data for employee with {employeeId}.");
-            }
-
             var temp = DbContext.Set<Task>().SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name);
             if (temp != null)
             {
@@ -145,26 +106,22 @@ namespace LTRegistrator.BLL.Services.Services
                         await DbContext.SaveChangesAsync();
                     }
                 }
-                return new Response<Domain.Entities.Task>(HttpStatusCode.OK, "Ok");
+                return new Response<Task>(HttpStatusCode.OK, "Ok");
             }
-            return new Response<Domain.Entities.Task>(HttpStatusCode.NotFound, "Not Found");
+            return new Response<Task>(HttpStatusCode.NotFound, "Not Found");
         }
-        public async Task<Response<Domain.Entities.Task>> DeleteTaskAsync(int taskId, int employeeId)
+        public async Task<Response<Task>> DeleteTaskAsync(int taskId, int employeeId)
         {
-            if (!this.AccessAllowed(employeeId).Result)
-            {
-                return new Response<Domain.Entities.Task>(HttpStatusCode.BadRequest, $"User not allowed to change data for employee with {employeeId}.");
-            }
-            var task = DbContext.Set<Domain.Entities.Task>().Where(t => t.Id == taskId).FirstOrDefault();
+            var task = DbContext.Set<Task>().Where(t => t.Id == taskId).FirstOrDefault();
             if (task != null)
             {
-                DbContext.Set<Domain.Entities.Task>().Remove(task);
+                DbContext.Set<Task>().Remove(task);
                 await DbContext.SaveChangesAsync();
-                return new Response<Domain.Entities.Task>(HttpStatusCode.OK, "Ok");
+                return new Response<Task>(HttpStatusCode.OK, "Ok");
             }
             else
             {
-                return new Response<Domain.Entities.Task>(HttpStatusCode.NotFound, "Not Found");
+                return new Response<Task>(HttpStatusCode.NotFound, "Not Found");
             }
         }
     }

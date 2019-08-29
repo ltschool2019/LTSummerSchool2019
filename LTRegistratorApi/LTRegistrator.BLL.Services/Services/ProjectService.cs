@@ -30,5 +30,14 @@ namespace LTRegistrator.BLL.Services.Services
             }
             return new Response<Project>(project);
         }
+        public async Task<Response<Project>> GetTemplateTypeByIdAsync(int projectId)
+        {
+            var templateTypeProject = await DbContext.Set<Project>().FirstOrDefaultAsync(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId);           
+            if (templateTypeProject == null)
+            {
+                return new Response<Project>(HttpStatusCode.NotFound, $"Project with id = {projectId} not found or template type is not correct");
+            }
+            return new Response<Project>(templateTypeProject);
+        }
     }
 }

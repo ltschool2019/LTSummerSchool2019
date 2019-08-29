@@ -15,10 +15,8 @@ namespace LTRegistrator.BLL.Services.Services
 {
     public class LeaveService : BaseService, ILeaveService
     {
-        private readonly HttpContext _httpContext;
-        public LeaveService(DbContext db, IMapper mapper, HttpContext httpContext) : base(db, mapper)
+        public LeaveService(DbContext db, IMapper mapper) : base(db, mapper)
         {
-            _httpContext = httpContext;
         }
         public async Task<Response<List<Leave>>> GetLeavesByEmployeeIdAsync(int employeeId, DateTime startDate, DateTime endDate)
         {
