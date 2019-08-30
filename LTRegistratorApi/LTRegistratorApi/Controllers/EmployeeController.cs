@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using LTRegistrator.BLL.Contracts;
@@ -129,11 +130,11 @@ namespace LTRegistratorApi.Controllers
         }
 
         /// <summary>
-        /// DELETE api/employee/{id}/leaves?leaveID=1&leaveID=2&leaveID=3
+        /// DELETE api/employee/{id}/leaves?leaveId=1&leaveId=2&leaveId=3
         /// Deletes a leaves record.
         /// </summary>
         /// <param name="userId">UserId</param>
-        /// <param name="leaveID"> IDs of leaves that should be deleted</param>
+        /// <param name="leaveId"> IDs of leaves that should be deleted</param>
         /// <returns>Was the operation successful?</returns>
         /// <response code="200">Operation successful</response>
         /// <response code="400">Bad request</response>
@@ -144,9 +145,9 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult> DeleteLeavesAsync(int userId, [FromQuery] List<int> leaveID)
+        public async Task<ActionResult> DeleteLeavesAsync(int userId, [FromQuery] List<int> leaveId)
         {
-            if (leaveID == null)
+            if (leaveId == null || !leaveId.Any())
                 return BadRequest();
 
             if (!ModelState.IsValid)
@@ -154,7 +155,7 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var response = await _employeeService.DeleteLeavesAsync(userId, leaveID);
+            var response = await _employeeService.DeleteLeavesAsync(userId, leaveId);
             return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, response.Error.Message);
         }
     }
