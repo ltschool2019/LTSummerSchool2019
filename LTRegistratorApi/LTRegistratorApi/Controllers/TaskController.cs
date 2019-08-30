@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using LTRegistratorApi.Model;
-using LTRegistrator.Domain.Entities;
-using LTRegistrator.Domain.Enums;
-using Microsoft.EntityFrameworkCore;
+using LTRegistrator.BLL.Contracts;
+using LTRegistrator.BLL.Contracts.Contracts;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Task = LTRegistrator.Domain.Entities.Task;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -16,14 +18,23 @@ namespace LTRegistratorApi.Controllers
     /// </summary>
     [Route("api/[controller]")]
     [ApiController, Authorize]
-    public class TaskController : BaseController
+    public class TaskController : ControllerBase
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="db"></param>
-        public TaskController(DbContext db) : base(db)
+        private readonly ITaskService _taskService;
+        private readonly ILeaveService _leaveService;
+        private readonly IEmployeeService _employeeService;
+        private readonly IProjectEmployeeService _projectEmployeeService;
+        private readonly IProjectService _projectService;
+        private readonly IMapper _mapper;
+
+        public TaskController(ITaskService taskService, IProjectEmployeeService projectEmployeeService, ILeaveService leaveService, IEmployeeService employeeService, IProjectService projectService, IMapper mapper)
         {
+            _taskService = taskService;
+            _leaveService = leaveService;
+            _employeeService = employeeService;
+            _projectService = projectService;
+            _projectEmployeeService = projectEmployeeService;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -32,66 +43,36 @@ namespace LTRegistratorApi.Controllers
         /// </summary>
         /// <param name="projectId">id of project</param>
         /// <param name="employeeId">id of employee</param>
-        /// <param name="task">json {Name, List {Day, Hours} </param>
+        /// <param name="task">json {Name, List<{Day, Hours}></param>
         /// <returns>"200 ok" or "400 Bad Request" or "403 Forbidden"</returns>
         /// <response code="200">Project task added</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
+        /// <response code="404">Not found</response>
         [HttpPost("project/{projectId}/employee/{EmployeeId}")]
         [Authorize(Policy = "AccessAllowed")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> AddTask([FromRoute] int projectId, int employeeId, [FromBody] TaskInputDto task)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
-            }
-
-            var templateTypeProject = Db.Set<Project>().FirstOrDefault(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId && !p.SoftDeleted);
-            if (templateTypeProject == null)
+            }          
+            var templateTypeProject = await _projectService.GetTemplateTypeByIdAsync(projectId);
+            if (templateTypeProject.Status == ResponseResult.Error)
             {
-                return NotFound();
+                return StatusCode((int)templateTypeProject.Error.StatusCode, new { Message = templateTypeProject.Error.Message });
             }
-
-            var employeeProject = Db.Set<ProjectEmployee>().Where(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId).FirstOrDefault();
-            var nameTask = Db.Set<LTRegistrator.Domain.Entities.Task>().Where(t => (t.Name == task.Name || t.Name == templateTypeProject.Name) && t.ProjectId == projectId && t.EmployeeId == employeeId).FirstOrDefault();
-            if (nameTask == null && templateTypeProject != null && task != null && templateTypeProject.Name == task.Name && employeeProject != null)
+            var employeeProject = await _projectEmployeeService.GetEmployeeIdAndProjectIdAsync(employeeId, projectId);
+            if (employeeProject.Status == ResponseResult.Error)
             {
-                using (var transaction = Db.Database.BeginTransaction())
-                {
-                    try
-                    {
-                        LTRegistrator.Domain.Entities.Task newTask = new LTRegistrator.Domain.Entities.Task
-                        {
-                            EmployeeId = employeeId,
-                            ProjectId = projectId,
-                            Name = task.Name
-                        };
-                        Db.Set<LTRegistrator.Domain.Entities.Task>().Add(newTask);
-
-                        foreach (var item in task.TaskNotes)
-                        {
-                            TaskNote taskNote = new TaskNote
-                            {
-                                TaskId = newTask.Id,
-                                Day = item.Day,
-                                Hours = item.Hours
-                            };
-                            Db.Set<TaskNote>().Add(taskNote);
-                        }
-                        await Db.SaveChangesAsync();
-                        transaction.Commit();
-                        return Ok();
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                    }
-                }
+                return StatusCode((int)employeeProject.Error.StatusCode, new { Message = employeeProject.Error.Message });
             }
-            return BadRequest();
+            var response = await _taskService.AddTaskAsync(projectId, employeeId, templateTypeProject.Result, _mapper.Map<Task>(task));
+            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message });
         }
 
         /// <summary>
@@ -105,40 +86,47 @@ namespace LTRegistratorApi.Controllers
         /// <returns>Task information list</returns>
         /// <response code="200">Task information list</response>
         /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
-        /// <response code="404">Tasks not found</response>
+        /// <response code="404">Tasks or employee or project not found </response>
+        /// <response code="400">Period entered incorrectly. StartDate > EndDate </response>
         [HttpGet("project/{projectId}/employee/{employeeId}")]
         [ProducesResponseType(typeof(List<TaskDto>), 200)]
-        [ProducesResponseType(403)]
         [ProducesResponseType(404)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(400)]
         [Authorize(Policy = "AccessAllowed")]
         public async Task<ActionResult> GetTasks([FromRoute] int projectId, int employeeId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
-            var intersectingEmployeeLeave = await Db.Set<Leave>().Join(Db.Set<Employee>(),
-                                                        l => l.EmployeeId,
-                                                        e => e.Id,
-                                                        (l, e) => new { l, e }).Where(w => w.l.EmployeeId == employeeId && endDate >= w.l.StartDate && startDate <= w.l.EndDate).ToListAsync();
-            List<LeaveDto> leave = new List<LeaveDto>();
-            foreach (var item in intersectingEmployeeLeave)
+            if (startDate > endDate)
             {
-                var iStart = item.l.StartDate < startDate ? startDate : item.l.StartDate;
-                var iEnd = item.l.EndDate < endDate ? item.l.EndDate : endDate;
-                leave.Add(new LeaveDto { StartDate = iStart, EndDate = iEnd, Id = item.l.Id, TypeLeave = (TypeLeaveDto)item.l.TypeLeave });
+                return BadRequest($"Period entered incorrectly. StartDate > EndDate ({startDate} > {endDate})");
             }
+            var employeeResponse = await _employeeService.GetByIdAsync(employeeId);
+            var projectResponse = await _projectService.GetProjectByIdAsync(projectId);
+            var tasksResponse = await _taskService.GetTasksAsync(projectId, employeeId, startDate, endDate);
+            var leavesResponse = await _leaveService.GetLeavesByEmployeeIdAsync(employeeId, startDate, endDate);
 
-            var employeeTaskProject = Db.Set<LTRegistrator.Domain.Entities.Task>().FirstOrDefault(t => t.ProjectId == projectId && t.EmployeeId == employeeId && !t.ProjectEmployee.Project.SoftDeleted);
-            if (employeeTaskProject != null)
+            foreach (var item in leavesResponse.Result)
             {
-                List<TaskNoteDto> taskNotes = new List<TaskNoteDto>();
-                var notes = await Db.Set<TaskNote>().Where(tn => tn.TaskId == employeeTaskProject.Id && tn.Day <= endDate && tn.Day >= startDate).ToListAsync();
-                foreach (var item in notes)
-                    taskNotes.Add(new TaskNoteDto { Day = item.Day, Hours = item.Hours, Id = item.Id });
-                List<TaskDto> result = new List<TaskDto>
-                {
-                    new TaskDto { Name = employeeTaskProject.Name, Leave = leave, TaskNotes = taskNotes, Id = employeeTaskProject.Id }
-                };
-                return Ok(result);
+                item.StartDate = item.StartDate < startDate ? startDate : item.StartDate;
+                item.EndDate = item.EndDate < endDate ? item.EndDate : endDate;
             }
-            return NotFound();
+            if (employeeResponse.Status == ResponseResult.Error)
+            {
+                return StatusCode((int)employeeResponse.Error.StatusCode, new { Message = employeeResponse.Error.Message });
+            }
+            if (projectResponse.Status == ResponseResult.Error)
+            {
+                return StatusCode((int)projectResponse.Error.StatusCode, new { Message = projectResponse.Error.Message });
+            }
+            if (tasksResponse.Status == ResponseResult.Error)
+            {
+                return StatusCode((int)tasksResponse.Error.StatusCode, new { Message = tasksResponse.Error.Message });
+            }          
+
+            var result = _mapper.Map<TaskDto>(tasksResponse.Result.FirstOrDefault());
+            _mapper.Map(leavesResponse.Result, result);
+
+            return Ok(result);
         }
 
         /// <summary>
@@ -146,7 +134,7 @@ namespace LTRegistratorApi.Controllers
         /// PUT: api/Task/employee/{employeeId}
         /// </summary>
         /// <param name="employeeId">id of employee</param>
-        /// <param name="task">json {Name, List {Day, Hours} </param>
+        /// <param name="task">json {Name, List<{Day, Hours}></param>
         /// <returns> "OK" or "not found"</returns>
         /// <response code="200">Task updated</response>
         /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
@@ -158,36 +146,13 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult> UpdateTask([FromBody] TaskInputDto task, int employeeId)
         {
-            var temp = Db.Set<LTRegistrator.Domain.Entities.Task>().SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name);
-
-            if (temp != null)
+            if (!ModelState.IsValid)
             {
-                foreach (var item in task.TaskNotes)
-                {
-                    var note = Db.Set<TaskNote>().FirstOrDefault(tn => tn.Day == item.Day && tn.TaskId == task.Id);
-                    if (note != null && note.Hours != item.Hours)
-                    {
-                        note.Hours = item.Hours;
-                        Db.Set<TaskNote>().Update(note);
-                        await Db.SaveChangesAsync();
-                    }
-                    if (note == null)
-                    {
-                        TaskNote taskNote = new TaskNote
-                        {
-                            TaskId = task.Id,
-                            Day = item.Day,
-                            Hours = item.Hours
-                        };
-                        Db.Set<TaskNote>().Add(taskNote);
-                        await Db.SaveChangesAsync();
-                    }
-                }
-                return Ok();
+                return BadRequest(ModelState);
             }
-            return NotFound();
+            var response = await _taskService.UpdateTaskAsync(employeeId, _mapper.Map<Task>(task));
+            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message });
         }
-
         /// <summary>
         /// Method for removing the task from the project
         /// DELETE: api/task/{taskId}/employee/{employeeId}
@@ -198,26 +163,19 @@ namespace LTRegistratorApi.Controllers
         /// <response code="200">Task deleted</response>
         /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
         /// <response code="404">Task not found</response>
-        [HttpDelete("{TaskId}/employee/{employeeId}")]
+        [HttpDelete("{taskId}/employee/{employeeId}")]
         [Authorize(Policy = "AccessAllowed")]
         [ProducesResponseType(200)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
         public async Task<ActionResult> DeleteTask([FromRoute] int taskId, int employeeId)
         {
-            var task = Db.Set<LTRegistrator.Domain.Entities.Task>().Where(t => t.Id == taskId).FirstOrDefault();
-
-            if (task != null)
+            if (!ModelState.IsValid)
             {
-                Db.Set<LTRegistrator.Domain.Entities.Task>().Remove(task);
-
-                await Db.SaveChangesAsync();
-                return Ok();
+                return BadRequest(ModelState);
             }
-            else
-            {
-                return NotFound();
-            }
+            var response = await _taskService.DeleteTaskAsync(taskId, employeeId);
+            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message });
         }
     }
 }

@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using LTRegistrator.BLL.Services.Mappings.DbContext;
 using LTRegistrator.Domain.Entities;
 using LTRegistratorApi.Model;
+using Task = LTRegistrator.Domain.Entities.Task;
 
 namespace LTRegistratorApi.Mappings
 {
@@ -32,6 +34,24 @@ namespace LTRegistratorApi.Mappings
 
             CreateMap<LeaveInputDto, Leave>();
 
+            #endregion
+
+            #region Task
+
+            CreateMap<TaskInputDto, Task>()
+                .ForMember(t => t.Id, opt => opt.MapFrom(src => src.Id));
+
+            CreateMap<TaskNoteDto, TaskNote>()
+                .ForMember(t => t.Id, opt => opt.Ignore());
+
+            CreateMap<Task, TaskDto>();
+
+            CreateMap<List<Leave>, TaskDto>()
+                .ForMember(td => td.Leave, opt => opt.MapFrom(src => src));
+
+            CreateMap<Leave, LeaveDto>();
+
+            CreateMap<TaskNote, TaskNoteDto>();
             #endregion
 
         }
