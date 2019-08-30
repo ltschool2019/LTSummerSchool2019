@@ -39,7 +39,7 @@ namespace LTRegistratorApi.Mappings
             #region Task
 
             CreateMap<TaskInputDto, Task>()
-                .ForMember(t => t.Id, opt => opt.Ignore());
+                .ForMember(t => t.Id, opt => opt.MapFrom(src => src.Id));
 
             CreateMap<TaskNoteDto, TaskNote>()
                 .ForMember(t => t.Id, opt => opt.Ignore());

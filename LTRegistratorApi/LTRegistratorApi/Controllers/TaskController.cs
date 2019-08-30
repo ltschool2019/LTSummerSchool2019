@@ -48,30 +48,28 @@ namespace LTRegistratorApi.Controllers
         /// <response code="200">Project task added</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
+        /// <response code="404">Not found</response>
         [HttpPost("project/{projectId}/employee/{EmployeeId}")]
         [Authorize(Policy = "AccessAllowed")]
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> AddTask([FromRoute] int projectId, int employeeId, [FromBody] TaskInputDto task)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
-            }
-            if (employeeId == null || projectId == null || task == null)
-            {
-                return BadRequest();
-            }
+            }          
             var templateTypeProject = await _projectService.GetTemplateTypeByIdAsync(projectId);
             if (templateTypeProject.Status == ResponseResult.Error)
             {
-                StatusCode((int)templateTypeProject.Error.StatusCode, templateTypeProject.Error.Message);
+                return StatusCode((int)templateTypeProject.Error.StatusCode, new { Message = templateTypeProject.Error.Message });
             }
             var employeeProject = await _projectEmployeeService.GetEmployeeIdAndProjectIdAsync(employeeId, projectId);
             if (employeeProject.Status == ResponseResult.Error)
             {
-                StatusCode((int)employeeProject.Error.StatusCode, employeeProject.Error.Message);
+                return StatusCode((int)employeeProject.Error.StatusCode, new { Message = employeeProject.Error.Message });
             }
             var response = await _taskService.AddTaskAsync(projectId, employeeId, templateTypeProject.Result, _mapper.Map<Task>(task));
             return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message });
@@ -89,11 +87,12 @@ namespace LTRegistratorApi.Controllers
         /// <response code="200">Task information list</response>
         /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
         /// <response code="404">Tasks or employee or project not found </response>
+        /// <response code="400">Period entered incorrectly. StartDate > EndDate </response>
         [HttpGet("project/{projectId}/employee/{employeeId}")]
         [ProducesResponseType(typeof(List<TaskDto>), 200)]
         [ProducesResponseType(404)]
-        [ProducesResponseType(400)]
         [ProducesResponseType(403)]
+        [ProducesResponseType(400)]
         [Authorize(Policy = "AccessAllowed")]
         public async Task<ActionResult> GetTasks([FromRoute] int projectId, int employeeId, [FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
         {
@@ -137,16 +136,22 @@ namespace LTRegistratorApi.Controllers
         /// <param name="employeeId">id of employee</param>
         /// <param name="task">json {Name, List<{Day, Hours}></param>
         /// <returns> "OK" or "not found"</returns>
+        /// <response code="200">Task updated</response>
+        /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
+        /// <response code="404">Task not found</response>
         [HttpPut("employee/{employeeId}")]
+        [Authorize(Policy = "AccessAllowed")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> UpdateTask([FromBody] TaskInputDto task, int employeeId)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-
-            var response = await _taskService.UpdateTaskAsync(employeeId, _mapper.Map<LTRegistrator.Domain.Entities.Task>(task));
-            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, response.Error.Message);
+            var response = await _taskService.UpdateTaskAsync(employeeId, _mapper.Map<Task>(task));
+            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message });
         }
         /// <summary>
         /// Method for removing the task from the project
@@ -155,7 +160,14 @@ namespace LTRegistratorApi.Controllers
         /// <param name="taskId"> id of the task to be deleted</param>
         /// <param name="employeeId">id of employee</param>
         /// <returns>"200 ok" or "404 not found"</returns>
+        /// <response code="200">Task deleted</response>
+        /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
+        /// <response code="404">Task not found</response>
         [HttpDelete("{taskId}/employee/{employeeId}")]
+        [Authorize(Policy = "AccessAllowed")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(403)]
+        [ProducesResponseType(404)]
         public async Task<ActionResult> DeleteTask([FromRoute] int taskId, int employeeId)
         {
             if (!ModelState.IsValid)
@@ -163,7 +175,7 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
             var response = await _taskService.DeleteTaskAsync(taskId, employeeId);
-            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, response.Error.Message);
+            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { Message = response.Error.Message });
         }
     }
 }

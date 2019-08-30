@@ -82,7 +82,7 @@ namespace LTRegistrator.BLL.Services.Services
 
         public async Task<Response<Task>> UpdateTaskAsync(int employeeId, Task task)
         {
-            var temp = DbContext.Set<Task>().SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name);
+            var temp = DbContext.Set<Task>().SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name && employeeId == t.EmployeeId);
             if (temp != null)
             {
                 foreach (var item in task.TaskNotes)
@@ -106,22 +106,23 @@ namespace LTRegistrator.BLL.Services.Services
                         await DbContext.SaveChangesAsync();
                     }
                 }
-                return new Response<Task>(HttpStatusCode.OK, "Ok");
+                return new Response<Task>(temp);
             }
-            return new Response<Task>(HttpStatusCode.NotFound, "Not Found");
+            return new Response<Task>(HttpStatusCode.NotFound, "Task not Found");
         }
+
         public async Task<Response<Task>> DeleteTaskAsync(int taskId, int employeeId)
         {
-            var task = DbContext.Set<Task>().Where(t => t.Id == taskId).FirstOrDefault();
+            var task = DbContext.Set<Task>().Where(t => t.Id == taskId && employeeId == t.EmployeeId).FirstOrDefault();
             if (task != null)
             {
                 DbContext.Set<Task>().Remove(task);
                 await DbContext.SaveChangesAsync();
-                return new Response<Task>(HttpStatusCode.OK, "Ok");
+                return new Response<Task>(task);
             }
             else
             {
-                return new Response<Task>(HttpStatusCode.NotFound, "Not Found");
+                return new Response<Task>(HttpStatusCode.NotFound, "Task not found");
             }
         }
     }
