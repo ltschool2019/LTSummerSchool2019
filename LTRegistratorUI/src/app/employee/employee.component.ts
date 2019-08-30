@@ -109,8 +109,11 @@ export class EmployeeComponent implements OnInit {
                 let startIndex = this.week.findIndex(item => item.date == leave.start.slice(0, 10));
                 let endIndex = this.week.findIndex(item => item.date == leave.end.slice(0, 10));
                 let element = document.querySelectorAll(`.task__days__day__container__hours`);
-                for (let i = startIndex; i <= endIndex; i++) {
-                  (<HTMLElement>element[i]).style.backgroundColor = 'rgba(255, 194, 0, 0.3)';
+                for (let i = 0; i <= 6; i++) {
+                  if (i >= startIndex && i <= endIndex) {
+                    (<HTMLElement>element[i]).style.backgroundColor = 'rgba(255, 194, 0, 0.3)';
+                  }
+                  else (<HTMLElement>element[i]).style.backgroundColor = '#FFFFFF';
                 }
               });
             }
@@ -157,7 +160,6 @@ export class EmployeeComponent implements OnInit {
   private getProject() {
     this.userService.getUserInfo().subscribe(user => {
       this.projects = user.projects;
-      //this.taskForm.controls[`type`].patchValue(`${user.projects[0].name}`);
     });
   }
   private initForm(): void {

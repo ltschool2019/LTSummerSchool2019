@@ -73,5 +73,13 @@
         text-align: center;
       }
     }
+
+    &__buttons {
+      margin-top: 55px;
+
+      &__clear {
+        margin-right: 10px;
+      }
+    }
   }
 }
