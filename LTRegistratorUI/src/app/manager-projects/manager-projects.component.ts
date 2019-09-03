@@ -34,8 +34,6 @@ export class ManagerProjectsComponent implements OnInit {
    
   }
   openDialogAddProj():void{
-    console.log(this.man_project.data);
-    console.log("gfd");
     const dialogRef = this.dialog.open(AddProjectDialogComponent, {
       width: '250px'
     });
