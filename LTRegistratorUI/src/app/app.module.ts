@@ -43,7 +43,8 @@ import { TimesheetResolverService } from './timesheet/timesheet-resolver.service
     AddProjectDialogComponent,
     AdminComponent,
   ],
-  entryComponents: [VacationEditDialogComponent],
+  entryComponents: [VacationEditDialogComponent,
+    AddProjectDialogComponent],
   imports: [
     BrowserModule,
     MaterialModule,

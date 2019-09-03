@@ -1,10 +1,11 @@
-<h4 mat-dialog-title>Введите название проекта</h4>
+<h4 mat-dialog-title>Добавление проекта</h4>
 <div mat-dialog-content>
-  <p>Введите название проекта</p>
+
   <mat-form-field>
     <input matInput [(ngModel)]="name">
   </mat-form-field>
 </div>
 <div mat-dialog-actions>
-  <button mat-button (click)="createProject()">Ok</button>
+  <!-- <button mat-button (click)="createProject()" cdkFocusInitial>Ok</button> -->
+  <button mat-button [mat-dialog-close]="name" cdkFocusInitial>Ok</button>
 </div>

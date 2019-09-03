@@ -1,5 +1,5 @@
 <div class = "manager-projects">
-<button mat-raised-button type="submit"  class="manager-projects-add">+</button>
+<button mat-raised-button type="submit"  class="manager-projects-add" (click)  = "openDialogAddProj()">+</button>
 
 <table mat-table [dataSource]="man_project" style="width: 100%" class="mat-elevation-z8">
 
@@ -29,7 +29,7 @@
       <ng-container matColumnDef="delete">
           <th mat-header-cell *matHeaderCellDef > Delete </th>
           <td mat-cell *matCellDef="let element">
-              <button mat-mini-fab style="background:black; ">
+              <button mat-mini-fab style="background:black; " (click)  = "deleteProj(element.id)">
                   <mat-icon>delete</mat-icon>
               </button> 
           </td>

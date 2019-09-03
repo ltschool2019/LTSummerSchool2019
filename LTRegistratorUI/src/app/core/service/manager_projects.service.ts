@@ -11,17 +11,29 @@ import { ManagerProjects } from 'src/app/shared/models/manager_projects.model';
 
 export class ManagerProjectsService {
   private id = 2;
-  private managerProjectsUrl = `http://localhost:53635/api/manager/${this.id}/projects`;
-
+  //private managerProjectsUrl = `http://localhost:5000/api/manager/${this.id}/projects`;
+  private projectPostUrl = `http://localhost:5000/api/manager/project/`;
+  private projectDeleteUrl = `http://localhost:5000/api/manager/project/`
   constructor(
     private http: HttpClient
   ) { }
 
   getManagerProjects():any {
-    return this.http.get<any>(this.managerProjectsUrl)
+    
+      return this.http.get<any>(this.getManagerUrlGet());
   }
   addManagerProject(projectName:any):any {
-    return this.http.post<any>(this.managerProjectsUrl, {name: projectName});
+    return this.http.post<any>(this.projectPostUrl, {name: projectName});
+  }
+  getManagerUrlGet(){
+    return `http://localhost:5000/api/manager/`+localStorage.getItem('userId')+`/projects`
+  }
+  deleteProj(id:number){
+    return this.http.delete<any>(this.deleteProjectGerUrl(id));
+  }
+
+  deleteProjectGerUrl(id:number){
+    return `http://localhost:5000/api/manager/project/`+id
   }
 
   // addVacation(userId: any, vacation: Vacation): Observable<any> {
