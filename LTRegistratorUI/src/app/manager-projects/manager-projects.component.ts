@@ -2,14 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ManagerProjectsService } from 'src/app/core/service/manager_projects.service';
 import { ManagerProjects } from 'src/app/shared/models/manager_projects.model';
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
-import { MaterialModule } from "src/app/material.module";
 import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator } from '@angular/material/paginator';
-import { MatSort } from '@angular/material/sort';
-import { MatIconModule } from '@angular/material/icon';
 import { AddProjectDialogComponent } from 'src/app/add-project-dialog/add-project-dialog.component'
-import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
-import { from } from 'rxjs';
+import {MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-manager-projects',
@@ -29,9 +24,6 @@ export class ManagerProjectsComponent implements OnInit {
 
   ngOnInit() {
     this.getManagerProjects();
-    
-
-   
   }
   openDialogAddProj():void{
     const dialogRef = this.dialog.open(AddProjectDialogComponent, {
@@ -40,10 +32,8 @@ export class ManagerProjectsComponent implements OnInit {
 
     
     dialogRef.afterClosed().subscribe(result => {
-      console.log(`The dialog was ${result}`);
       this.managerProjectsService.addManagerProject(result)
       .subscribe((project) =>{
-        console.log(this.man_project.data);
         this.man_project.data = [...this.man_project.data, project];
       });
     });
@@ -52,7 +42,6 @@ export class ManagerProjectsComponent implements OnInit {
   getManagerProjects(): void {
     this.managerProjectsService.getManagerProjects()
     .subscribe((data:[]) =>{
-      console.log(data);
       this.man_project =  new MatTableDataSource(data)});
    }
    deleteProj(id:number):void{
@@ -62,21 +51,9 @@ export class ManagerProjectsComponent implements OnInit {
         return x.id !== id;
        })
      });
-    console.log(this.man_project.data);
    }
    addManagerProject(projectName): void {
     this.managerProjectsService.addManagerProject(projectName)
     .subscribe((data) =>{this.man_project = data})
   }
-   
-
-  //  editVacation(value) {
-  //   this.vacationService.editVacation(this.userId, newVacation)
-  //     .subscribe(() => {
-  //       this.vacations = this.vacations.filter(v => v.id !== newVacation.id);
-  //       this.vacations.push(newVacation);
-  //     }
-  //     );
-  // }
-
 }
