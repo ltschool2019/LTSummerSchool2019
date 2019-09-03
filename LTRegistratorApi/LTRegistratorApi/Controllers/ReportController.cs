@@ -155,7 +155,7 @@ namespace LTRegistratorApi.Controllers
                     range.Style.Font.Size = 10;
                 }
 
-                //worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+                worksheet.Cells.AutoFitColumns();
 
                 fileContents = package.GetAsByteArray();
             }
