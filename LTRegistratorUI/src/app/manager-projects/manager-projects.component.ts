@@ -21,6 +21,7 @@ export class ManagerProjectsComponent implements OnInit {
   public man_project: MatTableDataSource<ManagerProjects>;
   manProjectForm: FormGroup;
   displayedColumns: string[] = ['name', 'status', 'export','delete'];
+
   constructor(
     public dialog: MatDialog,
     private managerProjectsService: ManagerProjectsService) { 
@@ -36,8 +37,7 @@ export class ManagerProjectsComponent implements OnInit {
     console.log(this.man_project.data);
     console.log("gfd");
     const dialogRef = this.dialog.open(AddProjectDialogComponent, {
-      width: '250px',
-      //data: {name: ''}
+      width: '250px'
     });
 
     
@@ -65,6 +65,10 @@ export class ManagerProjectsComponent implements OnInit {
        })
      });
     console.log(this.man_project.data);
+   }
+   addManagerProject(projectName): void {
+    this.managerProjectsService.addManagerProject(projectName)
+    .subscribe((data) =>{this.man_project = data})
   }
    
 
