@@ -41,12 +41,12 @@ namespace LTRegistratorApi.Tests
 
             var employees = new List<Employee>()
             {
-                new Employee() {Id=1, FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", Rate = 1.5, Leaves = new List<Leave>()},
-                new Employee() {Id=2, FirstName = "Bob", SecondName = "Johnson", Mail = "b0b@yandex.ru", Leaves = leaveBob, Rate = 1 },
-                new Employee() {Id=3, FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", Leaves = leaveEve, Rate = 1.25, ManagerId = 2 },
-                new Employee() {Id=4, FirstName = "Carol", SecondName = "Smith", Mail = "car0l@mail.ru", Leaves = leaveCarol, Rate = 1 },
-                new Employee() {Id=5, FirstName = "Dave", SecondName = "Jones", Mail = "dave.99@mail.ru", Rate = 1, ManagerId = 2 ,Leaves = new List<Leave>()},
-                new Employee() {Id=6, FirstName = "Frank", SecondName = "Florence", Mail = "frank.99@mail.ru", Leaves = leaveFrank, Rate = 0.25, ManagerId = 4 }
+                new Employee() {Id=1, FirstName = "Alice", SecondName = "Brown", Mail = "alice@mail.ru", MaxRole = RoleType.Administrator, Rate = 1.5, Leaves = new List<Leave>()},
+                new Employee() {Id=2, FirstName = "Bob", SecondName = "Johnson", Mail = "b0b@yandex.ru", MaxRole = RoleType.Manager, Leaves = leaveBob, Rate = 1 },
+                new Employee() {Id=3, FirstName = "Eve", SecondName = "Williams", Mail = "eve.99@yandex.ru", MaxRole = RoleType.Employee, Leaves = leaveEve, Rate = 1.25, ManagerId = 2 },
+                new Employee() {Id=4, FirstName = "Carol", SecondName = "Smith", Mail = "car0l@mail.ru", MaxRole = RoleType.Manager, Leaves = leaveCarol, Rate = 1 },
+                new Employee() {Id=5, FirstName = "Dave", SecondName = "Jones", Mail = "dave.99@mail.ru", MaxRole = RoleType.Employee, Rate = 1, ManagerId = 2 ,Leaves = new List<Leave>()},
+                new Employee() {Id=6, FirstName = "Frank", SecondName = "Florence", Mail = "frank.99@mail.ru", MaxRole = RoleType.Employee, Leaves = leaveFrank, Rate = 0.25, ManagerId = 4 }
             };
 
             {
@@ -72,15 +72,16 @@ namespace LTRegistratorApi.Tests
             #region Add ProjectEmployees
             {
                 var dbSet = db.Set<ProjectEmployee>();
-                dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 3 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 3 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5 });
-                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6 });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 1, Role = RoleType.Employee });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 2, Role = RoleType.Manager });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 2, Role = RoleType.Employee });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 1, EmployeeId = 3, Role = RoleType.Employee });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 3, Role = RoleType.Employee });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 3, EmployeeId = 3, Role = RoleType.Employee });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 4, Role = RoleType.Manager });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 5, Role = RoleType.Employee });
+                dbSet.Add(new ProjectEmployee() { ProjectId = 2, EmployeeId = 6, Role = RoleType.Employee });
+
                 db.SaveChanges();
             }
             #endregion
