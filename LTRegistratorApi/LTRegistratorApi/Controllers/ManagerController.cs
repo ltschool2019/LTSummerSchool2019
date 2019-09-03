@@ -53,8 +53,6 @@ namespace LTRegistratorApi.Controllers
                 .Select(name => name.p)
                 .ToList());
 
-            if (!projects.Any())
-                return NotFound();
             return Ok(projects);
         }
 
@@ -157,7 +155,6 @@ namespace LTRegistratorApi.Controllers
         [Authorize(Policy = "IsManagerOrAdministrator")]
         [HttpGet("allprojects")]
         [ProducesResponseType(typeof(List<ProjectDto>), 200)]
-        [ProducesResponseType(204)]
         public async Task<IActionResult> GetProjects()
         {
             var thisUserIdent = HttpContext.User.Identity as ClaimsIdentity;
@@ -176,9 +173,7 @@ namespace LTRegistratorApi.Controllers
                 projects = await Db.Set<Project>().Where(w => !w.SoftDeleted).ToListAsync();
             }
 
-            return projects.Any()
-                ? (IActionResult)Ok(DtoConverter.ToProjectDto(projects))
-                : NoContent();
+            return Ok(DtoConverter.ToProjectDto(projects));
         }
 
         /// <summary>
