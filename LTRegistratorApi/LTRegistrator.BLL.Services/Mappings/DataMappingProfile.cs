@@ -59,6 +59,11 @@ namespace LTRegistrator.BLL.Services.Mappings
                 .ForMember(hru => hru.Surname, opt => opt.MapFrom(src => src.SecondName))
                 .ForMember(hru => hru.Rate, opt => opt.MapFrom(src => src.Rate))
                 .ForMember(hru => hru.Projects, opt => opt.MapFrom(src => src.ProjectEmployees))
+                .ForMember(hru => hru.NormHours, opt => opt.MapFrom((src, dist, res, context) =>
+                {
+                    var workingHoursInMonth = (int)context.Items["workingHoursInMonth"];
+                    return workingHoursInMonth * src.Rate;
+                }))
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<int, HourReportUserBllModel>()

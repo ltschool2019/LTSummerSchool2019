@@ -55,7 +55,7 @@ namespace LTRegistrator.BLL.Services.Repositories
             response.EnsureSuccessStatusCode();
 
             var content = await GetResponseContent(response).ConfigureAwait(false);
-            return content.Count();
+            return content.Count(c => c);
         }
 
         public async Task<IDictionary<DateTime, bool>> GetCalendarByYear(DateTime date)

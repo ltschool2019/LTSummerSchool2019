@@ -51,11 +51,8 @@ namespace LTRegistrator.BLL.Services.Services
                     return e;
                 });
 
-            var report = Mapper.Map<HourReportBllModel>(employees);
-            foreach (var user in report.Users)
-            {
-                Mapper.Map(countWorkingDays * HoursInWorkingDay, user);
-            }
+            var workingHoursInMonth = countWorkingDays * HoursInWorkingDay;
+            var report = Mapper.Map<HourReportBllModel>(employees, opt => opt.Items[nameof(workingHoursInMonth)] = workingHoursInMonth);
 
             return report;
         }
