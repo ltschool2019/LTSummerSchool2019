@@ -4,7 +4,8 @@ import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
 
 import { Task } from '../models/task.model';
-export interface noIdTaskNote {
+
+export interface NoIdTaskNote {
   Day: string;
   Hours: number;
 }
@@ -15,7 +16,7 @@ export class EmployeeService {
 
   constructor(private http: HttpClient) { }
   // get
-  public getTasks(userId: any, projectId: any, startDate: any, endDate: any): Observable<Task[]> {
+  public getTasks(userId: number, projectId: number, startDate: any, endDate: any): Observable<Task[]> {
     return this.http.get<Task>(`${this.getUrl(userId, projectId)}/?startDate=${startDate}&EndDate=${endDate}
     `).pipe(
       map((data: any) =>
@@ -25,9 +26,9 @@ export class EmployeeService {
   }
   //post 
   //это первый запрос, если таск пустой
-  public addTask(userId: any, projectId: any, task: Task): Observable<any> {
+  public addTask(userId: number, projectId: number, task: Task): Observable<any> {
 
-    let noId: noIdTaskNote[] = [];
+    let noId: NoIdTaskNote[] = [];
     for (let i = 0; i < task.taskNotes.length; i++) {
       noId.push({ Day: task.taskNotes[i].day, Hours: task.taskNotes[i].hours });
     }
@@ -40,15 +41,15 @@ export class EmployeeService {
     return this.http.post(this.getUrl(userId, projectId), body);
   }
   // put
-  public editTask(userId: any, taskId: any, task: Task): Observable<any> {
-    let noId: noIdTaskNote[] = [];
+  public editTask(userId: number, taskId: number, task: Task): Observable<any> {
+    let taskNotes: NoIdTaskNote[] = [];
     for (let i = 0; i < task.taskNotes.length; i++) {
-      noId.push({ Day: task.taskNotes[i].day, Hours: task.taskNotes[i].hours });
+      taskNotes.push({ Day: task.taskNotes[i].day, Hours: task.taskNotes[i].hours });
     }
     let body = {
       Name: `${task.name}`,
       Id: `${taskId}`,
-      TaskNotes: noId
+      TaskNotes: taskNotes
     }
     return this.http.put(`http://localhost:5000/api/Task/employee/${userId}`, body);
   }
@@ -58,7 +59,7 @@ export class EmployeeService {
     return this.http.delete<Task>(`http://localhost:5000/api/task/${taskId}/employee/${userId}`);
   }
 
-  private getUrl(userId: any, projectId: any) {
+  private getUrl(userId: number, projectId: number) {
     return `http://localhost:5000/api/task/project/${projectId}/employee/${userId}`;
   }
 }

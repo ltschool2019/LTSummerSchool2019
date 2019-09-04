@@ -1,85 +1,102 @@
 .task {
-
   display: flex;
   flex-direction: column;
   align-items: center;
 
-  &__name {}
-
   &__days {
-
     display: flex;
+  }
 
-    font-style: normal;
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 24px;
+  &__buttons {
+    margin-top: 55px;
+  }
+}
 
-    color: #838383;
+.days {
+  font-style: normal;
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 24px;
+  color: #838383;
 
-    &__naming {
-      display: flex;
-      flex-direction: column;
-    }
+  &__day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-right: 14px;
+  }
 
-    &__day {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-right: 14px;
+  &__title {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-right: 63px;
+  }
 
-      &__date {
-        margin-bottom: 6px;
-      }
+  &__total {
+    margin-left: 66px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+  }
+}
 
-      &__container {
-        background: #FFFFFF;
-        box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.25);
+.day {
+  &__date {
+    margin-bottom: 6px;
+  }
+}
 
-        &__weekday {
-          padding-top: 20px;
-          padding-bottom: 7px;
-          width: 64px;
-          text-align: center;
-        }
+.title {
+  max-width: 86px;
+  height: 115px;
 
-        &__hours {
-          max-width: 64px;
-          height: 53px;
-          text-align: center;
-          border: 2px solid #FFC200;
-          box-sizing: border-box;
-        }
-      }
-    }
+  &__string {
+    width: 86px;
+    text-align: end;
+  }
+}
 
-    &__total {
-      margin-left: 62px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
+.total {
+  &__text {
+    text-align: center;
+  }
 
-      p {
-        text-align: center;
-      }
+  &__input {
+    width: 59px;
+    height: 53px;
 
-      mat-form-field {
-        width: 59px;
-        height: 53px;
+    border: 2px solid #FF9102;
+    box-sizing: border-box;
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.25);
+    text-align: center;
+  }
 
-        border: 2px solid #FF9102;
-        box-sizing: border-box;
-        box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.25);
-        text-align: center;
-      }
-    }
+}
 
-    &__buttons {
-      margin-top: 55px;
+.container {
+  background: #FFFFFF;
+  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.25);
 
-      &__clear {
-        margin-right: 10px;
-      }
-    }
+  &__weekday {
+    padding-top: 20px;
+    padding-bottom: 7px;
+    width: 64px;
+    text-align: center;
+  }
+
+  &__hours {
+    max-width: 64px;
+    height: 53px;
+    text-align: center;
+    border: 2px solid #FFC200;
+    box-sizing: border-box;
+  }
+}
+
+.buttons {
+  &__clear {
+    margin-right: 10px;
   }
 }

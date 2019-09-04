@@ -24,11 +24,6 @@
         <mat-datepicker-toggle [for]="currentWeek" matSuffix></mat-datepicker-toggle>
         <mat-datepicker #currentWeek></mat-datepicker>
       </mat-form-field>
-      <!--       <mat-form-field>
-        <input matInput [matDatepicker]="picker" placeholder="Choose a date">
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-      </mat-form-field> -->
 
       <button mat-icon-button aria-label="Next week" (click)="nextWeek()">
         <mat-icon>keyboard_arrow_right</mat-icon>
@@ -36,105 +31,126 @@
 
     </div>
 
-    <div class="task__days">
+    <div class="task__days days">
 
-      <div class="task__days__naming">
-        <p>Дата</p>
-        <p>День недели</p>
-        <p>Часы</p>
+      <div class="days__title title">
+        <p class="title__string">Дата</p>
+        <p class="title__string">День недели</p>
+        <p class="title__string">Часы</p>
       </div>
 
 
-      <div class="task__days__day">
+      <div class="days__day day">
 
-        <p class="task__days__day__date">{{week[0].date.slice(8, 10)}}</p>
-        <div class="task__days__day__container">
-          <p class="task__days__day__container__weekday"> {{week[0].weekday}} </p>
+        <p class="day__date">{{week[0].date.slice(8, 10)}}</p>
 
-          <mat-form-field class="task__days__day__container__hours">
+        <div class="day__container container">
+
+          <p class="container__weekday"> {{week[0].weekday}} </p>
+
+          <mat-form-field class="container__hours">
             <input matInput placeholder="" formControlName="day0">
           </mat-form-field>
+
         </div>
 
       </div>
-      <div class="task__days__day">
+      <div class="days__day day">
 
-        <p class="task__days__day__date">{{week[1].date.slice(8, 10)}}</p>
-        <div class="task__days__day__container">
-          <p class="task__days__day__container__weekday"> {{week[1].weekday}} </p>
+        <p class="day__date">{{week[1].date.slice(8, 10)}}</p>
 
-          <mat-form-field class="task__days__day__container__hours">
+        <div class="day__container container">
+
+          <p class="container__weekday"> {{week[1].weekday}} </p>
+
+          <mat-form-field class="container__hours">
             <input matInput placeholder="" formControlName="day1">
           </mat-form-field>
+
         </div>
 
       </div>
-      <div class="task__days__day">
+      <div class="days__day day">
 
-        <p class="task__days__day__date">{{week[2].date.slice(8, 10)}}</p>
-        <div class="task__days__day__container">
-          <p class="task__days__day__container__weekday"> {{week[2].weekday}} </p>
+        <p class="day__date">{{week[2].date.slice(8, 10)}}</p>
 
-          <mat-form-field class="task__days__day__container__hours">
+        <div class="day__container container">
+
+          <p class="container__weekday"> {{week[2].weekday}} </p>
+
+          <mat-form-field class="container__hours">
             <input matInput placeholder="" formControlName="day2">
           </mat-form-field>
+
         </div>
 
       </div>
-      <div class="task__days__day">
+      <div class="days__day day">
 
-        <p class="task__days__day__date">{{week[3].date.slice(8, 10)}}</p>
-        <div class="task__days__day__container">
-          <p class="task__days__day__container__weekday"> {{week[3].weekday}} </p>
+        <p class="day__date">{{week[3].date.slice(8, 10)}}</p>
 
-          <mat-form-field class="task__days__day__container__hours">
+        <div class="day__container container">
+
+          <p class="container__weekday"> {{week[3].weekday}} </p>
+
+          <mat-form-field class="container__hours">
             <input matInput placeholder="" formControlName="day3">
           </mat-form-field>
+
         </div>
 
       </div>
-      <div class="task__days__day">
+      <div class="days__day day">
 
-        <p class="task__days__day__date">{{week[4].date.slice(8, 10)}}</p>
-        <div class="task__days__day__container">
-          <p class="task__days__day__container__weekday"> {{week[4].weekday}} </p>
+        <p class="day__date">{{week[4].date.slice(8, 10)}}</p>
 
-          <mat-form-field class="task__days__day__container__hours">
+        <div class="day__container container">
+
+          <p class="container__weekday"> {{week[4].weekday}} </p>
+
+          <mat-form-field class="container__hours">
             <input matInput placeholder="" formControlName="day4">
           </mat-form-field>
+
         </div>
 
       </div>
-      <div class="task__days__day">
+      <div class="days__day day">
 
-        <p class="task__days__day__date">{{week[5].date.slice(8, 10)}}</p>
-        <div class="task__days__day__container">
-          <p class="task__days__day__container__weekday"> {{week[5].weekday}} </p>
+        <p class="day__date">{{week[5].date.slice(8, 10)}}</p>
 
-          <mat-form-field class="task__days__day__container__hours">
+        <div class="day__container container">
+
+          <p class="container__weekday"> {{week[5].weekday}} </p>
+
+          <mat-form-field class="container__hours">
             <input matInput placeholder="" formControlName="day5">
           </mat-form-field>
+
         </div>
 
       </div>
-      <div class="task__days__day">
+      <div class="days__day day">
 
-        <p class="task__days__day__date">{{week[6].date.slice(8, 10)}}</p>
-        <div class="task__days__day__container">
-          <p class="task__days__day__container__weekday"> {{week[6].weekday}} </p>
+        <p class="day__date">{{week[6].date.slice(8, 10)}}</p>
 
-          <mat-form-field class="task__days__day__container__hours">
+        <div class="day__container container">
+
+          <p class="container__weekday"> {{week[6].weekday}} </p>
+
+          <mat-form-field class="container__hours">
             <input matInput placeholder="" formControlName="day6">
           </mat-form-field>
+
         </div>
 
       </div>
 
-      <div class="task__days__total">
+      <div class="days__total total">
 
-        <p>Всего часов</p>
+        <p class="total__text">Всего часов</p>
 
-        <mat-form-field>
+        <mat-form-field class="total__input">
           <input matInput placeholder="" formControlName="total">
         </mat-form-field>
 
@@ -143,9 +159,9 @@
     </div>
 
 
-    <div class="task__days__buttons">
-      <button mat-flat-button class="task__days__buttons__clear" (click)="clear()">Очистить</button>
-      <button mat-flat-button class="task__days__buttons__submit" color="primary" (click)="save()">Сохранить</button>
+    <div class="task__buttons buttons">
+      <button mat-flat-button class="buttons__clear" (click)="clear()">Очистить</button>
+      <button mat-flat-button class="buttons__submit" color="primary" (click)="save()">Сохранить</button>
     </div>
 
   </form>

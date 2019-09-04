@@ -27,7 +27,7 @@ export class EmployeeComponent implements OnInit {
   projectId: number;
   startDate: any;
   endDate: any;
-  canPut: boolean = true;//post или пут запрос
+  canPut = true;//post или пут запрос
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
