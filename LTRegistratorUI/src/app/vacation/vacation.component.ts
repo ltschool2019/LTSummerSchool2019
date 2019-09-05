@@ -28,8 +28,6 @@ export class VacationComponent implements OnInit {
     { value: 'Training', viewValue: 'Training' },
     { value: 'Idle', viewValue: 'Idle' }
   ];
-  minDate = new Date();
-  maxDate = new Date(2020, 0, 1);
 
   vacations: Vacation[] = [];
   private userId: number;
@@ -45,7 +43,6 @@ export class VacationComponent implements OnInit {
     this.userId = this.userService.getUserId();
     this.initForm();
     this.getVacations();
-    // todo add manager's userId variety
   }
 
   // get
@@ -55,8 +52,15 @@ export class VacationComponent implements OnInit {
   }
 
   // post
-  onSubmit(value) {
-
+  onSubmit() {
+    //let value = new Date(this.vacationForm.get('currentWeek').value);
+    let start = new Date(this.vacationForm.get('start').value);
+    let end = new Date(this.vacationForm.get('end').value);
+    //new Date создает дату по мск времени, а это на 3 часа меньше, чем по UTC.
+    //Соответственно start.toISOString() дает дату на сутки меньше
+    //это костыль (возможно) т.к.
+    start.setHours(3);
+    end.setHours(3);
     /** Проверяем форму на валидность */
     if (this.vacationForm.invalid) {
       /** Прерываем выполнение метода*/
@@ -64,9 +68,10 @@ export class VacationComponent implements OnInit {
     }
 
     const newVacation = new Vacation(0,
-      value.type,
-      value.start.toISOString(),
-      value.end.toISOString());
+      this.vacationForm.get('type').value,
+      start.toISOString(),
+      end.toISOString());
+    console.log('newVacation: ', newVacation);
     this.vacationService.addVacation(this.userId, newVacation)
       .subscribe(() => {
         this.vacations.push(newVacation);
@@ -93,10 +98,14 @@ export class VacationComponent implements OnInit {
 
   // put
   editVacation(value) {
+    let start = new Date(value.start);
+    let end = new Date(value.end);
+    start.setHours(3);
+    end.setHours(3);
     const newVacation = new Vacation(value.id,
       value.type,
-      value.start,
-      value.end);
+      start,
+      end);
     this.vacationService.editVacation(this.userId, newVacation)
       .subscribe(() => {
         this.vacations = this.vacations.filter(v => v.id !== newVacation.id);
