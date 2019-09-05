@@ -1,10 +1,14 @@
+<div class = "content">
 <h4 mat-dialog-title>Добавление проекта</h4>
 <div mat-dialog-content>
 
-  <mat-form-field>
-    <input matInput [(ngModel)]="name">
+  <mat-form-field >
+    <input  placeholder = "Введите название  проекта" matInput [(ngModel)]="name" >
   </mat-form-field>
 </div>
-<div mat-dialog-actions>
-  <button mat-button [mat-dialog-close]="name" cdkFocusInitial>Ok</button>
+
+<div class ="buttons " mat-dialog-actions >
+  <button class = "left" mat-button [mat-dialog-close]="name" (click) = "onClose()">Отменить</button>
+  <button class="mat-raised-button mat-primary right" [mat-dialog-close]="name" cdkFocusInitial (click) = "onSave()">Сохранить</button>
+</div>
 </div>

@@ -7,12 +7,16 @@ import { MatDialogRef } from '@angular/material/dialog';
   styleUrls: ['./add-project-dialog.component.scss']
 })
 export class AddProjectDialogComponent {
+  
   public name: string = '';
   constructor(
     public dialogRef: MatDialogRef<AddProjectDialogComponent>) {}
   
   
-    onNoClick(): void {
+    onSave(): void {
+      this.dialogRef.close();
+    }
+    onClose():void {
       this.dialogRef.close();
     }
 }

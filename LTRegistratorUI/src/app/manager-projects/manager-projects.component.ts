@@ -27,7 +27,7 @@ export class ManagerProjectsComponent implements OnInit {
   }
   openDialogAddProj():void{
     const dialogRef = this.dialog.open(AddProjectDialogComponent, {
-      width: '250px'
+      width: '350px'
     });
 
     
@@ -44,6 +44,7 @@ export class ManagerProjectsComponent implements OnInit {
     .subscribe((data:[]) =>{
       this.man_project =  new MatTableDataSource(data)});
    }
+   
    deleteProj(id:number):void{
      this.managerProjectsService.deleteProj(id)
      .subscribe((project)=>{
