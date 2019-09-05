@@ -52,6 +52,7 @@ namespace LTRegistrator.BLL.Services.Services
                 });
 
             var workingHoursInMonth = countWorkingDays * HoursInWorkingDay;
+            //в качестве опции передается кол-во рабочих часов в месяце для вычисления нормы часов для каждого пользователя
             var report = Mapper.Map<HourReportBllModel>(employees, opt => opt.Items[nameof(workingHoursInMonth)] = workingHoursInMonth);
 
             return report;

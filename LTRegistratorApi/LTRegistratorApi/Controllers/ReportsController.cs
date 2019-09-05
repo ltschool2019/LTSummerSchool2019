@@ -45,6 +45,7 @@ namespace LTRegistratorApi.Controllers
 
                 using (ExcelRange range = worksheet.Cells[1, 1, 1, header.Count])
                 {
+                    //формируется статическая шапка, задаются стили
                     range.LoadFromArrays(new List<string[]>(new[] { header.ToArray() }));
                     AddColorForRangeCells(range, Color.FromArgb(204, 204, 255));
                     range.Style.Font.Bold = true;
@@ -54,6 +55,7 @@ namespace LTRegistratorApi.Controllers
                     }
                 }
 
+                // к шапке добавляются проекты и типы отпусков работников
                 for (int i = 0; i < report.Events.Count(); i++)
                 {
                     var item = report.Events.ElementAt(i);
@@ -62,6 +64,7 @@ namespace LTRegistratorApi.Controllers
                     cell.Style.TextRotation = 90;
                     cell.Style.Font.Bold = true;
                     Color color;
+                    // в зависимости от типа, назначается цвет
                     switch (item.EventType)
                     {
                         case EventType.ManagerProject:
@@ -83,7 +86,7 @@ namespace LTRegistratorApi.Controllers
                     AddColorForRangeCells(cell, color);
                 }
 
-                //Header Two
+                //Header Two, формируется вторая шапка под первой, которая содержит суммы часов по проектам 
                 worksheet.Cells[2, 2].Value = "Итого";
                 worksheet.Cells[2, 2].Style.Font.Bold = true;
                 using (ExcelRange range = worksheet.Cells[2, header.Count, 2, header.Count + report.Events.Count()])
@@ -92,6 +95,7 @@ namespace LTRegistratorApi.Controllers
                     {
                         var cell = worksheet.Cells[range.Start.Row, column + header.Count - 1];
                         var startCell = cell.Start;
+                        // формула для сложения все часов за элемент в шапке один (вертикальный столбец)
                         cell.Formula = $"SUM({worksheet.Cells[startCell.Row + 1, startCell.Column].Address}:{worksheet.Cells[startCell.Row + report.Users.Count(), startCell.Column].Address})";
                     }
 
@@ -99,7 +103,7 @@ namespace LTRegistratorApi.Controllers
                 }
                 AddColorForRangeCells(worksheet, 2, 1, 2, header.Count + report.Events.Count(), Color.FromArgb(153, 204, 255));
 
-                //Data
+                //Формирование списка пользователей
                 var userIndex = 1;
                 foreach (var user in report.Users)
                 {
@@ -115,6 +119,7 @@ namespace LTRegistratorApi.Controllers
                         currentCell.Style.Fill.PatternType = ExcelFillStyle.Solid;
                         currentCell.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(204, 204, 255));
 
+                        // проставляются часы по проектам в соответствующие ячейки
                         using (ExcelRange headerProjectRange = worksheet.Cells[1, header.Count + 1, 1, header.Count + report.Events.Count()])
                         {
                             foreach (var project in user.Projects)
@@ -127,6 +132,7 @@ namespace LTRegistratorApi.Controllers
                             }
                         }
 
+                        // проставляются часы по отпускам в соответствующие ячейки
                         using (ExcelRange headerProjectRange = worksheet.Cells[1, header.Count + 1, 1, header.Count + report.Events.Count()])
                         {
                             foreach (var leave in user.Leaves)
@@ -141,12 +147,12 @@ namespace LTRegistratorApi.Controllers
                         userIndex++;
                     }
                 }
-
+                // стилизация ячеек с часами
                 using (ExcelRange range = worksheet.Cells[3, header.Count + 1, 3 + report.Users.Count() - 1, header.Count + report.Events.Count()])
                 {
                     AddColorForRangeCells(range, Color.FromArgb(204, 255, 204));
                 }
-
+                //общаяя стилизация листа
                 using (ExcelRange range = worksheet.Cells[1, 1, report.Users.Count() + 2, report.Events.Count() + 5])
                 {
                     range.Style.Border.Top.Style = ExcelBorderStyle.Thin;
@@ -156,6 +162,7 @@ namespace LTRegistratorApi.Controllers
                     range.Style.Font.Size = 10;
                 }
 
+                //атоподбор размеров ячеек
                 worksheet.Cells.AutoFitColumns();
 
                 fileContents = package.GetAsByteArray();
