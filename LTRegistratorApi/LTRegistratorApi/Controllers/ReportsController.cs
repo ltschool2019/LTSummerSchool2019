@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using LTRegistrator.BLL.Contracts.Contracts;
 using LTRegistrator.BLL.Contracts.Models;
-using Microsoft.AspNet.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OfficeOpenXml;
@@ -15,8 +14,7 @@ using OfficeOpenXml.Style;
 namespace LTRegistratorApi.Controllers
 {
     [Route("api/[controller]")]
-    //[ApiController, Authorize(Policy = "IsAdminOrCurrentManager")]
-    [ApiController]
+    [ApiController, Authorize(Policy = "IsAdminOrCurrentManager")]
     public class ReportsController : ControllerBase
     {
         private readonly IReportService _reportService;

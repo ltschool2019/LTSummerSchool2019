@@ -5,14 +5,17 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using LTRegistrator.BLL.Contracts.Contracts;
-using Newtonsoft.Json;
 
 namespace LTRegistrator.BLL.Services.Repositories
 {
     public class WorkCalendarRepository : IWorkCalendarRepository
     {
+        // формат ответа: 00000110000011 
+        // 0 - рабочий день
+        // 1 - выходной
         private const string BaseUrl = "https://isdayoff.ru/api/getdata";
         private readonly HttpClient _httpClient;
+
         public WorkCalendarRepository(HttpClient httpClient)
         {
             _httpClient = httpClient;
