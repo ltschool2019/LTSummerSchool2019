@@ -1,58 +1,168 @@
-<div class="section-timesheet">
-  <p class="timesheet"><b>TimeSheet</b><br></p>
-  <ul class="dates">
-    <li><a href="#"><img src="/assets/arrow_left.png"></a></li>
-    <li><input class="input_button" type="week" value="0000-00-00" size="20"></li>
-    <!--<li><input class="input_button" type="week" value="0000-00-00" size="20"></li>-->
-    <li><a href="#"><img src="/assets/arrow_right.png"></a></li>
-  </ul>
+<section>
+  <form class="task" [formGroup]="taskForm">
 
-  <ul class="table-header">
-    <li>
-      <p>Project name</p>
-    </li>
-    <li class="days" *ngFor="let day of days">{{day}}</li>
-    <li>
-      <p>Total<br>hours</p>
-    </li>
-  </ul>
-  <ul class="projects">
-    <li>
-      <select name="project">
-        <option value="none">--Select--</option>
-        <option value="alpha">Project Alpha</option>
-        <option value="omega">Project Omega</option>
-      </select>
-    </li>
-    <li><input type="text" size="7"></li>
-    <li><input type="text" size="7"></li>
-    <li><input type="text" size="7"></li>
-    <li><input type="text" size="7"></li>
-    <li><input type="text" size="7"></li>
-    <li><input type="text" size="7"></li>
-    <li><input type="text" size="7"></li>
-    <li><input type="text" size="7"></li>
-    <!--     <li><a href="#">Edit</a></li> -->
-  </ul>
-  <ul class="projects">
-    <li>
-      <select name="project">
-        <option value="none">--Select--</option>
-        <option value="alpha">Project Alpha</option>
-        <option value="omega">Project Omega</option>
-      </select>
-    </li>
-    <li><input type="text" size="7"></li>
-    <li><input type="text" size="7"></li>
-    <li><input type="text" size="7"></li>
-    <li><input type="text" size="7"></li>
-    <li><input type="text" size="7"></li>
-    <li><input type="text" size="7"></li>
-    <li><input type="text" size="7"></li>
-    <li><input type="text" size="7"></li>
-  </ul>
-  <ul>
-    <li><a class="save" href="#">Save Details</a></li>
-    <li><a class="cancel" href="#">Edit</a></li>
-  </ul>
-</div>
+    <mat-form-field class="task__name">
+      <mat-label>Название проекта</mat-label>
+      <mat-select formControlName="type" (selectionChange)="getTasks()">
+        <mat-option *ngFor="let project of projects" [value]="project">
+          {{project.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="task__weekpicker">
+
+      <button mat-icon-button aria-label="Previous week" (click)="previousWeek()">
+        <mat-icon>keyboard_arrow_left</mat-icon>
+      </button>
+
+      <!-- FIXME: неделя должна начинаться с пн, а не с вс -->
+      <!-- FIXME: отображать как выбор недели, а не дня-->
+      <mat-form-field>
+        <input matInput [matDatepicker]="currentWeek" placeholder="week" formControlName="currentWeek"
+          (dateChange)="getWeek()">
+        <mat-datepicker-toggle [for]="currentWeek" matSuffix></mat-datepicker-toggle>
+        <mat-datepicker #currentWeek></mat-datepicker>
+      </mat-form-field>
+
+      <button mat-icon-button aria-label="Next week" (click)="nextWeek()">
+        <mat-icon>keyboard_arrow_right</mat-icon>
+      </button>
+
+    </div>
+
+    <div class="task__days days">
+
+      <div class="days__title title">
+        <p class="title__string">Дата</p>
+        <p class="title__string">День недели</p>
+        <p class="title__string">Часы</p>
+      </div>
+
+
+      <div class="days__day day">
+
+        <p class="day__date">{{week[0].date.slice(8, 10)}}</p>
+
+        <div class="day__container container">
+
+          <p class="container__weekday"> {{week[0].weekday}} </p>
+
+          <mat-form-field class="container__hours">
+            <input matInput placeholder="" formControlName="day0">
+          </mat-form-field>
+
+        </div>
+
+      </div>
+      <div class="days__day day">
+
+        <p class="day__date">{{week[1].date.slice(8, 10)}}</p>
+
+        <div class="day__container container">
+
+          <p class="container__weekday"> {{week[1].weekday}} </p>
+
+          <mat-form-field class="container__hours">
+            <input matInput placeholder="" formControlName="day1">
+          </mat-form-field>
+
+        </div>
+
+      </div>
+      <div class="days__day day">
+
+        <p class="day__date">{{week[2].date.slice(8, 10)}}</p>
+
+        <div class="day__container container">
+
+          <p class="container__weekday"> {{week[2].weekday}} </p>
+
+          <mat-form-field class="container__hours">
+            <input matInput placeholder="" formControlName="day2">
+          </mat-form-field>
+
+        </div>
+
+      </div>
+      <div class="days__day day">
+
+        <p class="day__date">{{week[3].date.slice(8, 10)}}</p>
+
+        <div class="day__container container">
+
+          <p class="container__weekday"> {{week[3].weekday}} </p>
+
+          <mat-form-field class="container__hours">
+            <input matInput placeholder="" formControlName="day3">
+          </mat-form-field>
+
+        </div>
+
+      </div>
+      <div class="days__day day">
+
+        <p class="day__date">{{week[4].date.slice(8, 10)}}</p>
+
+        <div class="day__container container">
+
+          <p class="container__weekday"> {{week[4].weekday}} </p>
+
+          <mat-form-field class="container__hours">
+            <input matInput placeholder="" formControlName="day4">
+          </mat-form-field>
+
+        </div>
+
+      </div>
+      <div class="days__day day">
+
+        <p class="day__date">{{week[5].date.slice(8, 10)}}</p>
+
+        <div class="day__container container">
+
+          <p class="container__weekday"> {{week[5].weekday}} </p>
+
+          <mat-form-field class="container__hours">
+            <input matInput placeholder="" formControlName="day5">
+          </mat-form-field>
+
+        </div>
+
+      </div>
+      <div class="days__day day">
+
+        <p class="day__date">{{week[6].date.slice(8, 10)}}</p>
+
+        <div class="day__container container">
+
+          <p class="container__weekday"> {{week[6].weekday}} </p>
+
+          <mat-form-field class="container__hours">
+            <input matInput placeholder="" formControlName="day6">
+          </mat-form-field>
+
+        </div>
+
+      </div>
+
+      <div class="days__total total">
+
+        <p class="total__text">Всего часов</p>
+
+        <mat-form-field class="total__input">
+          <input matInput placeholder="" formControlName="total">
+        </mat-form-field>
+
+      </div>
+
+    </div>
+
+
+    <div class="task__buttons buttons">
+      <button mat-flat-button class="buttons__clear" (click)="clear()">Очистить</button>
+      <button mat-flat-button class="buttons__submit" color="primary" (click)="save()">Сохранить</button>
+    </div>
+
+  </form>
+</section>

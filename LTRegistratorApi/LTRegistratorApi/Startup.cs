@@ -1,11 +1,14 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using AutoMapper;
 using LTRegistrator.BLL.Contracts.Contracts;
 using LTRegistrator.BLL.Services;
+using LTRegistrator.BLL.Services.Mappings;
+using LTRegistrator.BLL.Services.Repositories;
 using LTRegistrator.BLL.Services.Services;
 using LTRegistrator.Domain.Entities;
 using LTRegistratorApi.Mappings;
@@ -91,14 +94,28 @@ namespace LTRegistratorApi
                         return employeeId == routeEmployeeId || context.User.HasClaim(c =>
                                    c.Type == ClaimTypes.Role && (c.Value == "Manager" || c.Value == "Administrator"));
                     }));
+
+                options.AddPolicy("IsAdminOrCurrentManager", policy =>
+                    policy.RequireAssertion(context =>
+                    {
+                        var managerId = Convert.ToInt32(context.User.FindFirstValue("EmployeeID"));
+                        var authContext = (AuthorizationFilterContext) context.Resource;
+                        var routeManagerId = Convert.ToInt32(authContext.HttpContext.GetRouteValue("managerId"));
+                        return managerId == routeManagerId &&
+                               context.User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "Manager")
+                               || context.User.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "Administrator");
+                    }));
             });
-            services.AddTransient<HttpContext>(s =>
-                s.GetService<IHttpContextAccessor>().HttpContext);
+            services.AddTransient<HttpClient>();
+            services.AddTransient(typeof(IWorkCalendarRepository), typeof(WorkCalendarRepository));
+            services.AddTransient<HttpContext>(s => s.GetService<IHttpContextAccessor>().HttpContext);
             services.AddTransient(typeof(IEmployeeService), typeof(EmployeeService));
+            services.AddTransient(typeof(IReportService), typeof(ReportService));
 
             var mappingConfig = new MapperConfiguration(mc =>
             {
                 mc.AddProfile<DataMappingProfileWeb>();
+                mc.AddProfile<DataMappingProfile>();
             });
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);

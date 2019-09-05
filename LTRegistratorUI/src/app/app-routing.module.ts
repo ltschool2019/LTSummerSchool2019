@@ -14,9 +14,9 @@ import { ManagerProjectsComponent } from 'src/app/manager-projects/manager-proje
 import { AdminComponent } from './admin/admin.component';
 
 const userRoutes: Routes = [
-  {path: 'timesheet', component: TimesheetComponent, resolve: {user: TimesheetResolverService}},
-  {path: '', redirectTo: 'timesheet', pathMatch: 'full'},
-  {path: 'vacation', component: VacationComponent},
+  { path: 'timesheet', component: TimesheetComponent, resolve: {user: TimesheetResolverService}},
+  { path: '', redirectTo: 'timesheet', pathMatch: 'full' },
+  { path: 'vacation', component: VacationComponent },
   { path: 'admin', component: AdminComponent },
   { path: 'manager_projects', component: ManagerProjectsComponent},
   {path: 'timesheet/edit', component: EmployeeComponent} // FIXME:  сделать children

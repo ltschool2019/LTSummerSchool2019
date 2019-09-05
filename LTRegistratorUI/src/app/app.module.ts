@@ -49,12 +49,11 @@ import { TimesheetResolverService } from './timesheet/timesheet-resolver.service
   imports: [
     BrowserModule,
     MaterialModule,
-    BrowserAnimationsModule,
     AppRoutingModule,
     ReactiveFormsModule,
     FormsModule,
     HttpClientModule,
-    FormsModule,
+    BrowserAnimationsModule
   ],
   providers: [
     LoginService,

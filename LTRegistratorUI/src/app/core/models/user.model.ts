@@ -9,13 +9,13 @@ export class User {
   private _projects: Project[];
 
   constructor(employeeId: number, firstName: string, secondName: string,
-              mail: string, maxRole: string, projects: any[]) {
+    mail: string, maxRole: string, projects: any[]) {
     this._id = employeeId;
     this._name = firstName;
     this._surname = secondName;
     this._mail = mail;
     this._role = maxRole;
-    this._projects = projects.map((project: any) => new Project(project.id, project.name));
+    this._projects = projects.map((project: any) => new Project(project.id, project.name, project.totalHours));
   }
 
   get id(): number {
