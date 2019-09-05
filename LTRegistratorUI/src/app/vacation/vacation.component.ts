@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import * as moment from 'moment';
 
 import { VacationEditDialogComponent } from './vacation-edit-dialog/vacation-edit-dialog.component';
 import { Vacation } from '../core/models/vacation.model';
@@ -23,13 +24,11 @@ export class VacationComponent implements OnInit {
   vacationForm: FormGroup;
 
   vacationTypes: VacationType[] = [
-    { value: 'SickLeave', viewValue: 'SickLeave' },
-    { value: 'Vacation', viewValue: 'Vacation' },
-    { value: 'Training', viewValue: 'Training' },
-    { value: 'Idle', viewValue: 'Idle' }
+    {value: 'SickLeave', viewValue: 'SickLeave'},
+    {value: 'Vacation', viewValue: 'Vacation'},
+    {value: 'Training', viewValue: 'Training'},
+    {value: 'Idle', viewValue: 'Idle'}
   ];
-  minDate = new Date();
-  maxDate = new Date(2020, 0, 1);
 
   vacations: Vacation[] = [];
   private userId: number;
@@ -45,6 +44,7 @@ export class VacationComponent implements OnInit {
     this.userId = this.userService.getUserId();
     this.initForm();
     this.getVacations();
+
     // todo add manager's userId variety
   }
 
@@ -55,23 +55,24 @@ export class VacationComponent implements OnInit {
   }
 
   // post
-  onSubmit(value) {
-
+  onSubmit() {
     /** Проверяем форму на валидность */
     if (this.vacationForm.invalid) {
       /** Прерываем выполнение метода*/
       return;
     }
 
-    const newVacation = new Vacation(0,
-      value.type,
-      value.start.toISOString(),
-      value.end.toISOString());
+    const newVacation = new Vacation(
+      0,
+      this.vacationForm.get('type').value,
+      moment(this.vacationForm.get('start').value).toISOString(true),
+      moment(this.vacationForm.get('end').value).toISOString(true)
+    );
+
     this.vacationService.addVacation(this.userId, newVacation)
       .subscribe(() => {
         this.vacations.push(newVacation);
-      }
-      );
+      });
   }
 
   // delete
@@ -83,9 +84,9 @@ export class VacationComponent implements OnInit {
 
   openEditModal(vacation: Vacation) {
     const dialogRef = this.dialog.open(VacationEditDialogComponent,
-      { data: { id: vacation.id, type: vacation.type, start: vacation.start, end: vacation.end } });
+      {data: {id: vacation.id, type: vacation.type, start: vacation.start, end: vacation.end}});
     dialogRef.afterClosed().subscribe(result => {
-      if (result != undefined && result != "false") {
+      if (result !== undefined && result !== 'false') {
         this.editVacation(result);
       }
     });
@@ -95,13 +96,14 @@ export class VacationComponent implements OnInit {
   editVacation(value) {
     const newVacation = new Vacation(value.id,
       value.type,
-      value.start,
-      value.end);
+      moment(value.start).toISOString(true),
+      moment(value.end).toISOString(true)
+    );
     this.vacationService.editVacation(this.userId, newVacation)
       .subscribe(() => {
-        this.vacations = this.vacations.filter(v => v.id !== newVacation.id);
-        this.vacations.push(newVacation);
-      }
+          this.vacations = this.vacations.filter(v => v.id !== newVacation.id);
+          this.vacations.push(newVacation);
+        }
       );
   }
 

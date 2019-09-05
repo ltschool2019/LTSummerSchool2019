@@ -1,6 +1,6 @@
 <section class="vacation">
 
-  <form [formGroup]="vacationForm" (ngSubmit)="onSubmit(vacationForm.value)">
+  <form [formGroup]="vacationForm" (ngSubmit)="onSubmit()">
     <button mat-mini-fab type="submit" class="vacation__submit">+</button>
     <mat-form-field>
       <mat-label>Select</mat-label>
@@ -11,7 +11,7 @@
       </mat-select>
     </mat-form-field>
     <mat-form-field>
-      <input matInput [matDatepicker]="start" [min]="minDate" [max]="maxDate" placeholder="From"
+      <input matInput [matDatepicker]="start" placeholder="From"
         formControlName="start">
       <mat-datepicker-toggle [for]="start" matSuffix></mat-datepicker-toggle>
       <mat-datepicker #start></mat-datepicker>
