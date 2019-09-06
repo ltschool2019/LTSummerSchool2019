@@ -16,10 +16,12 @@ import { TimesheetComponent } from './timesheet/timesheet.component';
 import { AppRoutingModule } from './app-routing.module';
 import { UserComponent } from './user/user.component';
 import { EmployeesTableComponent } from './employee-table/employee-table.component';
+import { AddProjectDialogComponent } from './add-project-dialog/add-project-dialog.component';
 import { LoginService } from 'src/app/core/service/login.service';
 import { MaterialModule } from './material.module';
 import { AdminComponent } from './admin/admin.component';
 import { VacationEditDialogComponent } from './vacation/vacation-edit-dialog/vacation-edit-dialog.component';
+import { ManagerProjectsComponent } from './manager-projects/manager-projects.component';
 import { VacationService } from './core/service/vacation.service';
 import { TimesheetResolverService } from './timesheet/timesheet-resolver.service';
 
@@ -37,9 +39,12 @@ import { TimesheetResolverService } from './timesheet/timesheet-resolver.service
     UserComponent,
     VacationEditDialogComponent,
     EmployeesTableComponent,
+    ManagerProjectsComponent,
+    AddProjectDialogComponent,
     AdminComponent,
   ],
-  entryComponents: [VacationEditDialogComponent, EmployeesTableComponent],
+  entryComponents: [VacationEditDialogComponent,
+    AddProjectDialogComponent],
   imports: [
     BrowserModule,
     MaterialModule,
