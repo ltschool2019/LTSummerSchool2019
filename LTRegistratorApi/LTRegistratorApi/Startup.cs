@@ -130,7 +130,7 @@ namespace LTRegistratorApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, DbContext dbContext)
+        public virtual void Configure(IApplicationBuilder app, IHostingEnvironment env, DbContext dbContext)
         {
             if (env.IsDevelopment())
             {
