@@ -10,20 +10,20 @@ export class ManagerProjectsService {
     private http: HttpClient
   ) { }
 
-  getManagerProjects():any {
+  getManagerProjects(): any {
       return this.http.get<any>(this.getManagerUrlGet());
   }
-  addManagerProject(projectName:any):any {
+  addManagerProject(projectName: any): any {
     return this.http.post<any>(this.projectPostUrl, {name: projectName});
   }
-  getManagerUrlGet(){
-    return `http://localhost:5000/api/manager/`+localStorage.getItem('userId')+`/projects`
+  getManagerUrlGet() {
+    return `http://localhost:5000/api/manager/` + localStorage.getItem('userId') + `/projects`;
   }
-  deleteProj(id:number){
+  deleteProject(id: number ) {
     return this.http.delete<any>(this.deleteProjectGerUrl(id));
   }
 
   deleteProjectGerUrl(id:number){
-    return `http://localhost:5000/api/manager/project/`+id
+    return `http://localhost:5000/api/manager/project/` + id;
   }
 }

@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
-//import путей
 import { LoginComponent } from './login/login.component';
 import { UserComponent } from './user/user.component';
 import { VacationComponent } from './vacation/vacation.component';
@@ -20,7 +19,7 @@ const userRoutes: Routes = [
   { path: 'admin', component: AdminComponent },
   { path: 'manager_projects', component: ManagerProjectsComponent},
   {path: 'timesheet/edit', component: EmployeeComponent} // FIXME:  сделать children
-]
+];
 
 const appRoutes: Routes = [
   {path: 'login', component: LoginComponent},
