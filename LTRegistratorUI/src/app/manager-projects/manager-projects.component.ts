@@ -50,8 +50,4 @@ export class ManagerProjectsComponent implements OnInit {
        });
      });
    }
-   addManagerProject(projectName): void {
-    this.managerProjectsService.addManagerProject(projectName)
-    .subscribe((data) => {this.manProject = data; });
-  }
 }

@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpRequest } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpRequest, HttpErrorResponse } from '@angular/common/http';
+import { catchError, tap } from 'rxjs/operators';
+import { _throw } from 'rxjs-compat/observable/throw';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -14,7 +17,10 @@ export class ManagerProjectsService {
       return this.http.get<any>(this.getManagerUrlGet());
   }
   addManagerProject(projectName: any): any {
-    return this.http.post<any>(this.projectPostUrl, {name: projectName});
+    return this.http.post<any>(this.projectPostUrl, {name: projectName})
+    .pipe(
+      catchError(this.handleError)
+    );
   }
   getManagerUrlGet() {
     return `http://localhost:5000/api/manager/` + localStorage.getItem('userId') + `/projects`;
@@ -26,4 +32,19 @@ export class ManagerProjectsService {
   deleteProjectGerUrl(id:number){
     return `http://localhost:5000/api/manager/project/` + id;
   }
+  private handleError(error: HttpErrorResponse) {
+    if (error.error instanceof ErrorEvent) {
+      // A client-side or network error occurred. Handle it accordingly.
+      console.error('An error occurred:', error.error.message);
+    } else {
+      // The backend returned an unsuccessful response code.
+      // The response body may contain clues as to what went wrong,
+      console.error(
+        `Backend returned code ${error.status}, ` );
+        alert(`Project with this name already exist, try again!`);
+    }
+    // return an observable with a user-facing error message
+    return _throw(
+      'Something bad happened; please try again later.');
+  };
 }
