@@ -108,7 +108,7 @@ export class EmployeeComponent implements OnInit {
               task.vacation.map((leave: any) => {
                 let startIndex = this.week.findIndex(item => item.date == leave.start.slice(0, 10));
                 let endIndex = this.week.findIndex(item => item.date == leave.end.slice(0, 10));
-                let element = document.querySelectorAll(`.task__days__day__container__hours`);
+                let element = document.querySelectorAll(`.container__hours`);
                 for (let i = 0; i <= 6; i++) {
                   if (i >= startIndex && i <= endIndex) {
                     (<HTMLElement>element[i]).style.backgroundColor = 'rgba(255, 194, 0, 0.3)';
@@ -125,6 +125,22 @@ export class EmployeeComponent implements OnInit {
       )
   }
   save() {
+    let saveTotal = false;
+    let totalValue = this.taskForm.controls[`total`].value;
+    for (let i = 0; i < 7; i++) {
+      if (this.taskForm.controls[`day${i}`].value != "" || this.taskForm.controls[`day${i}`].value != 0) {
+        saveTotal = false;
+        break;
+      }
+      else saveTotal = true;
+    }
+
+    if (saveTotal && this.taskForm.controls[`total`].value != 0) {
+      for (let i = 0; i < 6; i++) {
+        this.taskForm.controls[`day${i}`].setValue((totalValue - totalValue % 6) / 6);
+      }
+      this.taskForm.controls[`day6`].setValue(totalValue % 6);
+    }
     this.canPut ? this.editTask() : this.addTask();
   }
   //post
