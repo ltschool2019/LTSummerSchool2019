@@ -15,10 +15,7 @@ import { TaskNote } from '../core/models/taskNote.model';
   styleUrls: ['./employee.component.scss']
 })
 export class EmployeeComponent implements OnInit {
-  // days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  //TODO: date получать из datepicker
   taskForm: FormGroup;
-  //FIXME: заполнять выбранную неделю, вместо текущей
   // curr: Date = new Date();//текущая дата в формате "Tue Aug 13 2019 21:30:08 GMT+0300 (Москва, стандартное время)"
   week: Day[] = [];
   task: Task[];
@@ -59,7 +56,6 @@ export class EmployeeComponent implements OnInit {
     this.getWeek();
   }
   getWeek() {//получить текущую неделю
-    //FIXME: ночью неверные значения
     this.week = [];
     this.clear();
     let curr = new Date(this.taskForm.get('currentWeek').value);
