@@ -1,5 +1,23 @@
-<ul class="section-menu">
-  <li class="section-menu__item" routerLink='/user/timesheet' [routerLinkActive]="'active'">TimeSheet</li>
-  <li class="section-menu__item" routerLink='/user/vacation' [routerLinkActive]="'active'">Leaves</li>
-  <li class="section-menu__item" routerLink='/user/manager_projects' [routerLinkActive]="'active'"> Manager Projects</li>
-</ul>
+<div class="side-menu">
+  <div class="side-menu__user user" [matMenuTriggerFor]="appMenu">
+    <div class="user__icon"></div>
+    <div class="user__info">
+      <div class="user__name">
+        {{user.name }}
+      </div>
+      <div class="user__role">
+        {{user.role}}
+      </div>
+    </div>
+  </div>
+  <mat-menu #appMenu="matMenu" class="side-menu__menu">
+    <button mat-menu-item (click)="signOut()">Выход</button>
+  </mat-menu>
+  <ul class="side-menu__list list">
+    <li class="list__item" routerLink='/user/timesheet' [routerLinkActive]="'active'">TimeSheet</li>
+    <li class="list__item" routerLink='/user/vacation' [routerLinkActive]="'active'">Leaves</li>
+    <li class="list__item" routerLink='/user/manager_projects' [routerLinkActive]="'active'"> Manager Projects
+    </li>
+  </ul>
+  <div class="side-menu__logo" routerLink='/user/timesheet'></div>
+</div>
