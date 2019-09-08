@@ -1,9 +1,13 @@
 <section class="timesheet">
-  <mat-list class="project-list">
-    <mat-list-item *ngFor="let project of projects">
-      <p class="project-list__project"> {{project.name}} </p>
-      <p class="project-list__project"> {{project.totalHours}} </p>
-    </mat-list-item>
-  </mat-list>
-  <button mat-raised-button routerLink='/user/timesheet/edit' class="timesheet__edit">Edit</button>
+  <div class="timesheet__header">
+    Таймшит
+  </div>
+  <div class="project-list">
+    <div class="project-list__item item" *ngFor="let project of projects; let i = index">
+      <div class="item__index"> {{i + 1}} </div>
+      <div class="item__name"> {{project.name}} </div>
+      <div class="item__hours"> {{project.totalHours}} </div>
+      <a mat-flat-button routerLink='/user/timesheet/edit' class="item__open">Открыть таймшит</a>
+    </div>
+  </div>
 </section>

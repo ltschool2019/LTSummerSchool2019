@@ -1,4 +1,36 @@
+@import "~src/sass/variables";
 
-.timesheet{
-  padding: 20px 80px;
+.timesheet {
+  padding: 20px 60px;
+
+  &__header {
+    font-size: 24px;
+    font-weight: 500;
+    margin: 20px 0 40px;
+  }
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+
+  &__index{
+    flex: 0 0 70px;
+  }
+  &__name {
+    flex: 1 0 200px
+  }
+
+  &__hours {
+    flex: 1 0 120px;
+  }
+
+  &__open {
+    color: $blue-btn-color;
+    padding: 5px;
+    font-weight: 500;
+  }
 }

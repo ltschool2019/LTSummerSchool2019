@@ -9,52 +9,60 @@ export interface NoIdTaskNote {
   Day: string;
   Hours: number;
 }
+
 @Injectable({
   providedIn: 'root'
 })
 export class EmployeeService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+  }
+
   // get
   public getTasks(userId: number, projectId: number, startDate: any, endDate: any): Observable<Task[]> {
     return this.http.get<Task>(`${this.getUrl(userId, projectId)}/?startDate=${startDate}&EndDate=${endDate}
     `).pipe(
       map((data: any) =>
-        data.map((task: any) => { return new Task(task.id, task.name, task.taskNotes, task.leave); }))
+        data.map((task: any) => {
+          return new Task(task.id, task.name, task.taskNotes, task.leave);
+        }))
       // map((data: any) => { console.log(data); return new Task(data.id, data.name, data.taskNotes, data.leave); })
-    )
+    );
   }
-  //post 
-  //это первый запрос, если таск пустой
+
+  // post
+  // это первый запрос, если таск пустой
   public addTask(userId: number, projectId: number, task: Task): Observable<any> {
 
-    let noId: NoIdTaskNote[] = [];
+    const noId: NoIdTaskNote[] = [];
     for (let i = 0; i < task.taskNotes.length; i++) {
-      noId.push({ Day: task.taskNotes[i].day, Hours: task.taskNotes[i].hours });
+      noId.push({Day: task.taskNotes[i].day, Hours: task.taskNotes[i].hours});
     }
 
-    let body = {
+    const body = {
       Name: `${task.name}`,
       TaskNotes: noId
-    }
+    };
 
     return this.http.post(this.getUrl(userId, projectId), body);
   }
+
   // put
   public editTask(userId: number, taskId: number, task: Task): Observable<any> {
-    let taskNotes: NoIdTaskNote[] = [];
+    const taskNotes: NoIdTaskNote[] = [];
     for (let i = 0; i < task.taskNotes.length; i++) {
-      taskNotes.push({ Day: task.taskNotes[i].day, Hours: task.taskNotes[i].hours });
+      taskNotes.push({Day: task.taskNotes[i].day, Hours: task.taskNotes[i].hours});
     }
-    let body = {
+    const body = {
       Name: `${task.name}`,
       Id: `${taskId}`,
       TaskNotes: taskNotes
-    }
+    };
     return this.http.put(`http://localhost:5000/api/Task/employee/${userId}`, body);
   }
+
   // delete
-  // api/employee/{EmployeeID}/leaves?leaveID=2
+  // api/timesheet-edit/{EmployeeID}/leaves?leaveID=2
   public deleteTask(userId: number, taskId: number): Observable<any> {
     return this.http.delete<Task>(`http://localhost:5000/api/task/${taskId}/employee/${userId}`);
   }

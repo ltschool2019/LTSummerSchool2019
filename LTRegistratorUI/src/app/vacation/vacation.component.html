@@ -1,7 +1,7 @@
 <section class="vacation">
 
-  <form [formGroup]="vacationForm" (ngSubmit)="onSubmit()">
-    <button mat-mini-fab type="submit" class="vacation__submit">+</button>
+  <form [formGroup]="vacationForm" (ngSubmit)="onSubmit()" class="vacation-form">
+    <button mat-mini-fab type="submit">+</button>
     <mat-form-field>
       <mat-label>Select</mat-label>
       <mat-select formControlName="type">
