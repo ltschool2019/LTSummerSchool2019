@@ -46,7 +46,10 @@ namespace LTRegistrator.BLL.Services.Services
                         }).ToList();
                         return pe;
                     }).ToList();
-                    e.Leaves = e.Leaves.Where(l => l.StartDate >= date && l.StartDate < date.AddMonths(1) || l.EndDate >= date && l.EndDate < date.AddMonths(1)).ToList();
+                    e.Leaves = e.Leaves.Where(
+                            l => l.StartDate >= date && l.StartDate < date.AddMonths(1)
+                                 || l.EndDate >= date && l.EndDate < date.AddMonths(1))
+                        .ToList();
                     return e;
                 });
 

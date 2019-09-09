@@ -10,6 +10,5 @@ namespace LTRegistrator.BLL.Contracts.Contracts
         Task<IDictionary<DateTime, bool>> GetWorkCalendarByMonth(DateTime date);
         Task<int> GetCountOfWorkingDaysInMonth(DateTime date);
         Task<IDictionary<DateTime, bool>> GetCalendarByYear(DateTime date);
-        Task<IDictionary<DateTime, bool>> GetCalendarByInterval(DateTime start, DateTime end);
     }
 }
