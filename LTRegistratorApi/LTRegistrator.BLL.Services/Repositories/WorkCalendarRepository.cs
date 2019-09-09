@@ -71,6 +71,31 @@ namespace LTRegistrator.BLL.Services.Repositories
             return await GetResponseResult(date, parameters).ConfigureAwait(false);
         }
 
+        public async Task<IDictionary<DateTime, bool>> GetCalendarByInterval(DateTime start, DateTime end)
+        {
+            var years = end.Year - start.Year;
+            var result = new Dictionary<DateTime, bool>();
+            for (int i = 0; i < years; i++)
+            {
+                var parameters = new Dictionary<string, object>
+                {
+                    { "year", start.Year + i }
+                };
+                var response = await SendGetRequest(BaseUrl, parameters);
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                var dayIndex = 0;
+                foreach (var item in content.ToCharArray())
+                {
+                    result.Add(start.AddDays(dayIndex), item.ToString() == "0");
+                    dayIndex++;
+                }
+            }
+
+            return result.Where(r => r.Key >= start && r.Key <= end).ToDictionary(r => r.Key, r => r.Value);
+        }
+
         private async Task<IDictionary<DateTime, bool>> GetResponseResult(DateTime startDate, IDictionary<string, object> parameters)
         {
             var response = await SendGetRequest(BaseUrl, parameters).ConfigureAwait(false);

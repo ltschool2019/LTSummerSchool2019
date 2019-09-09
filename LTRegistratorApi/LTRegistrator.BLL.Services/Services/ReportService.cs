@@ -24,7 +24,9 @@ namespace LTRegistrator.BLL.Services.Services
         public async Task<HourReportBllModel> GetMonthlyReportAsync(int managerId, DateTime date)
         {
             date = new DateTime(date.Year, date.Month, 1);
-            var countWorkingDays = await _calendarRepository.GetCountOfWorkingDaysInMonth(date);
+            
+            var workMonth = await _calendarRepository.GetWorkCalendarByMonth(date);
+            var countWorkingDays = workMonth.Count(wm => wm.Value);
 
             var employees = (await DbContext.Set<Employee>()
                     .Include(e => e.ProjectEmployees).ThenInclude(pe => pe.Tasks).ThenInclude(t => t.TaskNotes)
@@ -44,16 +46,17 @@ namespace LTRegistrator.BLL.Services.Services
                         }).ToList();
                         return pe;
                     }).ToList();
-                    e.Leaves = e.Leaves.Where(
-                            l => l.StartDate >= date && l.StartDate < date.AddMonths(1) 
-                            || l.EndDate >= date && l.EndDate < date.AddMonths(1))
-                        .ToList();
+                    e.Leaves = e.Leaves.Where(l => l.StartDate >= date && l.StartDate < date.AddMonths(1) || l.EndDate >= date && l.EndDate < date.AddMonths(1)).ToList();
                     return e;
                 });
 
             var workingHoursInMonth = countWorkingDays * HoursInWorkingDay;
             //в качестве опции передается кол-во рабочих часов в месяце для вычисления нормы часов для каждого пользователя
-            var report = Mapper.Map<HourReportBllModel>(employees, opt => opt.Items[nameof(workingHoursInMonth)] = workingHoursInMonth);
+            var report = Mapper.Map<HourReportBllModel>(employees, opt =>
+            {
+                opt.Items[nameof(workMonth)] = workMonth;
+                opt.Items[nameof(workingHoursInMonth)] = workingHoursInMonth;
+            });
 
             return report;
         }

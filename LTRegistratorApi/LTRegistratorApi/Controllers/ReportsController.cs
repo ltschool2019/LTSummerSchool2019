@@ -14,7 +14,7 @@ using OfficeOpenXml.Style;
 namespace LTRegistratorApi.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController, Authorize(Policy = "IsAdminOrCurrentManager")]
+    [ApiController]
     public class ReportsController : ControllerBase
     {
         private readonly IReportService _reportService;
