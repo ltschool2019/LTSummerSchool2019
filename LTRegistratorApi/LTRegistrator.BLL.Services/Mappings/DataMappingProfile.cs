@@ -15,8 +15,9 @@ namespace LTRegistrator.BLL.Services.Mappings
             #region HourReport
 
             CreateMap<IEnumerable<Employee>, HourReportBllModel>()
-                .AfterMap((src, dest) =>
+                .AfterMap((src, dest, context) =>
                 {
+                    
                     var leaves = src.SelectMany(e => e.Leaves).GroupBy(l => l.TypeLeave).Select(l => l.Key).Select(tl => new Event
                     {
                         Name = EnumAssociations.LeaveNames[tl],
@@ -42,9 +43,10 @@ namespace LTRegistrator.BLL.Services.Mappings
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             CreateMap<Employee, HourReportUserBllModel>()
-                .AfterMap((src, dest) =>
+                .AfterMap((src, dest, context) =>
                 {
-                    var leaves = src.Leaves.GroupBy(l => l.TypeLeave).Select(g => new HourReportLeaveBllModel
+                    var workMonth = context.Items["workMonth"] as IDictionary<DateTime, bool>;
+                    var leaves = GetLeavesWithoutWeekends(src.Leaves, workMonth).GroupBy(l => l.TypeLeave).Select(g => new HourReportLeaveBllModel
                     {
                         EventType = EnumAssociations.LeaveEventTypes[g.Key],
                         Name = EnumAssociations.LeaveNames[g.Key],
@@ -77,6 +79,40 @@ namespace LTRegistrator.BLL.Services.Mappings
                 .ForAllOtherMembers(opt => opt.Ignore());
 
             #endregion
+        }
+
+        private ICollection<Leave> GetLeavesWithoutWeekends(IEnumerable<Leave> leaves,
+            IDictionary<DateTime, bool> workCalendar)
+        {
+            var result = new List<Leave>();
+            foreach (var leave in leaves)
+            {
+                var currentDays = workCalendar.Where(wc => wc.Key >= leave.StartDate && wc.Key <= leave.EndDate);
+                DateTime? tempStart = null;
+                foreach (var item in currentDays)
+                {
+                    if (tempStart == null)
+                    {
+                        tempStart = item.Key;
+                        continue;
+                    }
+
+                    if (!item.Value)
+                    {
+                        var newLeave = new Leave
+                        {
+                            TypeLeave = leave.TypeLeave,
+                            EmployeeId = leave.EmployeeId,
+                            StartDate = (DateTime)tempStart,
+                            EndDate = item.Key.AddDays(-1)
+                        };
+                        result.Add(newLeave);
+                        tempStart = null;
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }

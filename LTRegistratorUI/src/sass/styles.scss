@@ -1,26 +1,30 @@
 /* You can add global styles to this file, and also import other style files */
-@import url('https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap&subset=cyrillic');
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap&subset=cyrillic');
 @import "~material-design-icons/iconfont/material-icons.css";
 @import "material-theme";
+@import "variables";
 @import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 
 * {
   font-family: "Roboto", Arial, sans-serif;
 }
+html{
+  height: 100%;
+}
 
 body {
-  margin: 0;
-  padding: 0;
+  height: 100%;
+  overflow: hidden;  /*makes the body non-scrollable (we will add scrolling to the sidebar and main content containers)*/
+  margin: 0;  /*removes default style*/
+  padding: 0;  /*removes default style*/
+  box-sizing: border-box;
 
-  font-size: 15px;
+  font-size: 14px;
   line-height: 22px;
   color: #000000;
-  //font-weight: bold;
-
-  //background-color: #E5E5E5;;
 }
 
 p {
-  padding: 0px;
+  padding: 0;
   margin: 0 auto;
 }

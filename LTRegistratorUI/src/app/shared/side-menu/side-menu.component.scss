@@ -1,53 +1,123 @@
-$font-stack: "PT Sans Narrow",
-Arial,
-sans-serif;
-$f-size: 18px;
+@import "~src/sass/variables";
 
-.section-menu {
+.side-menu {
   position: relative;
   width: 250px;
   height: 100%;
-  list-style: none;
+  overflow: hidden;
   margin: 0;
   padding: 0;
+  box-shadow: 5px 0 10px 1px rgba(0, 0, 0, 0.5);
+
+  display: flex;
+  flex-flow: column;
+
+  &__list {
+    flex-grow: 1;
+  }
+
+
+  &__logo {
+    width: 88px;
+    height: 90px;
+    background: url("../../../assets/logo.svg") center center no-repeat;
+    background-size: contain;
+    align-self: center;
+
+    &:hover {
+      cursor: pointer;
+    }
+
+  }
+
+  &__user {
+
+  }
+}
+
+.user {
+  display: flex;
+  height: 156px;
+  background: $blue;
+  align-items: center;
+
+  &__icon {
+    width: 55px;
+    height: 55px;
+    margin-left: 25px;
+    background: url("../../../assets/person.svg") center center no-repeat;
+    background-size: contain;
+  }
+
+  &__info {
+    margin-left: 20px;
+    font-size: $user-font-size;
+    font-weight: 500;
+  }
+
+  &__name {
+    color: white;
+  }
+
+  &__role {
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+.list {
+  padding: 0;
+  list-style: none;
 
   &__item {
     padding: 20px;
     display: block;
-    font-size: $f-size;
+    font-size: $menu-font-size;
+    font-weight: 500;
     position: relative;
-    color: rgba(0, 0, 0, 0.7);
+    color: rgba(0, 0, 0, 0.87);
+    transition: background-color .3s ease-out;
 
 
-    &:after {
-      content: '';
-      width: 0;
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      border-bottom: 2px solid #ededed;
-      transition: width .3s ease-out;
+    &.active {
+      background-color: $gray;
     }
 
     &:hover {
-      &:after {
-        width: 100%;
-      }
-
-      color: rgba(0, 0, 0, 1);
       cursor: pointer;
+      background-color: $gray;
+
     }
+
+    //&:after {
+    //  content: '';
+    //  width: 0;
+    //  position: absolute;
+    //  bottom: 0;
+    //  left: 0;
+    //  border-bottom: 2px solid #ededed;
+    //  transition: width .3s ease-out;
+    //}
+    //
+    //&:hover {
+    //  &:after {
+    //    width: 100%;
+    //  }
+    //
+    //  color: rgba(0, 0, 0, 1);
+    //  cursor: pointer;
+    //}
+
+    //&.active {
+    //  &:after {
+    //    width: 100%;
+    //  }
+    //}
 
     &:focus {
       outline: none;
     }
 
-    &.active {
-      &:after {
-        width: 100%;
-      }
-    }
+
   }
 }
-
 

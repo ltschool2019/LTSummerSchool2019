@@ -6,7 +6,7 @@ import { UserComponent } from './user/user.component';
 import { VacationComponent } from './vacation/vacation.component';
 import { NotFoundComponent } from './not-found/not-found.component';
 import { TimesheetComponent } from './timesheet/timesheet.component';
-import { EmployeeComponent } from './employee/employee.component';
+import { TimesheetEditComponent } from './timesheet-edit/timesheet-edit.component';
 import { TimesheetResolverService } from './timesheet/timesheet-resolver.service';
 import { EmployeesTableComponent } from './employee-table/employee-table.component';
 import { ManagerProjectsComponent } from 'src/app/manager-projects/manager-projects.component';
@@ -18,7 +18,7 @@ const userRoutes: Routes = [
   { path: 'vacation', component: VacationComponent },
   { path: 'admin', component: AdminComponent },
   { path: 'manager_projects', component: ManagerProjectsComponent},
-  {path: 'timesheet/edit', component: EmployeeComponent} // FIXME:  сделать children
+  {path: 'timesheet/edit', component: TimesheetEditComponent} // FIXME:  сделать children
 ];
 
 const appRoutes: Routes = [

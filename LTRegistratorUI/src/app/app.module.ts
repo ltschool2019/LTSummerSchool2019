@@ -5,7 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppComponent } from './app.component';
-import { EmployeeComponent } from './employee/employee.component';
+import { TimesheetEditComponent } from './timesheet-edit/timesheet-edit.component';
 import { SideMenuComponent } from './shared/side-menu/side-menu.component';
 import { HeaderComponent } from './shared/header/header.component';
 import { LoginComponent } from './login/login.component';
@@ -33,7 +33,7 @@ import { TimesheetResolverService } from './timesheet/timesheet-resolver.service
     VacationComponent,
     NotFoundComponent,
     TimesheetComponent,
-    EmployeeComponent,
+    TimesheetEditComponent,
     SideMenuComponent,
     HeaderComponent,
     UserComponent,
