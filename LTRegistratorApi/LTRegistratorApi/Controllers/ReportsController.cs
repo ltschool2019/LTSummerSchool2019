@@ -113,7 +113,7 @@ namespace LTRegistratorApi.Controllers
                         };
                         range.LoadFromArrays(new List<string[]>(new[] { row.ToArray() }));
                         var currentCell = worksheet.Cells[2 + userIndex, 5];
-                        currentCell.Formula = $"SUM({worksheet.Cells[2 + userIndex, currentCell.Start.Column + 1].Address}:{worksheet.Cells[1 + userIndex, range.End.Column].Address})";
+                        currentCell.Formula = $"SUM({worksheet.Cells[2 + userIndex, currentCell.Start.Column + 1].Address}:{worksheet.Cells[2 + userIndex, range.End.Column].Address})";
                         currentCell.Style.Fill.PatternType = ExcelFillStyle.Solid;
                         currentCell.Style.Fill.BackgroundColor.SetColor(Color.FromArgb(204, 204, 255));
 
