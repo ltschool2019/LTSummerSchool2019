@@ -15,7 +15,7 @@ namespace LTRegistratorApi.Controllers
     /// Controller providing basic employee operations
     /// </summary>
     [Route("api/[controller]")]
-    [ApiController]
+    [ApiController, Authorize]
     public class EmployeeController : BaseController
     {
         private readonly IEmployeeService _employeeService;
