@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import * as moment from 'moment';
 import { catchError, tap } from 'rxjs/operators';
 import { _throw } from 'rxjs-compat/observable/throw';
+import { environment } from '../../../environments/environment';
 
 import { UserService } from './user.service';
 
@@ -17,7 +18,7 @@ export class LoginService {
 
 
   public signIn(email: string, password: string) {
-    return this.http.post<any>('http://localhost:5000/api/account/login', { email, password })
+    return this.http.post<any>(environment.apiBaseUrl + 'api/account/login', { email, password })
       .pipe(
         tap((token) => this.setSession(token)),
         catchError(err => {

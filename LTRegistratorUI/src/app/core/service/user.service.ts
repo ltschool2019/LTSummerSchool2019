@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { shareReplay, map } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 import { User } from '../models/user.model';
 
@@ -39,6 +40,6 @@ export class UserService {
   }
 
   private getUrl() {
-    return `http://localhost:5000/api/employee/${this.currentUser.id}/info`;
+    return environment.apiBaseUrl + `api/employee/${this.currentUser.id}/info`;
   }
 }

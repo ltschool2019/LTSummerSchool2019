@@ -27,10 +27,29 @@
     }
   }
 
+  &__download {
+    display: flex;
+    align-items: center;
+
+    &:before {
+      content: '';
+      display: inline-block;
+      width: 25px;
+      height: 25px;
+      padding-left: 10px;
+      background: url("../../assets/download.svg") left center no-repeat;
+      background-size: contain;
+    }
+  }
+
+  &__flex-space {
+    flex: 1 1 auto;
+  }
+
   &__title {
     display: flex;
     align-items: center;
-    margin-bottom: 40px;
+    margin-bottom: 40px;  
   }
 }
 

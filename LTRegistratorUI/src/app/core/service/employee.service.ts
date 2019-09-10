@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators';
+import { environment } from '../../../environments/environment';
 
 import { Task } from '../models/task.model';
 
@@ -58,16 +59,16 @@ export class EmployeeService {
       Id: `${taskId}`,
       TaskNotes: taskNotes
     };
-    return this.http.put(`http://localhost:5000/api/Task/employee/${userId}`, body);
+    return this.http.put(environment.apiBaseUrl + `api/Task/employee/${userId}`, body);
   }
 
   // delete
   // api/timesheet-edit/{EmployeeID}/leaves?leaveID=2
   public deleteTask(userId: number, taskId: number): Observable<any> {
-    return this.http.delete<Task>(`http://localhost:5000/api/task/${taskId}/employee/${userId}`);
+    return this.http.delete<Task>(environment.apiBaseUrl + `api/task/${taskId}/employee/${userId}`);
   }
 
   private getUrl(userId: number, projectId: number) {
-    return `http://localhost:5000/api/task/project/${projectId}/employee/${userId}`;
+    return environment.apiBaseUrl + `api/task/project/${projectId}/employee/${userId}`;
   }
 }

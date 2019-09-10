@@ -2,13 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpRequest, HttpErrorResponse } from '@angular/common/http';
 import { catchError, tap } from 'rxjs/operators';
 import { _throw } from 'rxjs-compat/observable/throw';
+import { environment } from '../../../environments/environment';
+import * as moment from 'moment/moment';
+import * as FileSaver from 'file-saver';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class ManagerProjectsService {
-  private projectPostUrl = `http://localhost:5000/api/manager/project/`;
+  private projectPostUrl = environment.apiBaseUrl + `api/manager/project/`;
   constructor(
     private http: HttpClient
   ) { }
@@ -16,21 +20,33 @@ export class ManagerProjectsService {
   getManagerProjects(): any {
       return this.http.get<any>(this.getManagerUrlGet());
   }
+
   addManagerProject(projectName: any): any {
     return this.http.post<any>(this.projectPostUrl, {name: projectName})
     .pipe(
       catchError(this.handleError)
     );
   }
+
   getManagerUrlGet() {
-    return `http://localhost:5000/api/manager/` + localStorage.getItem('userId') + `/projects`;
+    return environment.apiBaseUrl + `api/manager/` + localStorage.getItem('userId') + `/projects`;
   }
+
+  getMonthlyReport(date: Date) {
+    return this.http.get(environment.apiBaseUrl + 'api/reports/monthly/' + moment(date).format('YYYY-MM-DD') + '/manager/' + localStorage.getItem('userId'),
+    { responseType: 'arraybuffer' })
+    .subscribe((response) => {
+      let blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+      FileSaver.saveAs(blob, 'monthly_report_' + moment(date).format('YYYY_MM') + '.xlsx')
+    });
+  }
+
   deleteProject(id: number ) {
     return this.http.delete<any>(this.deleteProjectGerUrl(id));
   }
 
   deleteProjectGerUrl(id:number){
-    return `http://localhost:5000/api/manager/project/` + id;
+    return environment.apiBaseUrl + `api/manager/project/` + id;
   }
   private handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {
