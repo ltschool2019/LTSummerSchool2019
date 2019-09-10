@@ -57,7 +57,7 @@ export class TimesheetEditComponent implements OnInit {
     const day = new Date(curr.setDate(first));
     this.taskForm.patchValue({
       currentWeek: day
-    }, {onlySelf: true});
+    }, { onlySelf: true });
     this.getWeek();
   }
 
@@ -85,7 +85,7 @@ export class TimesheetEditComponent implements OnInit {
     const day = new Date(curr.setDate(first));
     this.taskForm.patchValue({
       currentWeek: day
-    }, {onlySelf: true});
+    }, { onlySelf: true });
     this.getWeek();
   }
 
@@ -107,23 +107,27 @@ export class TimesheetEditComponent implements OnInit {
       .subscribe(
         tasks => {
           this.task = tasks;
+          let element = document.querySelectorAll(`.container__hours`);
+          for (let i = 0; i <= 6; i++) {
+            (<HTMLElement>element[i]).style.backgroundColor = '#FFFFFF';
+          }
           tasks.map(
             (task: any) => {
               task.taskNotes.map((taskNote: any) => {
-                  const index = this.week.findIndex(item => item.date === taskNote.day.slice(0, 10));
-                  this.taskForm.controls[`day${index}`].setValue(taskNote.hours);
-                }
+                const index = this.week.findIndex(item => item.date === taskNote.day.slice(0, 10));
+                this.taskForm.controls[`day${index}`].setValue(taskNote.hours);
+              }
               );
               task.vacation.map((leave: any) => {
                 let startIndex = this.week.findIndex(item => item.date == leave.start.slice(0, 10));
                 let endIndex = this.week.findIndex(item => item.date == leave.end.slice(0, 10));
-                let element = document.querySelectorAll(`.container__hours`);
+                // let element = document.querySelectorAll(`.container__hours`);
                 for (let i = 0; i <= 6; i++) {
                   if (i >= startIndex && i <= endIndex) {
                     (<HTMLElement>element[i]).style.backgroundColor = 'rgba(255, 194, 0, 0.3)';
-                  } else {
+                  } /* else {
                     (<HTMLElement>element[i]).style.backgroundColor = '#FFFFFF';
-                  }
+                  } */
                 }
               });
             }
