@@ -5,7 +5,6 @@ import { _throw } from 'rxjs-compat/observable/throw';
 import { environment } from '../../../environments/environment';
 import * as moment from 'moment/moment';
 import * as FileSaver from 'file-saver';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
