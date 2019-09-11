@@ -102,3 +102,20 @@
     margin-right: 10px;
   }
 }
+
+
+.return{
+  position: absolute;
+  top: 13px;
+  left: 20px;
+  padding: 5px;
+  color: white;
+  text-decoration: none;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+
+  i{
+    padding-right: 10px;
+  }
+}

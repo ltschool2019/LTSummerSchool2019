@@ -1,4 +1,8 @@
 <section>
+  <a class="return" routerLink='/user/timesheet'>
+    <i class="material-icons"> keyboard_backspace </i>
+    К списку
+  </a>
   <form class="task" [formGroup]="taskForm">
 
     <mat-form-field class="task__name">
@@ -20,7 +24,7 @@
       <!-- FIXME: отображать как выбор недели, а не дня-->
       <mat-form-field>
         <input matInput [matDatepicker]="currentWeek" placeholder="week" formControlName="currentWeek"
-          (dateChange)="getWeek()">
+               (dateChange)="getWeek()">
         <mat-datepicker-toggle [for]="currentWeek" matSuffix></mat-datepicker-toggle>
         <mat-datepicker #currentWeek></mat-datepicker>
       </mat-form-field>
