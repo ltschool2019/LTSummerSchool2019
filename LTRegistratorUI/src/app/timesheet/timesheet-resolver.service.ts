@@ -10,10 +10,9 @@ import { User } from '../core/models/user.model';
   providedIn: 'root'
 })
 export class TimesheetResolverService implements Resolve<User> {
-  constructor(private userService: UserService) {
-  }
+  constructor(private userService: UserService) {}
 
   resolve(): Observable<User> | Promise<User> | User {
-    return this.userService.getUserInfo();
+    return this.userService.getUserInfoRequest();
   }
 }
