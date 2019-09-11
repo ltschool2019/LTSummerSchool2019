@@ -57,7 +57,7 @@ export class TimesheetEditComponent implements OnInit {
     const day = new Date(curr.setDate(first));
     this.taskForm.patchValue({
       currentWeek: day
-    }, {onlySelf: true});
+    }, { onlySelf: true });
     this.getWeek();
   }
 
@@ -85,7 +85,7 @@ export class TimesheetEditComponent implements OnInit {
     const day = new Date(curr.setDate(first));
     this.taskForm.patchValue({
       currentWeek: day
-    }, {onlySelf: true});
+    }, { onlySelf: true });
     this.getWeek();
   }
 
@@ -107,23 +107,27 @@ export class TimesheetEditComponent implements OnInit {
       .subscribe(
         tasks => {
           this.task = tasks;
+          let element = document.querySelectorAll(`.container__hours`);
+          for (let i = 0; i <= 6; i++) {
+            (<HTMLElement>element[i]).style.backgroundColor = '#FFFFFF';
+          }
           tasks.map(
             (task: any) => {
               task.taskNotes.map((taskNote: any) => {
-                  const index = this.week.findIndex(item => item.date === taskNote.day.slice(0, 10));
-                  this.taskForm.controls[`day${index}`].setValue(taskNote.hours);
-                }
+                const index = this.week.findIndex(item => item.date === taskNote.day.slice(0, 10));
+                this.taskForm.controls[`day${index}`].setValue(taskNote.hours);
+              }
               );
               task.vacation.map((leave: any) => {
-                const startIndex = this.week.findIndex(item => item.date === leave.start.slice(0, 10));
-                const endIndex = this.week.findIndex(item => item.date === leave.end.slice(0, 10));
-                const element = document.querySelectorAll(`.task__days__day__container__hours`);
+                let startIndex = this.week.findIndex(item => item.date == leave.start.slice(0, 10));
+                let endIndex = this.week.findIndex(item => item.date == leave.end.slice(0, 10));
+                // let element = document.querySelectorAll(`.container__hours`);
                 for (let i = 0; i <= 6; i++) {
                   if (i >= startIndex && i <= endIndex) {
                     (<HTMLElement>element[i]).style.backgroundColor = 'rgba(255, 194, 0, 0.3)';
-                  } else {
+                  } /* else {
                     (<HTMLElement>element[i]).style.backgroundColor = '#FFFFFF';
-                  }
+                  } */
                 }
               });
             }
@@ -138,6 +142,22 @@ export class TimesheetEditComponent implements OnInit {
   }
 
   save() {
+    let saveTotal = false;
+    let totalValue = this.taskForm.controls[`total`].value;
+    for (let i = 0; i < 7; i++) {
+      if (this.taskForm.controls[`day${i}`].value != "" || this.taskForm.controls[`day${i}`].value != 0) {
+        saveTotal = false;
+        break;
+      }
+      else saveTotal = true;
+    }
+
+    if (saveTotal && this.taskForm.controls[`total`].value != 0) {
+      for (let i = 0; i < 6; i++) {
+        this.taskForm.controls[`day${i}`].setValue((totalValue - totalValue % 6) / 6);
+      }
+      this.taskForm.controls[`day6`].setValue(totalValue % 6);
+    }
     this.canPut ? this.editTask() : this.addTask();
   }
 
