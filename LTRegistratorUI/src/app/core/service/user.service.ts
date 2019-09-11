@@ -31,8 +31,12 @@ export class UserService {
     }
   }
 
-  public  getUserInfo() {
-    return this.user$;
+  public getUserInfo() {
+    if (localStorage.getItem('id_token') && !this.user$) {
+      return this.getUserInfoRequest();
+    } else {
+      return this.user$;
+    }
   }
 
   public getUserId() {

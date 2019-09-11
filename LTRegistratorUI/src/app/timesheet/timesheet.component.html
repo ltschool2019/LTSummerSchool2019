@@ -7,7 +7,7 @@
       <div class="item__index"> {{i + 1}} </div>
       <div class="item__name"> {{project.name}} </div>
       <div class="item__hours"> {{project.totalHours}} </div>
-      <a mat-flat-button routerLink='/user/timesheet/edit' class="item__open">Открыть таймшит</a>
+      <a mat-flat-button [routerLink]="['/user/timesheet/edit', project.id]" class="item__open">Открыть таймшит</a>
     </div>
   </div>
 </section>

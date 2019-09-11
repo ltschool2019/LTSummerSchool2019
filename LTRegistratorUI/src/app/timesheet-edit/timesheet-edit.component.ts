@@ -8,6 +8,9 @@ import { Project } from '../core/models/project.model';
 import { Day } from '../core/models/day.model';
 import { Task } from '../core/models/task.model';
 import { TaskNote } from '../core/models/taskNote.model';
+import { ActivatedRoute } from '@angular/router';
+import { Observable } from 'rxjs/Observable';
+import { map, tap } from 'rxjs/operators';
 
 @Component({
   selector: 'app-timesheet-edit',
@@ -24,29 +27,33 @@ export class TimesheetEditComponent implements OnInit {
   projectId: number;
   startDate: any;
   endDate: any;
-  canPut = true; // post или пут запрос
+  canPut = false; // post или пут запрос
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
-    private employeeService: EmployeeService
+    private employeeService: EmployeeService,
+    private route: ActivatedRoute,
     ///  private dateAdapter: DateAdapter<any>
-  ) {
-  }
+  ) {}
 
   ngOnInit() {
     this.userId = this.userService.getUserId();
     this.initForm();
-    this.getProject();
-    // this.dateAdapter.setLocale('ru-Latn');
     this.getWeek();
+
+    this.getProjects().pipe(
+      tap(user => this.projects = user.projects),
+      map(() => this.setupCurrentProject()),
+      map(() => this.getTasks())
+    ).subscribe(() => {});
+    // this.dateAdapter.setLocale('ru-Latn');
   }
 
   clear() {// очистить инпуты формы
     for (let i = 0; i < 7; i++) {
       this.taskForm.controls[`day${i}`].setValue('');
     }
-
-    this.getTotalHours();
+    this.sumTotalHours();
   }
 
   previousWeek() {// выбранный день -7 назад
@@ -57,7 +64,19 @@ export class TimesheetEditComponent implements OnInit {
     const day = new Date(curr.setDate(first));
     this.taskForm.patchValue({
       currentWeek: day
-    }, { onlySelf: true });
+    }, {onlySelf: true});
+    this.getWeek();
+  }
+
+  nextWeek() {// выбранный +7 вперед
+    this.week = [];
+    this.clear();
+    const curr = new Date(this.taskForm.get('currentWeek').value);
+    const first = curr.getDate() + 7;
+    const day = new Date(curr.setDate(first));
+    this.taskForm.patchValue({
+      currentWeek: day
+    }, {onlySelf: true});
     this.getWeek();
   }
 
@@ -73,23 +92,9 @@ export class TimesheetEditComponent implements OnInit {
       const newDay = new Day(day, i);
       this.week.push(newDay); // добавить в массив дней недели
     }
-
-    this.getTasks();
   }
 
-  nextWeek() {// выбранный +7 вперед
-    this.week = [];
-    this.clear();
-    const curr = new Date(this.taskForm.get('currentWeek').value);
-    const first = curr.getDate() + 7;
-    const day = new Date(curr.setDate(first));
-    this.taskForm.patchValue({
-      currentWeek: day
-    }, { onlySelf: true });
-    this.getWeek();
-  }
-
-  getTotalHours() {// часы за неделю
+  sumTotalHours() {// часы за неделю
     let sum = +0;
     for (let i = 0; i < 7; i++) {
       sum += +this.taskForm.controls[`day${i}`].value;
@@ -101,13 +106,13 @@ export class TimesheetEditComponent implements OnInit {
   getTasks(): void {
     this.employeeService.getTasks(
       +localStorage.getItem('userId'),
-      this.taskForm.controls['type'].value.id,
+      this.taskForm.controls['project'].value.id,
       this.week[0].date, this.week[6].date
     )
       .subscribe(
         tasks => {
           this.task = tasks;
-          let element = document.querySelectorAll(`.container__hours`);
+          const element = document.querySelectorAll(`.container__hours`);
           for (let i = 0; i <= 6; i++) {
             (<HTMLElement>element[i]).style.backgroundColor = '#FFFFFF';
           }
@@ -119,8 +124,8 @@ export class TimesheetEditComponent implements OnInit {
               }
               );
               task.vacation.map((leave: any) => {
-                let startIndex = this.week.findIndex(item => item.date == leave.start.slice(0, 10));
-                let endIndex = this.week.findIndex(item => item.date == leave.end.slice(0, 10));
+                const startIndex = this.week.findIndex(item => item.date === leave.start.slice(0, 10));
+                const endIndex = this.week.findIndex(item => item.date === leave.end.slice(0, 10));
                 // let element = document.querySelectorAll(`.container__hours`);
                 for (let i = 0; i <= 6; i++) {
                   if (i >= startIndex && i <= endIndex) {
@@ -133,7 +138,7 @@ export class TimesheetEditComponent implements OnInit {
             }
           );
           this.canPut = true; // если прошло, то делаем put запросы
-          this.getTotalHours();
+          this.sumTotalHours();
         },
         error => {
           error.status === 404 ? this.canPut = false : console.log(error);
@@ -143,13 +148,14 @@ export class TimesheetEditComponent implements OnInit {
 
   save() {
     let saveTotal = false;
-    let totalValue = this.taskForm.controls[`total`].value;
+    const totalValue = this.taskForm.controls[`total`].value;
     for (let i = 0; i < 7; i++) {
-      if (this.taskForm.controls[`day${i}`].value != "" || this.taskForm.controls[`day${i}`].value != 0) {
+      if (this.taskForm.controls[`day${i}`].value !== '' || this.taskForm.controls[`day${i}`].value !== 0) {
         saveTotal = false;
         break;
+      } else {
+        saveTotal = true;
       }
-      else saveTotal = true;
     }
 
     if (saveTotal && this.taskForm.controls[`total`].value != 0) {
@@ -169,9 +175,9 @@ export class TimesheetEditComponent implements OnInit {
         newTaskNotes.push(new TaskNote(0, this.week[i].date, this.taskForm.controls[`day${i}`].value));
       }
     }
-    const newTask = new Task(+localStorage.getItem('userId'), this.taskForm.controls['type'].value.name, newTaskNotes, []);
+    const newTask = new Task(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.name, newTaskNotes, []);
 
-    this.employeeService.addTask(+localStorage.getItem('userId'), this.taskForm.controls['type'].value.id, newTask)
+    this.employeeService.addTask(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.id, newTask)
       .subscribe(() => {
         this.canPut = true;
       });
@@ -185,9 +191,10 @@ export class TimesheetEditComponent implements OnInit {
         newTaskNotes.push(new TaskNote(0, this.week[i].date, this.taskForm.controls[`day${i}`].value));
       }
     }
-    const newTask = new Task(+localStorage.getItem('userId'), this.taskForm.controls['type'].value.name, newTaskNotes, []);
+    const newTask = new Task(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.name, newTaskNotes, []);
     this.employeeService.editTask(+localStorage.getItem('userId'), this.task[0].id, newTask)
       .subscribe(() => {
+        this.sumTotalHours();
       });
   }
 
@@ -196,15 +203,21 @@ export class TimesheetEditComponent implements OnInit {
     this.employeeService.deleteTask(+this.userId, this.task[0].id).subscribe();
   }
 
-  private getProject() {
-    this.userService.getUserInfo().subscribe(user => {
-      this.projects = user.projects;
-    });
+  private getProjects(): Observable<any> {
+    return this.userService.getUserInfo();
+  }
+
+  private setupCurrentProject() {
+    const id = this.route.snapshot.paramMap.get('id');
+
+    this.taskForm.controls['project'].setValue(
+      this.projects.filter(item => item.id === +id)[0]
+    );
   }
 
   private initForm(): void {
     this.taskForm = this.fb.group({
-      type: '',
+      project: '',
       currentWeek: new Date(),
       day0: '',
       day1: '',

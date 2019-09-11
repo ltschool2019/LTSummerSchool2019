@@ -3,7 +3,7 @@
 
     <mat-form-field class="task__name">
       <mat-label>Название проекта</mat-label>
-      <mat-select formControlName="type" (selectionChange)="getTasks()">
+      <mat-select formControlName="project" (selectionChange)="getTasks()">
         <mat-option *ngFor="let project of projects" [value]="project">
           {{project.name}}
         </mat-option>

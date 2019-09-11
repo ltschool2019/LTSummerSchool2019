@@ -1,5 +1,4 @@
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { UserComponent } from './user/user.component';
@@ -8,17 +7,16 @@ import { NotFoundComponent } from './not-found/not-found.component';
 import { TimesheetComponent } from './timesheet/timesheet.component';
 import { TimesheetEditComponent } from './timesheet-edit/timesheet-edit.component';
 import { TimesheetResolverService } from './timesheet/timesheet-resolver.service';
-import { EmployeesTableComponent } from './employee-table/employee-table.component';
 import { ManagerProjectsComponent } from 'src/app/manager-projects/manager-projects.component';
 import { AdminComponent } from './admin/admin.component';
 
 const userRoutes: Routes = [
-  { path: 'timesheet', component: TimesheetComponent, resolve: {user: TimesheetResolverService}},
-  { path: '', redirectTo: 'timesheet', pathMatch: 'full' },
-  { path: 'vacation', component: VacationComponent },
-  { path: 'admin', component: AdminComponent },
-  { path: 'manager_projects', component: ManagerProjectsComponent},
-  {path: 'timesheet/edit', component: TimesheetEditComponent} // FIXME:  сделать children
+  {path: 'timesheet', component: TimesheetComponent, resolve: {user: TimesheetResolverService}},
+  {path: '', redirectTo: 'timesheet', pathMatch: 'full'},
+  {path: 'vacation', component: VacationComponent},
+  {path: 'admin', component: AdminComponent},
+  {path: 'manager_projects', component: ManagerProjectsComponent},
+  {path: 'timesheet/edit/:id', component: TimesheetEditComponent}
 ];
 
 const appRoutes: Routes = [
