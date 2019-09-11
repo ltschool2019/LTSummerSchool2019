@@ -16,7 +16,7 @@
   <ul class="side-menu__list list">
     <li class="list__item" routerLink='/user/timesheet' [routerLinkActive]="'active'">TimeSheet</li>
     <li class="list__item" routerLink='/user/vacation' [routerLinkActive]="'active'">Leaves</li>
-    <li class="list__item" routerLink='/user/manager_projects' [routerLinkActive]="'active'"> Manager Projects
+    <li class="list__item" routerLink='/user/manager_projects' [routerLinkActive]="'active'" *ngIf="user.role != 'Employee'"> Manager Projects
     </li>
   </ul>
   <div class="side-menu__logo" routerLink='/user/timesheet'></div>
