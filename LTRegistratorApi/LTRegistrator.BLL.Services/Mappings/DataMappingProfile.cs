@@ -17,7 +17,7 @@ namespace LTRegistrator.BLL.Services.Mappings
             CreateMap<IEnumerable<Employee>, HourReportBllModel>()
                 .AfterMap((src, dest, context) =>
                 {
-                    
+
                     var leaves = src.SelectMany(e => e.Leaves).GroupBy(l => l.TypeLeave).Select(l => l.Key).Select(tl => new Event
                     {
                         Name = EnumAssociations.LeaveNames[tl],
@@ -46,14 +46,28 @@ namespace LTRegistrator.BLL.Services.Mappings
                 .AfterMap((src, dest, context) =>
                 {
                     var workMonth = context.Items["workMonth"] as IDictionary<DateTime, bool>;
-                    var leaves = GetLeavesWithoutWeekends(src.Leaves, workMonth).GroupBy(l => l.TypeLeave).Select(g => new HourReportLeaveBllModel
+                    var firstDayOfSelectedMonth = workMonth.FirstOrDefault().Key;
+                    var leavesOfSelectedMonth = src.Leaves.Select(l =>
+                    {
+                        if (l.StartDate < firstDayOfSelectedMonth)
+                        {
+                            l.StartDate = firstDayOfSelectedMonth;
+                        }
+
+                        if (l.EndDate > firstDayOfSelectedMonth.AddMonths(1))
+                        {
+                            l.EndDate = firstDayOfSelectedMonth.AddMonths(1);
+                        }
+
+                        return l;
+                    });
+                    var leaves = GetLeavesWithoutWeekends(leavesOfSelectedMonth, workMonth).GroupBy(l => l.TypeLeave).Select(g => new HourReportLeaveBllModel
                     {
                         EventType = EnumAssociations.LeaveEventTypes[g.Key],
                         Name = EnumAssociations.LeaveNames[g.Key],
-                        Hours = g.Sum(l => l.EndDate.Month == l.StartDate.Month
-                            ? (l.EndDate - l.StartDate).TotalDays * 8
-                            : ((l.EndDate - l.StartDate).TotalDays - l.EndDate.Day) * 8)
+                        Hours = g.Sum(l => ((l.EndDate - l.StartDate).TotalDays + 1) * 8)
                     }).ToList();
+                    
                     dest.Leaves = leaves;
                 })
                 .ForMember(hru => hru.UserId, opt => opt.MapFrom(src => src.Id))
@@ -91,13 +105,13 @@ namespace LTRegistrator.BLL.Services.Mappings
                 DateTime? tempStart = null;
                 foreach (var item in currentDays)
                 {
-                    if (tempStart == null)
+                    if (tempStart == null && item.Value)
                     {
                         tempStart = item.Key;
                         continue;
                     }
 
-                    if (!item.Value)
+                    if (!item.Value && tempStart != null)
                     {
                         var newLeave = new Leave
                         {
@@ -109,6 +123,17 @@ namespace LTRegistrator.BLL.Services.Mappings
                         result.Add(newLeave);
                         tempStart = null;
                     }
+                }
+
+                if (tempStart != null)
+                {
+                    result.Add(new Leave
+                    {
+                        TypeLeave = leave.TypeLeave,
+                        EmployeeId = leave.EmployeeId,
+                        StartDate = (DateTime)tempStart,
+                        EndDate = currentDays.LastOrDefault().Key
+                    });
                 }
             }
 
