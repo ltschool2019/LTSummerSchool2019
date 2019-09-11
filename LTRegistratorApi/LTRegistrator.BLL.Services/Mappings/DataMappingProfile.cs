@@ -47,7 +47,7 @@ namespace LTRegistrator.BLL.Services.Mappings
                 {
                     var workMonth = context.Items["workMonth"] as IDictionary<DateTime, bool>;
                     var firstDayOfSelectedMonth = workMonth.FirstOrDefault().Key;
-                    var le = src.Leaves.Select(l =>
+                    var leavesOfSelectedMonth = src.Leaves.Select(l =>
                     {
                         if (l.StartDate < firstDayOfSelectedMonth)
                         {
@@ -61,13 +61,12 @@ namespace LTRegistrator.BLL.Services.Mappings
 
                         return l;
                     });
-                    var leaves = GetLeavesWithoutWeekends(le, workMonth).GroupBy(l => l.TypeLeave).Select(g => new HourReportLeaveBllModel
+                    var leaves = GetLeavesWithoutWeekends(leavesOfSelectedMonth, workMonth).GroupBy(l => l.TypeLeave).Select(g => new HourReportLeaveBllModel
                     {
                         EventType = EnumAssociations.LeaveEventTypes[g.Key],
                         Name = EnumAssociations.LeaveNames[g.Key],
                         Hours = g.Sum(l => ((l.EndDate - l.StartDate).TotalDays + 1) * 8)
                     }).ToList();
-
                     
                     dest.Leaves = leaves;
                 })
