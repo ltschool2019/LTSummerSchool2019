@@ -52,7 +52,7 @@ namespace LTRegistrator.BLL.Services.Services
 
             //Checks the correctness of the location of the start and end
             foreach (var item in list)
-                if (item.Item1 >= item.Item2)
+                if (item.Item1 > item.Item2)
                     return false;
 
             //Checks the correctness of the location of the correct period
