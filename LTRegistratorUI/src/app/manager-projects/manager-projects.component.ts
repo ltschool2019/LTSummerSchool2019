@@ -14,7 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 export class ManagerProjectsComponent implements OnInit {
   public manProject: MatTableDataSource<ManagerProjects>;
   manProjectForm: FormGroup;
-  displayedColumns: string[] = ['name', 'status', 'export', 'delete'];
+  displayedColumns: string[] = ['name', 'status', 'delete'];
 
   constructor(
     public dialog: MatDialog,
@@ -37,6 +37,11 @@ export class ManagerProjectsComponent implements OnInit {
       });
     });
   }
+
+  getMonthlyReport(): void {
+    this.managerProjectsService.getMonthlyReport(new Date());
+  }
+
   getManagerProjects(): void {
     this.managerProjectsService.getManagerProjects()
     .subscribe((data: []) => {
