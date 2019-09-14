@@ -56,12 +56,6 @@ export class VacationComponent implements OnInit {
 
   // post
   onSubmit() {
-    /** Проверяем форму на валидность */
-    if (this.vacationForm.invalid) {
-      /** Прерываем выполнение метода*/
-      return;
-    }
-
     const newVacation = new Vacation(
       0,
       this.vacationForm.get('type').value,
@@ -109,7 +103,7 @@ export class VacationComponent implements OnInit {
 
   private initForm(): void {
     this.vacationForm = this.fb.group({
-      type: '',
+      type: 'SickLeave',
       start: [new Date(), [Validators.required]],
       end: [new Date(), [Validators.required]],
     });
