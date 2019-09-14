@@ -102,7 +102,10 @@ export class TimesheetEditComponent implements OnInit {
     }
     this.taskForm.controls[`total`].setValue(`${sum}`);
   }
-
+  onChangeProject(){
+    this.clear();
+    this.getTasks();
+  }
   // get
   getTasks(): void {
     this.employeeService.getTasks(
