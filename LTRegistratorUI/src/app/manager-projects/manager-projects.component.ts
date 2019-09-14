@@ -14,7 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 export class ManagerProjectsComponent implements OnInit {
   public manProject: MatTableDataSource<ManagerProjects>;
   manProjectForm: FormGroup;
-  displayedColumns: string[] = ['name', 'status', 'delete'];
+  displayedColumns: string[] = ['name', 'delete'];
 
   constructor(
     public dialog: MatDialog,
