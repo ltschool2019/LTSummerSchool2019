@@ -24,7 +24,7 @@
       <!-- FIXME: отображать как выбор недели, а не дня-->
       <mat-form-field>
         <input matInput [matDatepicker]="currentWeek" placeholder="week" formControlName="currentWeek"
-               (dateChange)="getWeek()">
+               (dateChange)="setWeek()">
         <mat-datepicker-toggle [for]="currentWeek" matSuffix></mat-datepicker-toggle>
         <mat-datepicker #currentWeek></mat-datepicker>
       </mat-form-field>

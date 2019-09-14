@@ -39,7 +39,7 @@ export class TimesheetEditComponent implements OnInit {
   ngOnInit() {
     this.userId = this.userService.getUserId();
     this.initForm();
-    this.getWeek();
+    this.setWeek();
 
     this.getProjects().pipe(
       tap(user => this.projects = user.projects),
@@ -65,7 +65,7 @@ export class TimesheetEditComponent implements OnInit {
     this.taskForm.patchValue({
       currentWeek: day
     }, {onlySelf: true});
-    this.getWeek();
+    this.setWeek();
   }
 
   nextWeek() {// выбранный +7 вперед
@@ -77,10 +77,10 @@ export class TimesheetEditComponent implements OnInit {
     this.taskForm.patchValue({
       currentWeek: day
     }, {onlySelf: true});
-    this.getWeek();
+    this.setWeek();
   }
 
-  getWeek() {// получить текущую неделю
+  setWeek() {// получить текущую неделю
     this.week = [];
     this.clear();
     const curr = new Date(this.taskForm.get('currentWeek').value);
@@ -92,6 +92,7 @@ export class TimesheetEditComponent implements OnInit {
       const newDay = new Day(day, i);
       this.week.push(newDay); // добавить в массив дней недели
     }
+    this.getTasks();
   }
 
   sumTotalHours() {// часы за неделю
