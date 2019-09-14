@@ -21,8 +21,6 @@ export class VacationEditDialogComponent implements OnInit {
     { value: 'Training', viewValue: 'Training' },
     { value: 'Idle', viewValue: 'Idle' }
   ];
-  minDate = new Date();
-  maxDate = new Date(2020, 0, 1);
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
