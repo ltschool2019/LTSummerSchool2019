@@ -51,7 +51,7 @@ export class TimesheetEditComponent implements OnInit {
 
   clear() {// очистить инпуты формы
     for (let i = 0; i < 7; i++) {
-      this.taskForm.controls[`day${i}`].setValue('');
+      this.taskForm.controls[`day${i}`].setValue('0');
     }
     this.sumTotalHours();
   }
@@ -102,10 +102,12 @@ export class TimesheetEditComponent implements OnInit {
     }
     this.taskForm.controls[`total`].setValue(`${sum}`);
   }
-  onChangeProject(){
+
+  onChangeProject() {
     this.clear();
     this.getTasks();
   }
+
   // get
   getTasks(): void {
     this.employeeService.getTasks(
@@ -123,9 +125,9 @@ export class TimesheetEditComponent implements OnInit {
           tasks.map(
             (task: any) => {
               task.taskNotes.map((taskNote: any) => {
-                const index = this.week.findIndex(item => item.date === taskNote.day.slice(0, 10));
-                this.taskForm.controls[`day${index}`].setValue(taskNote.hours);
-              }
+                  const index = this.week.findIndex(item => item.date === taskNote.day.slice(0, 10));
+                  this.taskForm.controls[`day${index}`].setValue(taskNote.hours.toString());
+                }
               );
               task.vacation.map((leave: any) => {
                 const startIndex = this.week.findIndex(item => item.date === leave.start.slice(0, 10));
@@ -154,7 +156,7 @@ export class TimesheetEditComponent implements OnInit {
     let saveTotal = false;
     const totalValue = this.taskForm.controls[`total`].value;
     for (let i = 0; i < 7; i++) {
-      if (this.taskForm.controls[`day${i}`].value !== '' || this.taskForm.controls[`day${i}`].value !== 0) {
+      if (this.taskForm.controls[`day${i}`].value !== '0') {
         saveTotal = false;
         break;
       } else {
@@ -162,7 +164,7 @@ export class TimesheetEditComponent implements OnInit {
       }
     }
 
-    if (saveTotal && this.taskForm.controls[`total`].value != 0) {
+    if (saveTotal && this.taskForm.controls[`total`].value !== '0') {
       for (let i = 0; i < 6; i++) {
         this.taskForm.controls[`day${i}`].setValue((totalValue - totalValue % 6) / 6);
       }
@@ -175,9 +177,7 @@ export class TimesheetEditComponent implements OnInit {
   addTask() {
     const newTaskNotes: TaskNote[] = [];
     for (let i = 0; i < 7; i++) {
-      if (this.taskForm.controls[`day${i}`].value !== '') {
-        newTaskNotes.push(new TaskNote(0, this.week[i].date, this.taskForm.controls[`day${i}`].value));
-      }
+      newTaskNotes.push(new TaskNote(0, this.week[i].date, Number(this.taskForm.controls[`day${i}`].value)));
     }
     const newTask = new Task(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.name, newTaskNotes, []);
 
@@ -191,9 +191,7 @@ export class TimesheetEditComponent implements OnInit {
   editTask() {
     const newTaskNotes: TaskNote[] = [];
     for (let i = 0; i < 7; i++) {
-      if (this.taskForm.controls[`day${i}`].value !== '') {
-        newTaskNotes.push(new TaskNote(0, this.week[i].date, this.taskForm.controls[`day${i}`].value));
-      }
+      newTaskNotes.push(new TaskNote(0, this.week[i].date, Number(this.taskForm.controls[`day${i}`].value)));
     }
     const newTask = new Task(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.name, newTaskNotes, []);
     this.employeeService.editTask(+localStorage.getItem('userId'), this.task[0].id, newTask)
@@ -223,14 +221,14 @@ export class TimesheetEditComponent implements OnInit {
     this.taskForm = this.fb.group({
       project: '',
       currentWeek: new Date(),
-      day0: '',
-      day1: '',
-      day2: '',
-      day3: '',
-      day4: '',
-      day5: '',
-      day6: '',
-      total: '',
+      day0: '0',
+      day1: '0',
+      day2: '0',
+      day3: '0',
+      day4: '0',
+      day5: '0',
+      day6: '0',
+      total: '0',
     });
   }
 }
