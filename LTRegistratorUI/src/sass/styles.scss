@@ -8,15 +8,16 @@
 * {
   font-family: "Roboto", Arial, sans-serif;
 }
-html{
+
+html {
   height: 100%;
 }
 
 body {
   height: 100%;
-  overflow: hidden;  /*makes the body non-scrollable (we will add scrolling to the sidebar and main content containers)*/
-  margin: 0;  /*removes default style*/
-  padding: 0;  /*removes default style*/
+  overflow: hidden; /*makes the body non-scrollable (we will add scrolling to the sidebar and main content containers)*/
+  margin: 0; /*removes default style*/
+  padding: 0; /*removes default style*/
   box-sizing: border-box;
 
   font-size: 14px;
@@ -27,4 +28,9 @@ body {
 p {
   padding: 0;
   margin: 0 auto;
+}
+
+.mat-snack-bar-container {
+  background: transparent !important;
+  box-shadow: none !important;
 }

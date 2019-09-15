@@ -11,6 +11,7 @@ import { TaskNote } from '../core/models/taskNote.model';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { map, tap } from 'rxjs/operators';
+import { OverlayService } from "../shared/overlay/overlay.service";
 
 @Component({
   selector: 'app-timesheet-edit',
@@ -33,6 +34,7 @@ export class TimesheetEditComponent implements OnInit {
     private userService: UserService,
     private employeeService: EmployeeService,
     private route: ActivatedRoute,
+    private overlayService: OverlayService
     ///  private dateAdapter: DateAdapter<any>
   ) {}
 
@@ -184,6 +186,8 @@ export class TimesheetEditComponent implements OnInit {
     this.employeeService.addTask(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.id, newTask)
       .subscribe(() => {
         this.canPut = true;
+      }, (err) => {
+        this.overlayService.danger('Ошибка создания');
       });
   }
 
@@ -197,12 +201,19 @@ export class TimesheetEditComponent implements OnInit {
     this.employeeService.editTask(+localStorage.getItem('userId'), this.task[0].id, newTask)
       .subscribe(() => {
         this.sumTotalHours();
+      }, (err) => {
+        this.overlayService.danger(
+          'Ошибка редактирования'
+        )
       });
   }
 
   // delete
   delete(): void {
-    this.employeeService.deleteTask(+this.userId, this.task[0].id).subscribe();
+    this.employeeService.deleteTask(+this.userId, this.task[0].id).subscribe(() => {
+    }, (err) => {
+      this.overlayService.danger('Ошибка удаления');
+    });
   }
 
   private getProjects(): Observable<any> {

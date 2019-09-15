@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router } from "@angular/router";
 
 import { LoginService } from 'src/app/core/service/login.service'
+import { OverlayService } from "../shared/overlay/overlay.service";
 
 @Component({
   selector: 'app-login',
@@ -13,8 +14,12 @@ export class LoginComponent implements OnInit {
 
   loginForm: FormGroup;
 
-  constructor(private fb: FormBuilder, private loginService: LoginService, private router: Router) {
-  }
+  constructor(
+    private fb: FormBuilder,
+    private loginService: LoginService,
+    private router: Router,
+    private overlayService: OverlayService
+  ) {}
 
   ngOnInit() {
     this.initForm();
@@ -33,6 +38,7 @@ export class LoginComponent implements OnInit {
 
   onSubmit() {
     const controls = this.loginForm.controls;
+    this.overlayService.clear();
 
     /** Проверяем форму на валидность */
     if (this.loginForm.invalid) {
@@ -49,7 +55,9 @@ export class LoginComponent implements OnInit {
       .subscribe(() => {
         this.router.navigateByUrl('user/timesheet');
       }, err => {
-        // todo показать ошибку пользователю
+        this.overlayService.danger(
+          'try again'
+        )
       });
   }
 }
