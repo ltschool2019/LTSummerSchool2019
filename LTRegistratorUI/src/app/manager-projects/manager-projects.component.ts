@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { ManagerProjectsService } from 'src/app/core/service/manager_projects.service';
 import { ManagerProjects } from 'src/app/shared/models/manager_projects.model';
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
@@ -15,13 +15,15 @@ export class ManagerProjectsComponent implements OnInit {
   public manProject: MatTableDataSource<ManagerProjects>;
   manProjectForm: FormGroup;
   displayedColumns: string[] = ['name', 'delete'];
-
+  @ViewChild('datePicker') datePicker: ElementRef;
+  
   constructor(
     public dialog: MatDialog,
     private managerProjectsService: ManagerProjectsService) {}
 
   ngOnInit() {
     this.getManagerProjects();
+	this.reportDateFC = new FormControl(new Date());
   }
   openDialogAddProj(): void {
     const dialogRef = this.dialog.open(AddProjectDialogComponent, {
@@ -39,8 +41,13 @@ export class ManagerProjectsComponent implements OnInit {
   }
 
   getMonthlyReport(): void {
-    this.managerProjectsService.getMonthlyReport(new Date());
+    this.managerProjectsService.getMonthlyReport(this.reportDateFC.value);
   }
+  
+  datePickerClose($event) {
+    this.reportDateFC.setValue($event);
+	this.datePicker.close();
+  }	  
 
   getManagerProjects(): void {
     this.managerProjectsService.getManagerProjects()
