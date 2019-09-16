@@ -1,18 +1,22 @@
 <div class="manager-projects">
   <div class="manager-projects__title title">
     <div class="title__name">Список проектов</div>
-    <button mat-raised-button type="submit" class="manager-projects__add" (click)="openDialogAddProj()">Создать проект</button>
+    <button mat-raised-button type="submit" class="manager-projects__add" (click)="openDialogAddProj()">Создать проект
+    </button>
     <span class="manager-projects__flex-space"></span>
-	<div>
-	<mat-form-field>
-      <input matInput [matDatepicker]="datePicker" placeholder="Report date" [formControl]="reportDateFC">
-      <mat-datepicker-toggle [for]="datePicker" matSuffix></mat-datepicker-toggle>
-      <mat-datepicker id="datePicker" #datePicker startView="year" (monthSelected)="datePickerClose($event)"></mat-datepicker>
-    </mat-form-field>
-	</div>
-    <button mat-raised-button type="submit" class="manager-projects__download" (click)="getMonthlyReport()">Выгрузка месячного отчета</button>
-  </div>
+    <div class="manager-projects__export export">
+      <mat-form-field class="export__date">
+        <input matInput [matDatepicker]="datePicker" placeholder="Report date" [formControl]="reportDateFC">
+        <mat-datepicker-toggle [for]="datePicker" matSuffix></mat-datepicker-toggle>
+        <mat-datepicker id="datePicker" #datePicker startView="year"
+                        (monthSelected)="datePickerClose($event)"></mat-datepicker>
+      </mat-form-field>
 
+      <button mat-raised-button type="submit" class="export__download" (click)="getMonthlyReport()">Выгрузка
+        месячного отчета
+      </button>
+    </div>
+  </div>
   <table mat-table [dataSource]="manProject" class="mat-elevation-z8">
 
     <ng-container matColumnDef="name">

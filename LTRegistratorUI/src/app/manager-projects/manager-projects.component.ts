@@ -1,11 +1,12 @@
-import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ManagerProjectsService } from 'src/app/core/service/manager_projects.service';
 import { ManagerProjects } from 'src/app/shared/models/manager_projects.model';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { AddProjectDialogComponent } from 'src/app/add-project-dialog/add-project-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
-import { OverlayService } from "../shared/overlay/overlay.service";
+import { OverlayService } from '../shared/overlay/overlay.service';
+import { MatDatepicker } from '@angular/material';
 
 @Component({
   selector: 'app-manager-projects',
@@ -15,17 +16,21 @@ import { OverlayService } from "../shared/overlay/overlay.service";
 export class ManagerProjectsComponent implements OnInit {
   public manProject: MatTableDataSource<ManagerProjects>;
   manProjectForm: FormGroup;
+  reportDateFC: FormControl;
+
   displayedColumns: string[] = ['name', 'delete'];
-  @ViewChild('datePicker') datePicker: ElementRef;
-  
+
+  @ViewChild('datePicker', {static: false}) datePicker: MatDatepicker<Date>;
+
   constructor(
     public dialog: MatDialog,
     private managerProjectsService: ManagerProjectsService,
-    private overlayService: OverlayService) {}
+    private overlayService: OverlayService) {
+  }
 
   ngOnInit() {
     this.getManagerProjects();
-	this.reportDateFC = new FormControl(new Date());
+    this.reportDateFC = new FormControl(new Date());
   }
 
   openDialogAddProj(): void {
@@ -48,11 +53,11 @@ export class ManagerProjectsComponent implements OnInit {
   getMonthlyReport(): void {
     this.managerProjectsService.getMonthlyReport(this.reportDateFC.value);
   }
-  
+
   datePickerClose($event) {
     this.reportDateFC.setValue($event);
-	this.datePicker.close();
-  }	  
+    this.datePicker.close();
+  }
 
   getManagerProjects(): void {
     this.managerProjectsService.getManagerProjects()
