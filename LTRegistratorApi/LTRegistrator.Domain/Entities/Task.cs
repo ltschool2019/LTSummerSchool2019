@@ -15,6 +15,6 @@ namespace LTRegistrator.Domain.Entities
         public virtual ProjectEmployee ProjectEmployee { get; set; }
 
         public virtual ICollection<TaskNote> TaskNotes { get; set; }
-
+        public virtual ICollection<CustomValue> CustomValues { get; set; }
     }
 }

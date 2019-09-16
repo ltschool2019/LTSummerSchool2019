@@ -37,7 +37,7 @@ namespace LTRegistrator.BLL.Services.Services
                     .ToArrayAsync())
                 .Select(e =>
                 {
-                    e.ProjectEmployees = e.ProjectEmployees.Select(pe =>
+                    e.ProjectEmployees = e.ProjectEmployees.Where(pe => !pe.Project.SoftDeleted).Select(pe =>
                     {
                         pe.Tasks = pe.Tasks.Select(t =>
                         {

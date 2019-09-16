@@ -14,5 +14,6 @@ namespace LTRegistrator.Domain.Entities
         public bool SoftDeleted { get; set; } = false;
 
         public virtual ICollection<ProjectEmployee> ProjectEmployees { get; set; }
+        public virtual ICollection<CustomField> CustomFields { get; set; }
     }
 }
