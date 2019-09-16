@@ -197,7 +197,7 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            if (await Db.Set<Project>().AnyAsync(p => p.Name == projectDto.Name).ConfigureAwait(false))
+            if (await Db.Set<Project>().AnyAsync(p => p.Name == projectDto.Name && !p.SoftDeleted).ConfigureAwait(false))
             {
                 return Conflict(new { Message = $"Project with name {projectDto.Name} already exist" });
             }
