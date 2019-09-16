@@ -32,15 +32,13 @@ export class LoginService {
     localStorage.removeItem('id_token');
     localStorage.removeItem('expires_at');
     localStorage.removeItem('userId');
+    this.userService.clearUserInfo();
   }
 
   private setSession(authResult) {
     this.token_Json = (JSON.parse(atob(authResult.token.split('.')[1])));
-    console.log(this.token_Json);
-    // this.userService.setUserId(Number(this.token_Json['EmployeeID']));
 
     localStorage.setItem('userId', this.token_Json['EmployeeID']);
-    this.userService.setUserId(+localStorage.getItem('userId'));
     const expiresAt = moment().add(authResult.exp, 'second');
     localStorage.setItem('id_token', authResult.token);
     localStorage.setItem('expires_at', JSON.stringify(expiresAt.valueOf()));
