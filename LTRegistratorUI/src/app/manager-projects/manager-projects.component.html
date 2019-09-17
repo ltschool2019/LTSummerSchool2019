@@ -20,7 +20,7 @@
   <table mat-table [dataSource]="manProject" class="mat-elevation-z8">
 
     <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef> Name</th>
+      <th mat-header-cell *matHeaderCellDef> Название</th>
       <td mat-cell *matCellDef="let element">
         <button mat-button class="project-link" routerLink='/user/em_table' [routerLinkActive]="'active'">
           Project {{element.name}}</button>
@@ -28,7 +28,7 @@
     </ng-container>
 
     <ng-container matColumnDef="delete">
-      <th mat-header-cell *matHeaderCellDef> Delete</th>
+      <th mat-header-cell *matHeaderCellDef> Удаление</th>
       <td mat-cell *matCellDef="let element">
         <button mat-mini-fab class="buttonDelete" (click)="deleteProject(element.id)">
           <mat-icon>delete</mat-icon>
