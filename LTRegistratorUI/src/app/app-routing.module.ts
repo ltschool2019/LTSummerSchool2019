@@ -9,6 +9,9 @@ import { TimesheetEditComponent } from './timesheet-edit/timesheet-edit.componen
 import { TimesheetResolverService } from './timesheet/timesheet-resolver.service';
 import { ManagerProjectsComponent } from 'src/app/manager-projects/manager-projects.component';
 import { AdminComponent } from './admin/admin.component';
+import { CreateProjectComponent } from './manager-projects/create-project/create-project.component';
+import { TaskListComponent } from './timesheet/task-list/task-list.component';
+import { TaskDetailsComponent } from './timesheet/task-list/task-details/task-details.component';
 
 const userRoutes: Routes = [
   {path: 'timesheet', component: TimesheetComponent, resolve: {user: TimesheetResolverService}},
@@ -16,7 +19,11 @@ const userRoutes: Routes = [
   {path: 'vacation', component: VacationComponent},
   {path: 'admin', component: AdminComponent},
   {path: 'manager_projects', component: ManagerProjectsComponent},
-  {path: 'timesheet/edit/:id', component: TimesheetEditComponent}
+  {path: 'timesheet/edit/:id', component: TimesheetEditComponent},
+  {path: 'create_project', component: CreateProjectComponent},
+  {path: 'timesheet/:id/tasks', component: TaskListComponent},
+  {path: 'timesheet/:id/tasks/task_details/:taskId', component: TaskDetailsComponent},
+  {path: 'timesheet/:id/tasks/task_details', component: TaskDetailsComponent}
 ];
 
 const appRoutes: Routes = [

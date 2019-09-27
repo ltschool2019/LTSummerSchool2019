@@ -5,6 +5,7 @@ import { _throw } from 'rxjs-compat/observable/throw';
 import { environment } from '../../../environments/environment';
 import * as moment from 'moment/moment';
 import * as FileSaver from 'file-saver';
+import { Project } from '../models/project.model';
 
 @Injectable({
   providedIn: 'root'
@@ -20,11 +21,8 @@ export class ManagerProjectsService {
       return this.http.get<any>(this.getManagerUrlGet());
   }
 
-  addManagerProject(projectName: any): any {
-    return this.http.post<any>(this.projectPostUrl, {name: projectName})
-    .pipe(
-      catchError(this.handleError)
-    );
+  addManagerProject(project: Project): any {
+    return this.http.post<any>(this.projectPostUrl, project);
   }
 
   getManagerUrlGet() {

@@ -5,9 +5,12 @@ using LTRegistrator.Domain.Entities.Base;
 
 namespace LTRegistrator.Domain.Entities
 {
-    public class CustomFieldOptions: BaseEntity
+    public class CustomFieldOption : BaseEntity
     {
         public int Sequence { get; set; }
         public string CustomValue { get; set; }
+
+        public int CustomFieldId { get; set; }
+        public virtual CustomField CustomField { get; set; }
     }
 }

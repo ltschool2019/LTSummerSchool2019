@@ -24,6 +24,11 @@ import { VacationEditDialogComponent } from './vacation/vacation-edit-dialog/vac
 import { ManagerProjectsComponent } from './manager-projects/manager-projects.component';
 import { VacationService } from './core/service/vacation.service';
 import { TimesheetResolverService } from './timesheet/timesheet-resolver.service';
+import { CreateProjectComponent } from './manager-projects/create-project/create-project.component';
+import { TaskListComponent } from './timesheet/task-list/task-list.component'; 
+import { TaskDetailsComponent } from './timesheet/task-list/task-details/task-details.component';
+import { ProjectService } from './core/service/project.service';
+import { SharedModule } from './shared.module';
 
 
 @NgModule({
@@ -42,6 +47,9 @@ import { TimesheetResolverService } from './timesheet/timesheet-resolver.service
     ManagerProjectsComponent,
     AddProjectDialogComponent,
     AdminComponent,
+    CreateProjectComponent,
+    TaskListComponent,
+    TaskDetailsComponent
   ],
   entryComponents: [VacationEditDialogComponent,
     AddProjectDialogComponent],
@@ -52,7 +60,8 @@ import { TimesheetResolverService } from './timesheet/timesheet-resolver.service
     ReactiveFormsModule,
     FormsModule,
     HttpClientModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    SharedModule
   ],
   providers: [
     LoginService,
@@ -64,7 +73,8 @@ import { TimesheetResolverService } from './timesheet/timesheet-resolver.service
     MaterialModule,
     BrowserAnimationsModule,
     AppRoutingModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    ProjectService
   ],
   bootstrap: [AppComponent],
 })

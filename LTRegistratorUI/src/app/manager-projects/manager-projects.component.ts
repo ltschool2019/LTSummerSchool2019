@@ -5,6 +5,7 @@ import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms'
 import { MatTableDataSource } from '@angular/material/table';
 import { AddProjectDialogComponent } from 'src/app/add-project-dialog/add-project-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { Router } from "@angular/router";
 
 @Component({
   selector: 'app-manager-projects',
@@ -18,24 +19,14 @@ export class ManagerProjectsComponent implements OnInit {
 
   constructor(
     public dialog: MatDialog,
-    private managerProjectsService: ManagerProjectsService) {}
+    private managerProjectsService: ManagerProjectsService, 
+    private router: Router) {}
 
   ngOnInit() {
     this.getManagerProjects();
   }
   openDialogAddProj(): void {
-    const dialogRef = this.dialog.open(AddProjectDialogComponent, {
-      width: '350px'
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      if(!result) {
-        return;
-      }
-      this.managerProjectsService.addManagerProject(result)
-      .subscribe((project) => {
-        this.manProject.data = [...this.manProject.data, project];
-      });
-    });
+    this.router.navigateByUrl('user/create_project');
   }
 
   getMonthlyReport(): void {

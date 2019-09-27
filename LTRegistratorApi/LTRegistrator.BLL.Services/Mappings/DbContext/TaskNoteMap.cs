@@ -8,6 +8,8 @@ namespace LTRegistrator.BLL.Services.Mappings.DbContext
     {
         public void Configure(EntityTypeBuilder<TaskNote> builder)
         {
+            builder.ToTable("TaskNotes");
+
             builder.HasKey(tn => tn.Id);
 
             builder.Property(tn => tn.Id).ValueGeneratedOnAdd();

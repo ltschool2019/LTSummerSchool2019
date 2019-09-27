@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,11 @@ namespace LTRegistratorApi.Controllers
         protected BaseController(DbContext db)
         {
             Db = db ?? throw new ArgumentNullException(nameof(db));
+        }
+
+        protected int CurrentEmployeeId
+        {
+            get => Convert.ToInt32(User.FindFirstValue("EmployeeID"));
         }
     }
 }

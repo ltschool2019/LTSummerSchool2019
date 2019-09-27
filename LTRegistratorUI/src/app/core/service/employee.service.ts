@@ -25,7 +25,12 @@ export class EmployeeService {
     `).pipe(
       map((data: any) =>
         data.map((task: any) => {
-          return new Task(task.id, task.name, task.taskNotes, task.leave);
+          var result = new Task();
+          result.id = task.id;
+          result.name = task.name;
+          result.taskNotes = task.taskNotes;
+          result.vacation = task.leave
+          return result;
         }))
       // map((data: any) => { console.log(data); return new Task(data.id, data.name, data.taskNotes, data.leave); })
     );

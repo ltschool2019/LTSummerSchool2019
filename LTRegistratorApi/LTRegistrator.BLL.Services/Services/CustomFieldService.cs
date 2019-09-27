@@ -22,7 +22,7 @@ namespace LTRegistrator.BLL.Services.Services
         public async Task<IEnumerable<CustomFieldBllModel>> GetByProjectIdAsync(int projectId)
         {
             var customFields = await DbContext.Set<CustomField>()
-                .Where(cf => cf.Projects.Select(p => p.Id).Contains(projectId)).ToListAsync();
+                .Where(cf => cf.CustomFieldProjects.Select(p => p.ProjectId).Contains(projectId)).ToListAsync();
 
             return Mapper.Map<IEnumerable<CustomFieldBllModel>>(customFields);
         }

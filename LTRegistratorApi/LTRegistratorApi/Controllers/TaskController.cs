@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using LTRegistrator.BLL.Contracts.Contracts;
 using Microsoft.AspNetCore.Mvc;
 using LTRegistratorApi.Model;
 using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
+using LTRegistratorApi.Model.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authorization;
+using Task = System.Threading.Tasks.Task;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -18,12 +22,26 @@ namespace LTRegistratorApi.Controllers
     [ApiController, Authorize]
     public class TaskController : BaseController
     {
+
+        private readonly ITaskService _taskService;
+        private readonly IMapper _mapper;
+
         /// <summary>
         /// 
         /// </summary>
         /// <param name="db"></param>
-        public TaskController(DbContext db) : base(db)
+        /// <param name="taskService"></param>
+        public TaskController(DbContext db, ITaskService taskService, IMapper _mapper) : base(db)
         {
+            _taskService = taskService;
+        }
+
+        [HttpGet("{taskId}")]
+        public async Task<ActionResult> GetTaskById([FromRoute] int taskId)
+        {
+            var task = await _taskService.GetByIdAsync(CurrentEmployeeId, taskId);
+
+            return Ok(_mapper.Map<TaskDto>(task));
         }
 
         /// <summary>

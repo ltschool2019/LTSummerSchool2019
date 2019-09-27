@@ -11,6 +11,8 @@ namespace LTRegistrator.BLL.Services.Mappings.DbContext
     {
         public void Configure(EntityTypeBuilder<ProjectEmployee> builder)
         {
+            builder.ToTable("ProjectEmployees");
+
             builder.HasKey(pe => new { pe.EmployeeId, pe.ProjectId });
 
             builder.HasOne(pe => pe.Employee).WithMany(e => e.ProjectEmployees).HasForeignKey(pe => pe.EmployeeId);

@@ -3,7 +3,7 @@
     Таймшит
   </div>
   <div class="project-list">
-    <div class="project-list__item item" *ngFor="let project of projects; let i = index">
+    <div class="project-list__item item" *ngFor="let project of projects; let i = index" (click)="openProjectDetails(project.id)">
       <div class="item__index"> {{i + 1}} </div>
       <div class="item__name"> {{project.name}} </div>
       <div class="item__hours"> {{project.totalHours}} </div>

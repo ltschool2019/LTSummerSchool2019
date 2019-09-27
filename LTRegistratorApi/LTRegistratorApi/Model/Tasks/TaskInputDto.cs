@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LTRegistratorApi.Validators;
 
-namespace LTRegistratorApi.Model
+namespace LTRegistratorApi.Model.Tasks
 {
-    public class TaskDto
+    public class TaskInputDto
     {
         public int Id { get; set; }
         public string Name { get; set; }
         public List<TaskNoteDto> TaskNotes { get; set; }
-        public List<LeaveDto> Leave { get; set; }
     }
 }

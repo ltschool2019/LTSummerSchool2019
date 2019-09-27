@@ -1,0 +1,24 @@
+<div class="task-list">
+  <div class="task-list__title title">
+    <div class="title__name">Список задач</div>
+    <button mat-raised-button type="submit" class="task-list__add" (click)="addNewTask()">Создать задачу</button>
+  </div>
+
+  <table mat-table [dataSource]="projectTasks" class="mat-elevation-z8">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="delete">
+        <th mat-header-cell *matHeaderCellDef>Delete</th>
+        <td mat-cell *matCellDef="let element">
+          <button mat-mini-fab class="buttonDelete" (click)="deleteTask(element.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>

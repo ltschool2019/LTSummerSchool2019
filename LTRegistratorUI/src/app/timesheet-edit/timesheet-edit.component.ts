@@ -11,6 +11,7 @@ import { TaskNote } from '../core/models/taskNote.model';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { map, tap } from 'rxjs/operators';
+import { Vacation } from '../core/models/vacation.model';
 
 @Component({
   selector: 'app-timesheet-edit',
@@ -179,7 +180,7 @@ export class TimesheetEditComponent implements OnInit {
     for (let i = 0; i < 7; i++) {
       newTaskNotes.push(new TaskNote(0, this.week[i].date, Number(this.taskForm.controls[`day${i}`].value)));
     }
-    const newTask = new Task(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.name, newTaskNotes, []);
+    const newTask = this.getTask(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.name, newTaskNotes, []);
 
     this.employeeService.addTask(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.id, newTask)
       .subscribe(() => {
@@ -193,11 +194,21 @@ export class TimesheetEditComponent implements OnInit {
     for (let i = 0; i < 7; i++) {
       newTaskNotes.push(new TaskNote(0, this.week[i].date, Number(this.taskForm.controls[`day${i}`].value)));
     }
-    const newTask = new Task(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.name, newTaskNotes, []);
+    const newTask = this.getTask(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.name, newTaskNotes, []);
     this.employeeService.editTask(+localStorage.getItem('userId'), this.task[0].id, newTask)
       .subscribe(() => {
         this.sumTotalHours();
       });
+  }
+
+  private getTask(id: number, name: string, taskNotes: TaskNote[], vacation: Vacation[]): Task {
+    var task = new Task();
+    task.id = id;
+    task.name = name;
+    task.taskNotes = taskNotes;
+    task.vacation = vacation;
+
+    return task;
   }
 
   // delete

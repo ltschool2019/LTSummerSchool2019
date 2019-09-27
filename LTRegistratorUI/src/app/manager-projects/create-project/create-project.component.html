@@ -1,0 +1,89 @@
+<div class="create-project">
+  <div class="create-project__title title">
+    <div class="title__name">Создание проекта</div>
+  </div>
+  <form [formGroup]="projectForm">
+    <div class="create-project__form-group">
+      <mat-form-field>
+        <mat-label>Название проекта</mat-label>
+        <input matInput placeholder="Введите название проекта" [formControl]="ProjectName" [errorStateMatcher]="matcher">
+        <mat-error *ngIf="ProjectName.hasError('required')">Поле "Название проекта" обязательно.</mat-error>
+        <mat-error *ngIf="ProjectName.hasError('minlength')">Название дожно состоять как минимум из 3 символов.</mat-error>
+        <mat-error *ngIf="ProjectName.hasError('maxlength')">Название не может быть длинее 200 символов.</mat-error>
+      </mat-form-field>
+      <div class="create-project__add right">
+        <button mat-raised-button class="create-project__add-custom-field" (click)="showCustomFieldForm()">Добавить поле</button>
+      </div>
+      <mat-list formArrayName="CustomFields">
+        <mat-list-item *ngFor="let item of projectForm.get('CustomFields').controls; let i=index">
+          <mat-label>{{item.get('CustomFieldName').value}}</mat-label>
+          <button mat-raised-button class="create-project__remove-custom-field" (click)="removeCustomField(i)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </mat-list-item>
+      </mat-list>
+
+      <div class="create-project__form-group">
+        <button mat-raised-button type="submit" class="create-project__cancel" (click)="cancel()">Назад</button>
+        <button mat-raised-button type="submit" class="create-project__add" (click)="addProject()">Добавить проект</button>
+      </div>
+    </div>    
+  </form>
+  <div *ngIf="showAddCustomFieldPanel">
+    <form [formGroup]="customFieldForm">
+      <div>
+        <mat-form-field>
+          <mat-label>Тип поля</mat-label>
+          <mat-select formControlName="CustomFieldType">
+            <mat-option *ngFor="let item of customFieldTypes | enumToArray" [value]="item.index">
+              {{item.name}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>        
+      </div>      
+      <div>
+        <mat-form-field>
+          <mat-label>Название поля</mat-label>
+          <input type="text" matInput placeholder="Введите название поля" [formControl]="CustomFieldName" [errorStateMatcher]="matcher">
+          <mat-error *ngIf="CustomFieldName.hasError('required')">Поле "Название поля" обязательно.</mat-error>
+          <mat-error *ngIf="CustomFieldName.hasError('minlength')">Название дожно состоять как минимум из 3 символов.</mat-error>
+          <mat-error *ngIf="CustomFieldName.hasError('maxlength')">Название не может быть длинее 200 символов.</mat-error>
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-form-field>
+          <mat-label>Описание поля</mat-label>
+          <textarea matInput placeholder="Введите описание поля" [formControl]="CustomFieldDescription" [errorStateMatcher]="matcher"></textarea>
+          <mat-error *ngIf="CustomFieldDescription.hasError('maxlength')">Описание не может быть длинее 400 символов.</mat-error>
+        </mat-form-field>
+      </div>
+      <div>
+        <mat-checkbox formControlName="CustomFieldIsRequired">Поле обязательно</mat-checkbox>
+      </div>
+      <div *ngIf="customFieldForm.value.CustomFieldType == customFieldTypes.textField">
+        <mat-form-field>
+          <mat-label>Значение по умолчанию</mat-label>
+          <input type="text" matInput placeholder="Введите значение по умолчанию" formControlName="CustomFieldDefaultValue">
+        </mat-form-field>
+      </div>
+      <div *ngIf="customFieldForm.value.CustomFieldType == customFieldTypes.textField">
+        <mat-form-field>
+          <mat-label>Максимальное количество символов</mat-label>
+          <input type="number" matInput placeholder="Значение от 0 до 200" [formControl]="CustomFieldMaxLength" [errorStateMatcher]="matcher">
+          <mat-error *ngIf="customFieldForm.value.CustomFieldType == customFieldTypes.textField && CustomFieldMaxLength.hasError('max') || CustomFieldMaxLength.hasError('min')">Максимальное значение должно быть в диапазоне от 0 до 200</mat-error>
+        </mat-form-field>
+      </div>
+      <div *ngIf="customFieldForm.value.CustomFieldType == customFieldTypes.dropDown">
+        <mat-form-field>
+          <mat-label>Возможные значения</mat-label>
+          <input type="text" matInput placeholder="Значения через запятую" formControlName="CustomFieldOptions" [errorStateMatcher]="matcher">
+          <mat-error *ngIf="customFieldForm.value.CustomFieldType == customFieldTypes.dropDown && CustomFieldOptions.hasError('required')">Выпадающий список должен содержать хотя бы один элемент</mat-error>
+        </mat-form-field>
+      </div>
+      <div>
+        <button mat-raised-button (click)="cancelCustomField()">Отмена</button>
+        <button mat-raised-button (click)="saveCustomField()">Сохранить поле</button>
+      </div>
+    </form>
+  </div>
+</div>

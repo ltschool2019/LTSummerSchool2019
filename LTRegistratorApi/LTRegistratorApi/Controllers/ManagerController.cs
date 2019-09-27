@@ -13,6 +13,10 @@ using System.Collections.Generic;
 using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using System;
+using AutoMapper;
+using LTRegistrator.BLL.Contracts.Contracts;
+using LTRegistratorApi.Model.Projects;
+using Task = System.Threading.Tasks.Task;
 
 namespace LTRegistratorApi.Controllers
 {
@@ -24,15 +28,27 @@ namespace LTRegistratorApi.Controllers
     public class ManagerController : BaseController
     {
         private readonly UserManager<User> _userManager;
+        private readonly IProjectService _projectService;
+        private readonly IMapper _mapper;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="db"></param>
         /// <param name="userManager"></param>
-        public ManagerController(DbContext db, UserManager<User> userManager) : base(db)
+        public ManagerController(DbContext db, UserManager<User> userManager, IProjectService projectService, IMapper mapper) : base(db)
         {
             _userManager = userManager;
+            _projectService = projectService;
+            _mapper = mapper;
+        }
+
+        [HttpGet("project/{projectId}")]
+        public async Task<ActionResult> GetProject([FromRoute] int projectId)
+        {
+            var project = await _projectService.GetByIdAsync(CurrentEmployeeId, projectId);
+
+            return Ok(_mapper.Map<ProjectFullDto>(project));
         }
 
         /// <summary>
@@ -49,7 +65,7 @@ namespace LTRegistratorApi.Controllers
         {
             var projects = DtoConverter.ToProjectDto(Db.Set<ProjectEmployee>()
                 .Join(Db.Set<Project>(), p => p.ProjectId, pe => pe.Id, (pe, p) => new { pe, p })
-                .Where(w => w.pe.EmployeeId == employeeId && w.pe.Role == RoleType.Manager && !w.p.SoftDeleted)
+                .Where(w => w.pe.EmployeeId == employeeId && !w.p.SoftDeleted)
                 .Select(name => name.p)
                 .ToList());
 
@@ -190,49 +206,16 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
         [ProducesResponseType(409)]
-        public async Task<IActionResult> AddProject([FromBody] ProjectDto projectDto)
+        public async Task<IActionResult> AddProject([FromBody] ProjectFullDto projectFullDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            if (await Db.Set<Project>().AnyAsync(p => p.Name == projectDto.Name).ConfigureAwait(false))
-            {
-                return Conflict(new { Message = $"Project with name {projectDto.Name} already exist" });
-            }
+            var result = await _projectService.AddAsync(CurrentEmployeeId, _mapper.Map<Project>(projectFullDto));
 
-            var project = new Project
-            {
-                Name = projectDto.Name
-            };
-            var userClaims = (ClaimsIdentity)User.Identity;
-            var isManager = userClaims.HasClaim(c => c.Type == ClaimTypes.Role && c.Value == "Manager");
-            if (isManager)
-            {
-                var employeeIdFromClaims = User.FindFirstValue("EmployeeID");
-                if (!int.TryParse(employeeIdFromClaims, out var employeeId))
-                {
-                    return StatusCode((int)HttpStatusCode.InternalServerError);
-                }
-                var manager = await Db.Set<Employee>()
-                    .FirstOrDefaultAsync(e => e.Id == Convert.ToInt32(employeeId)).ConfigureAwait(false);
-                if (manager == null) return NotFound(new { Message = $"Employee with id = {employeeId}" });
-
-                project.ProjectEmployees = new List<ProjectEmployee>
-                {
-                    new ProjectEmployee
-                    {
-                        EmployeeId = employeeId,
-                        Role = RoleType.Manager
-                    }
-                };
-            }
-
-            Db.Set<Project>().Add(project);
-            await Db.SaveChangesAsync().ConfigureAwait(false);
-
-            return Ok(new ProjectDto { Id = project.Id, Name = project.Name });
+            return Ok(new ProjectDto {Id = result.Id, Name = result.Name});
         }
 
         /// <summary>
@@ -275,7 +258,7 @@ namespace LTRegistratorApi.Controllers
             var thisUser = await _userManager.FindByIdAsync(User.FindFirstValue(ClaimTypes.NameIdentifier));
             var thisUserIdent = HttpContext.User.Identity as ClaimsIdentity;
             var project = await Db.Set<Project>().FindAsync(id);
-            var managerEmployee = await Db.Set<ProjectEmployee>().SingleOrDefaultAsync(V => V.ProjectId == id && V.Role == RoleType.Manager);
+            var managerEmployee = await Db.Set<ProjectEmployee>().SingleOrDefaultAsync(V => V.ProjectId == id);
 
             if (project != null)
             {

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { Project } from '../core/models/project.model';
 
@@ -11,11 +11,17 @@ import { Project } from '../core/models/project.model';
 export class TimesheetComponent implements OnInit {
   projects: Project[] = [];
 
-  constructor(private route: ActivatedRoute) {
+  constructor(
+    private route: ActivatedRoute, 
+    private router: Router) {
   }
 
   ngOnInit() {
     this.projects = this.route.snapshot.data.user.projects;
+  }
+
+  openProjectDetails(id: number): void {
+    this.router.navigateByUrl(`user/timesheet/${id}/tasks`);
   }
 
 }
