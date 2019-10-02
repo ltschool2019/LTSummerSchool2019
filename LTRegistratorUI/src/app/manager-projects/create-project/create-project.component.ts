@@ -135,11 +135,11 @@ export class CreateProjectComponent implements OnInit {
         var item = new CustomField();
         item.name = element.CustomFieldName;
         item.type = element.CustomFieldType;
-        item.description = element.CustomFieldDescription;
-        item.isRequired = element.CustomFieldIsRequired;
+        item.description = element.CustomFieldDescription ? element.CustomFieldDescription: "";
+        item.isRequired = element.CustomFieldIsRequired ? element.CustomFieldIsRequired : false;
         if (item.type == CustomFieldType.textField) {
           item.defaultValue = element.CustomFieldDefaultValue;
-          item.maxLength = element.CustomFieldMaxLength;
+          item.maxLength = element.CustomFieldMaxLength ? element.CustomFieldMaxLength : 0;
         } else {
           item.fieldOptions = new Array<CustomFieldOption>();
           element.CustomFieldOptions.split(',').forEach((cfo: string, index: number) => {

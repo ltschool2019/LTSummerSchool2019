@@ -22,8 +22,7 @@ namespace LTRegistrator.BLL.Services.Services
         {
             var role = await GetRole(authUserId);
             var project = await DbContext.Set<Project>()
-                .Include(p => p.CustomFieldProjects).ThenInclude(cf => cf.CustomField)
-                .ThenInclude(cf => cf.CustomFieldOptions)
+                .Include(p => p.CustomFieldProjects).ThenInclude(cf => cf.CustomField).ThenInclude(cf => cf.CustomFieldOptions)
                 .Include(p => p.ProjectEmployees)
                 .FirstOrDefaultAsync(p => p.Id == projectId && (role == RoleType.Administrator || !p.SoftDeleted));
             

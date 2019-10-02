@@ -51,7 +51,10 @@ namespace LTRegistratorApi.Mappings
                 .ForMember(cf => cf.Description, opt => opt.MapFrom(src => src.CustomField.Description))
                 .ForMember(cf => cf.IsRequired, opt => opt.MapFrom(src => src.CustomField.IsRequired))
                 .ForMember(cf => cf.DefaultValue, opt => opt.MapFrom(src => src.CustomField.DefaultValue))
-                .ForMember(cf => cf.MaxLength, opt => opt.MapFrom(src => src.CustomField.MaxLength));
+                .ForMember(cf => cf.MaxLength, opt => opt.MapFrom(src => src.CustomField.MaxLength))
+                .ForMember(cf => cf.FieldOptions, opt => opt.MapFrom(src => src.CustomField.CustomFieldOptions));
+
+            CreateMap<CustomFieldOption, CustomFieldOptionDto>();
 
             CreateMap<CustomFieldDto, CustomFieldProject>()
                 .ForMember(cfp => cfp.CustomField, opt => opt.MapFrom(src => src));
@@ -69,14 +72,30 @@ namespace LTRegistratorApi.Mappings
             CreateMap<CustomFieldOptionDto, CustomFieldOption>()
                 .ForMember(cfo => cfo.Id, opt => opt.Ignore());
 
-            CreateMap<Task, TaskDto>();
-
-            CreateMap<TaskNote, TaskNoteDto>();
+            
 
             CreateMap<CustomValue, CustomValueDto>();
 
             #endregion
 
+            #region Task
+            CreateMap<Task, TaskDto>();
+
+            CreateMap<TaskNote, TaskNoteDto>();
+
+            CreateMap<TaskDto, Task>()
+                .ForMember(t => t.EmployeeId, opt => opt.MapFrom((src, dest, res, context) =>
+                {
+                    var employeeId = (int)context.Items["EmployeeId"];
+                    return employeeId > 1 ? employeeId : 0;
+                }))
+                .ForMember(t => t.ProjectEmployee, opt => opt.Ignore())
+                .ForMember(t => t.TaskNotes, opt => opt.Ignore());
+
+            CreateMap<CustomValueDto, CustomValue>();
+
+
+            #endregion
         }
     }
 }

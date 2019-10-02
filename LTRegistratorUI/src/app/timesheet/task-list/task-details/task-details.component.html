@@ -2,27 +2,31 @@
   <div class="task-details__title title">
     <div class="title__name">{{ isUpdate ? 'Обноваление' : 'Создание задачи'}}</div>
   </div>
-  <form>
+  <form [formGroup]="taskDetailsForm">
     <div class="form-group">
       <mat-form-field class="task-details-field">
-        <input matInput placeholder="Название" [(ngModel)]="task.name" [ngModelOptions]="{standalone: true}" required>
+        <mat-label>Название задачи</mat-label>
+        <input matInput placeholder="Название" formControlName="TaskName">
+        <!-- <mat-error *ngIf="TaskName.hasError('required')">Поле "Название задачи" обязательно.</mat-error> -->
       </mat-form-field>
     </div>
     <div class="form-group" *ngFor="let item of taskFields | keyvalue">
-      <mat-form-field class="task-details-field" *ngIf="item.key.type == CustomFieldType.textField">
+      <mat-form-field class="task-details-field" *ngIf="item.key.customFieldType == 0">
         <mat-label>{{item.key.name}}</mat-label>
-        <input matInput type="text" placeholder="{{ item.key.name }}" [(ngModel)]="item.value.value" [ngModelOptions]="{standalone: true}">
+        <input matInput type="text" placeholder="{{ item.key.name }}" [formControlName]='item.key.id'>
       </mat-form-field>
-      <mat-form-field class="task-details-field" *ngIf="item.key.type == CustomFieldType.dropDown">
+      <mat-form-field class="task-details-field" *ngIf="item.key.customFieldType == 1">
         <mat-label>{{item.key.name}}</mat-label>
-        <mat-select [(ngModel)]="item.value.value" [ngModelOptions]="{standalone: true}">
+        <mat-select [formControlName]='item.key.id'>
           <mat-option *ngFor="let option of item.key.fieldOptions" [value]="option.customValue">
             {{option.customValue}}
-          </mat-option>
-          
+          </mat-option>          
         </mat-select>
       </mat-form-field>
     </div>
-  </form>
-  
+    <div class="create-task__form-group">
+        <button mat-raised-button type="submit" class="create-task__cancel" (click)="cancel()">Назад</button>
+        <button mat-raised-button type="submit" class="create-task__add" (click)="addTask()">Добавить проект</button>
+      </div>
+  </form>  
 </div>

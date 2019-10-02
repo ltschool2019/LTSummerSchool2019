@@ -31,9 +31,10 @@ namespace LTRegistratorApi.Controllers
         /// </summary>
         /// <param name="db"></param>
         /// <param name="taskService"></param>
-        public TaskController(DbContext db, ITaskService taskService, IMapper _mapper) : base(db)
+        public TaskController(DbContext db, ITaskService taskService, IMapper mapper) : base(db)
         {
             _taskService = taskService;
+            _mapper = mapper;
         }
 
         [HttpGet("{taskId}")]
@@ -42,6 +43,37 @@ namespace LTRegistratorApi.Controllers
             var task = await _taskService.GetByIdAsync(CurrentEmployeeId, taskId);
 
             return Ok(_mapper.Map<TaskDto>(task));
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> AddTask(TaskDto task)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                var entity = _mapper.Map<LTRegistrator.Domain.Entities.Task>(task, opt => opt.Items["EmployeeId"] = CurrentEmployeeId);
+                await _taskService.AddAsync(entity);
+            }
+            catch (Exception e)
+            {
+            }
+            return Ok();
+        }
+
+        [HttpPut]
+        public async Task<ActionResult> UpdateTask(TaskDto task)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            await _taskService.UpdateAsync(_mapper.Map<LTRegistrator.Domain.Entities.Task>(task));
+            return Ok();
         }
 
         /// <summary>
@@ -55,62 +87,62 @@ namespace LTRegistratorApi.Controllers
         /// <response code="200">Project task added</response>
         /// <response code="400">Bad request</response>
         /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
-        [HttpPost("project/{projectId}/employee/{EmployeeId}")]
-        [Authorize(Policy = "AccessAllowed")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(403)]
-        public async Task<ActionResult> AddTask([FromRoute] int projectId, int employeeId, [FromBody] TaskInputDto task)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+        //[HttpPost("project/{projectId}/employee/{EmployeeId}")]
+        //[Authorize(Policy = "AccessAllowed")]
+        //[ProducesResponseType(200)]
+        //[ProducesResponseType(400)]
+        //[ProducesResponseType(403)]
+        //public async Task<ActionResult> AddTask([FromRoute] int projectId, int employeeId, [FromBody] TaskInputDto task)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return BadRequest(ModelState);
+        //    }
 
-            var templateTypeProject = Db.Set<Project>().FirstOrDefault(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId && !p.SoftDeleted);
-            if (templateTypeProject == null)
-            {
-                return NotFound();
-            }
+        //    var templateTypeProject = Db.Set<Project>().FirstOrDefault(p => p.TemplateType == TemplateType.HoursPerProject && p.Id == projectId && !p.SoftDeleted);
+        //    if (templateTypeProject == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            var employeeProject = Db.Set<ProjectEmployee>().Where(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId).FirstOrDefault();
-            var nameTask = Db.Set<LTRegistrator.Domain.Entities.Task>().Where(t => (t.Name == task.Name || t.Name == templateTypeProject.Name) && t.ProjectId == projectId && t.EmployeeId == employeeId).FirstOrDefault();
-            if (nameTask == null && templateTypeProject != null && task != null && templateTypeProject.Name == task.Name && employeeProject != null)
-            {
-                using (var transaction = Db.Database.BeginTransaction())
-                {
-                    try
-                    {
-                        LTRegistrator.Domain.Entities.Task newTask = new LTRegistrator.Domain.Entities.Task
-                        {
-                            EmployeeId = employeeId,
-                            ProjectId = projectId,
-                            Name = task.Name
-                        };
-                        Db.Set<LTRegistrator.Domain.Entities.Task>().Add(newTask);
+        //    var employeeProject = Db.Set<ProjectEmployee>().Where(pe => pe.ProjectId == projectId && pe.EmployeeId == employeeId).FirstOrDefault();
+        //    var nameTask = Db.Set<LTRegistrator.Domain.Entities.Task>().Where(t => (t.Name == task.Name || t.Name == templateTypeProject.Name) && t.ProjectId == projectId && t.EmployeeId == employeeId).FirstOrDefault();
+        //    if (nameTask == null && templateTypeProject != null && task != null && templateTypeProject.Name == task.Name && employeeProject != null)
+        //    {
+        //        using (var transaction = Db.Database.BeginTransaction())
+        //        {
+        //            try
+        //            {
+        //                LTRegistrator.Domain.Entities.Task newTask = new LTRegistrator.Domain.Entities.Task
+        //                {
+        //                    EmployeeId = employeeId,
+        //                    ProjectId = projectId,
+        //                    Name = task.Name
+        //                };
+        //                Db.Set<LTRegistrator.Domain.Entities.Task>().Add(newTask);
 
-                        foreach (var item in task.TaskNotes)
-                        {
-                            TaskNote taskNote = new TaskNote
-                            {
-                                TaskId = newTask.Id,
-                                Day = item.Day,
-                                Hours = item.Hours
-                            };
-                            Db.Set<TaskNote>().Add(taskNote);
-                        }
-                        await Db.SaveChangesAsync();
-                        transaction.Commit();
-                        return Ok();
-                    }
-                    catch (Exception ex)
-                    {
-                        transaction.Rollback();
-                    }
-                }
-            }
-            return BadRequest();
-        }
+        //                foreach (var item in task.TaskNotes)
+        //                {
+        //                    TaskNote taskNote = new TaskNote
+        //                    {
+        //                        TaskId = newTask.Id,
+        //                        Day = item.Day,
+        //                        Hours = item.Hours
+        //                    };
+        //                    Db.Set<TaskNote>().Add(taskNote);
+        //                }
+        //                await Db.SaveChangesAsync();
+        //                transaction.Commit();
+        //                return Ok();
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                transaction.Rollback();
+        //            }
+        //        }
+        //    }
+        //    return BadRequest();
+        //}
 
         /// <summary>
         /// GET api/task/project/{projectId}/employee/{employeeId}?StartDate={startDate}&EndDate={endDate}
@@ -169,42 +201,42 @@ namespace LTRegistratorApi.Controllers
         /// <response code="200">Task updated</response>
         /// <response code="403">You do not have sufficient permissions to change data for this employee</response>
         /// <response code="404">Task not found</response>
-        [HttpPut("employee/{employeeId}")]
-        [Authorize(Policy = "AccessAllowed")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(403)]
-        [ProducesResponseType(404)]
-        public async Task<ActionResult> UpdateTask([FromBody] TaskInputDto task, int employeeId)
-        {
-            var temp = Db.Set<LTRegistrator.Domain.Entities.Task>().SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name);
+        //[HttpPut("employee/{employeeId}")]
+        //[Authorize(Policy = "AccessAllowed")]
+        //[ProducesResponseType(200)]
+        //[ProducesResponseType(403)]
+        //[ProducesResponseType(404)]
+        //public async Task<ActionResult> UpdateTask([FromBody] TaskInputDto task, int employeeId)
+        //{
+        //    var temp = Db.Set<LTRegistrator.Domain.Entities.Task>().SingleOrDefault(t => t.Id == task.Id && t.Name == task.Name);
 
-            if (temp != null)
-            {
-                foreach (var item in task.TaskNotes)
-                {
-                    var note = Db.Set<TaskNote>().FirstOrDefault(tn => tn.Day == item.Day && tn.TaskId == task.Id);
-                    if (note != null && note.Hours != item.Hours)
-                    {
-                        note.Hours = item.Hours;
-                        Db.Set<TaskNote>().Update(note);
-                        await Db.SaveChangesAsync();
-                    }
-                    if (note == null)
-                    {
-                        TaskNote taskNote = new TaskNote
-                        {
-                            TaskId = task.Id,
-                            Day = item.Day,
-                            Hours = item.Hours
-                        };
-                        Db.Set<TaskNote>().Add(taskNote);
-                        await Db.SaveChangesAsync();
-                    }
-                }
-                return Ok();
-            }
-            return NotFound();
-        }
+        //    if (temp != null)
+        //    {
+        //        foreach (var item in task.TaskNotes)
+        //        {
+        //            var note = Db.Set<TaskNote>().FirstOrDefault(tn => tn.Day == item.Day && tn.TaskId == task.Id);
+        //            if (note != null && note.Hours != item.Hours)
+        //            {
+        //                note.Hours = item.Hours;
+        //                Db.Set<TaskNote>().Update(note);
+        //                await Db.SaveChangesAsync();
+        //            }
+        //            if (note == null)
+        //            {
+        //                TaskNote taskNote = new TaskNote
+        //                {
+        //                    TaskId = task.Id,
+        //                    Day = item.Day,
+        //                    Hours = item.Hours
+        //                };
+        //                Db.Set<TaskNote>().Add(taskNote);
+        //                await Db.SaveChangesAsync();
+        //            }
+        //        }
+        //        return Ok();
+        //    }
+        //    return NotFound();
+        //}
 
         /// <summary>
         /// Method for removing the task from the project

@@ -10,5 +10,6 @@ namespace LTRegistratorApi.Model.CustomValues
         public int Id { get; set; }
         public string Value { get; set; }
         public string Type { get; set; }
+        public int CustomFieldId { get; set; }
     }
 }

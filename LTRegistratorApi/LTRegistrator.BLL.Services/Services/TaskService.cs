@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using AutoMapper;
 using LTRegistrator.BLL.Contracts.Contracts;
@@ -36,6 +37,49 @@ namespace LTRegistrator.BLL.Services.Services
             }
 
             return task;
+        }
+
+        public async System.Threading.Tasks.Task AddAsync(Task task)
+        {
+            var entity = await DbContext.Set<Task>().FirstOrDefaultAsync(t =>
+                t.ProjectId == task.ProjectId && t.EmployeeId == task.EmployeeId && t.Name == task.Name);
+            
+            if (entity != null)
+            {
+                throw new ConflictException("Task already exist");
+            }
+
+            DbContext.Set<Task>().Add(task);
+            await DbContext.SaveChangesAsync();
+        }
+
+        public async System.Threading.Tasks.Task UpdateAsync(Task task)
+        {
+            var entity = await DbContext.Set<Task>().Include(t => t.CustomValues).FirstOrDefaultAsync(t => t.Id == task.Id);
+            if (entity == null)
+            {
+                throw new NotFoundException("Task was not found");
+            }
+
+            entity.Name = string.IsNullOrWhiteSpace(task.Name) ? entity.Name : task.Name;
+            var unusedCustomValues = entity.CustomValues.Where(cv => !task.CustomValues.Select(tcv => tcv.Id).Contains(cv.Id));
+            DbContext.Set<CustomValue>().RemoveRange(unusedCustomValues);
+            foreach (var customValue in task.CustomValues)
+            {
+                var current = entity.CustomValues.FirstOrDefault(cv => cv.Id == customValue.Id);
+                if (current == null)
+                {
+                    DbContext.Set<CustomValue>().Add(customValue);
+                }
+                else
+                {
+                    current.Type = customValue.Type;
+                    current.Value = customValue.Value;
+                    DbContext.Set<CustomValue>().Update(current);
+                }
+            }
+
+            await DbContext.SaveChangesAsync();
         }
     }
 }

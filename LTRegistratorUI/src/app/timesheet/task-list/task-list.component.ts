@@ -40,6 +40,11 @@ export class TaskListComponent implements OnInit {
     return formatDate(date, 'yyyy-MM-dd', 'en')
   }
 
+  private openTaskDetails(id: number) {
+    let projectId = Number(this.route.snapshot.paramMap.get('id'));
+    this.router.navigateByUrl(`user/timesheet/${projectId}/tasks/task_details/${id}`)
+  }
+
   public addNewTask(): void {
     let projectId = Number(this.route.snapshot.paramMap.get('id'));
     this.router.navigateByUrl(`user/timesheet/${projectId}/tasks/task_details`);

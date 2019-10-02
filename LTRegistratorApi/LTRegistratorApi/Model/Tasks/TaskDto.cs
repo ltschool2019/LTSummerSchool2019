@@ -10,6 +10,7 @@ namespace LTRegistratorApi.Model.Tasks
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public int ProjectId { get; set; }
         public List<TaskNoteDto> TaskNotes { get; set; }
         public IEnumerable<CustomValueDto> CustomValues { get; set; }
         public List<LeaveDto> Leave { get; set; }
