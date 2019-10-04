@@ -218,6 +218,26 @@ namespace LTRegistratorApi.Controllers
             return Ok(new ProjectDto {Id = result.Id, Name = result.Name});
         }
 
+        [HttpPut("project")]
+        public async Task<IActionResult> UpdateProject(ProjectFullDto projectFullDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            try
+            {
+                await _projectService.UpdateAsync(CurrentEmployeeId, _mapper.Map<Project>(projectFullDto));
+            }
+            catch (Exception e)
+            {
+                
+            }
+
+            return Ok();
+        }
+
         /// <summary>
         /// updating project information
         /// </summary>

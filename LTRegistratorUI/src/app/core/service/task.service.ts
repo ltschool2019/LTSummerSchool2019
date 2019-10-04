@@ -18,4 +18,9 @@ export class TaskService {
         let url = environment.apiBaseUrl + `api/task/${id}`;
         return this.http.get(url);
     }
+
+    updateTask(task: Task): any {
+        let url = environment.apiBaseUrl + `api/task/`;
+        return this.http.put(url, task);
+    }
 }

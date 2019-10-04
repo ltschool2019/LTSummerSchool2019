@@ -61,6 +61,11 @@ namespace LTRegistrator.BLL.Services.Services
                 throw new NotFoundException("Task was not found");
             }
 
+            if (entity.EmployeeId != task.EmployeeId)
+            {
+                throw new ForbiddenException("You cannot change a task that does not belong to you");
+            }
+
             entity.Name = string.IsNullOrWhiteSpace(task.Name) ? entity.Name : task.Name;
             var unusedCustomValues = entity.CustomValues.Where(cv => !task.CustomValues.Select(tcv => tcv.Id).Contains(cv.Id));
             DbContext.Set<CustomValue>().RemoveRange(unusedCustomValues);

@@ -1,0 +1,40 @@
+.create-project {
+    padding: 40px 20px 20px 60px;
+
+    &__title {
+        align-items: center;
+        margin-bottom: 40px;
+    }
+}
+
+.title {
+    &__name {
+        font-size: 20px;
+        font-weight: 500;
+        padding-right: 40px;
+    }
+}
+
+.column {
+    float: left;
+    width: 50%;
+  }
+  
+  /* Clear floats after the columns */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+  mat-form-field {
+    width: 50%;
+    padding-top: 10px;
+  }
+
+  .buttons-group-right {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center; 
+    padding-left: 20px;
+  } 

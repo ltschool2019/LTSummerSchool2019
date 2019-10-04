@@ -6,16 +6,15 @@
     <div class="form-group">
       <mat-form-field class="task-details-field">
         <mat-label>Название задачи</mat-label>
-        <input matInput placeholder="Название" formControlName="TaskName">
-        <!-- <mat-error *ngIf="TaskName.hasError('required')">Поле "Название задачи" обязательно.</mat-error> -->
+        <input matInput placeholder="Название" formControlName="TaskName" autocomplete="off">
       </mat-form-field>
     </div>
     <div class="form-group" *ngFor="let item of taskFields | keyvalue">
-      <mat-form-field class="task-details-field" *ngIf="item.key.customFieldType == 0">
+      <mat-form-field class="task-details-field" *ngIf="item.key.type == 0">
         <mat-label>{{item.key.name}}</mat-label>
-        <input matInput type="text" placeholder="{{ item.key.name }}" [formControlName]='item.key.id'>
+        <input matInput type="text" placeholder="{{ item.key.name }}" [formControlName]='item.key.id' autocomplete="off">
       </mat-form-field>
-      <mat-form-field class="task-details-field" *ngIf="item.key.customFieldType == 1">
+      <mat-form-field class="task-details-field" *ngIf="item.key.type == 1">
         <mat-label>{{item.key.name}}</mat-label>
         <mat-select [formControlName]='item.key.id'>
           <mat-option *ngFor="let option of item.key.fieldOptions" [value]="option.customValue">

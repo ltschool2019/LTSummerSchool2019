@@ -25,6 +25,10 @@ export class ManagerProjectsService {
     return this.http.post<any>(this.projectPostUrl, project);
   }
 
+  updateManagerProject(project: Project) {
+    return this.http.put<any>(this.projectPostUrl, project);
+  }
+
   getManagerUrlGet() {
     return environment.apiBaseUrl + `api/manager/` + localStorage.getItem('userId') + `/projects`;
   }

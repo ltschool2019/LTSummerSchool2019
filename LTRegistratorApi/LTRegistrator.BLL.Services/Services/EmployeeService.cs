@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 using AutoMapper;
 using LTRegistrator.BLL.Contracts;
 using LTRegistrator.BLL.Contracts.Contracts;
+using LTRegistrator.BLL.Contracts.Exceptions;
 using LTRegistrator.Domain.Entities;
+using LTRegistrator.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace LTRegistrator.BLL.Services.Services
@@ -14,6 +16,23 @@ namespace LTRegistrator.BLL.Services.Services
     public class EmployeeService : BaseService, IEmployeeService
     {
         public EmployeeService(DbContext db, IMapper mapper) : base(db, mapper) { }
+
+        public async Task<IEnumerable<Employee>> GetAllAsync(int authEmployeeId)
+        {
+            var role = await GetRole(authEmployeeId);
+            if (role == RoleType.Employee)
+            {
+                throw new ForbiddenException("Access denied");
+            }
+
+            var employees = DbContext.Set<Employee>();
+            if (role == RoleType.Manager)
+            {
+                return await employees.Where(e => e.ManagerId == authEmployeeId).ToArrayAsync();
+            }
+
+            return await employees.ToArrayAsync();
+        }
 
         public async Task<Response<Employee>> GetByIdAsync(int id)
         {

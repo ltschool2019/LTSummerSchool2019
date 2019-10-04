@@ -10,5 +10,6 @@ namespace LTRegistratorApi.Model.Projects
         public int Id { get; set; }
         public string Name { get; set; }
         public IEnumerable<CustomFieldDto> CustomFields { get; set; }
+        public IEnumerable<EmployeeDto> Employees { get; set; }
     }
 }

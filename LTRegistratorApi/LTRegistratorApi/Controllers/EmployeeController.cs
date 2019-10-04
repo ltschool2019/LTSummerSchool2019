@@ -33,6 +33,13 @@ namespace LTRegistratorApi.Controllers
             _mapper = mapper;
         }
 
+        [HttpGet]
+        public async Task<ActionResult> GetEmployees()
+        {
+            var employees = await _employeeService.GetAllAsync(CurrentEmployeeId);
+            return Ok(_mapper.Map<EmployeeDto[]>(employees));
+        }
+
         /// <summary>
         /// Sends this user information.
         /// </summary>

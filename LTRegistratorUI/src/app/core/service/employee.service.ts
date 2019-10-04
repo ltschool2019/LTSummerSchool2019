@@ -73,6 +73,11 @@ export class EmployeeService {
     return this.http.delete<Task>(environment.apiBaseUrl + `api/task/${taskId}/employee/${userId}`);
   }
 
+  public getSubordinateEmployees() {
+    let url = environment.apiBaseUrl + `api/employee`;
+    return this.http.get(url);
+  }
+
   private getUrl(userId: number, projectId: number) {
     return environment.apiBaseUrl + `api/task/project/${projectId}/employee/${userId}`;
   }

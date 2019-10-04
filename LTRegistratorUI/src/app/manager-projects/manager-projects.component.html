@@ -1,7 +1,7 @@
 <div class="manager-projects">
   <div class="manager-projects__title title">
     <div class="title__name">Список проектов</div>
-    <button mat-raised-button type="submit" class="manager-projects__add" (click)="openDialogAddProj()">Создать проект</button>
+    <button mat-raised-button type="submit" class="manager-projects__add" (click)="createProject()">Создать проект</button>
     <span class="manager-projects__flex-space"></span>
     <button mat-raised-button type="submit" class="manager-projects__download" (click)="getMonthlyReport()">Выгрузка месячного отчета</button>
   </div>
@@ -11,7 +11,7 @@
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef> Name</th>
       <td mat-cell *matCellDef="let element">
-        <button mat-button class="project-link" routerLink='/user/em_table' [routerLinkActive]="'active'">
+        <button mat-button class="project-link" (click)="updateProject(element.id)">
           Project {{element.name}}</button>
       </td>
     </ng-container>

@@ -25,8 +25,16 @@ export class ManagerProjectsComponent implements OnInit {
   ngOnInit() {
     this.getManagerProjects();
   }
-  openDialogAddProj(): void {
-    this.router.navigateByUrl('user/create_project');
+
+  createProject(): void {
+    window.localStorage.removeItem("projectEditId");
+    this.router.navigateByUrl('user/project_details');
+  }
+
+  updateProject(id: number): void {
+    window.localStorage.removeItem("projectEditId");
+    window.localStorage.setItem("projectEditId", id.toString());
+    this.router.navigateByUrl(`user/project_details`);
   }
 
   getMonthlyReport(): void {
@@ -34,16 +42,16 @@ export class ManagerProjectsComponent implements OnInit {
   }
 
   getManagerProjects(): void {
-    this.managerProjectsService.getManagerProjects()
-    .subscribe((data: []) => {
-      this.manProject =  new MatTableDataSource(data); });
-   }
-   deleteProject(id: number): void {
-     this.managerProjectsService.deleteProject(id)
-     .subscribe((project) => {
+    this.managerProjectsService.getManagerProjects().subscribe((data: []) => {
+      this.manProject =  new MatTableDataSource(data); 
+    });
+  }
+
+  deleteProject(id: number): void {
+    this.managerProjectsService.deleteProject(id).subscribe((project) => {
       this.manProject.data = this.manProject.data.filter((x) => {
         return x.id !== id;
-       });
-     });
-   }
+      });
+    });
+  }
 }

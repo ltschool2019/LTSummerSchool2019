@@ -20,7 +20,7 @@ const userRoutes: Routes = [
   {path: 'admin', component: AdminComponent},
   {path: 'manager_projects', component: ManagerProjectsComponent},
   {path: 'timesheet/edit/:id', component: TimesheetEditComponent},
-  {path: 'create_project', component: CreateProjectComponent},
+  {path: 'project_details', component: CreateProjectComponent},
   {path: 'timesheet/:id/tasks', component: TaskListComponent},
   {path: 'timesheet/:id/tasks/task_details/:taskId', component: TaskDetailsComponent},
   {path: 'timesheet/:id/tasks/task_details', component: TaskDetailsComponent}

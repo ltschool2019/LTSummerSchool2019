@@ -53,14 +53,8 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            try
-            {
-                var entity = _mapper.Map<LTRegistrator.Domain.Entities.Task>(task, opt => opt.Items["EmployeeId"] = CurrentEmployeeId);
-                await _taskService.AddAsync(entity);
-            }
-            catch (Exception e)
-            {
-            }
+            var entity = _mapper.Map<LTRegistrator.Domain.Entities.Task>(task, opt => opt.Items["EmployeeId"] = CurrentEmployeeId);
+            await _taskService.AddAsync(entity);
             return Ok();
         }
 
@@ -72,7 +66,8 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            await _taskService.UpdateAsync(_mapper.Map<LTRegistrator.Domain.Entities.Task>(task));
+            var entity = _mapper.Map<LTRegistrator.Domain.Entities.Task>(task, opt => opt.Items["EmployeeId"] = CurrentEmployeeId);
+            await _taskService.UpdateAsync(entity);
             return Ok();
         }
 
@@ -175,20 +170,17 @@ namespace LTRegistratorApi.Controllers
                 leave.Add(new LeaveDto { StartDate = iStart, EndDate = iEnd, Id = item.l.Id, TypeLeave = (TypeLeaveDto)item.l.TypeLeave });
             }
 
-            var employeeTaskProject = Db.Set<LTRegistrator.Domain.Entities.Task>().FirstOrDefault(t => t.ProjectId == projectId && t.EmployeeId == employeeId && !t.ProjectEmployee.Project.SoftDeleted);
-            if (employeeTaskProject != null)
+            var employeeTaskProject = await Db.Set<LTRegistrator.Domain.Entities.Task>().Where(t => t.ProjectId == projectId && t.EmployeeId == employeeId && !t.ProjectEmployee.Project.SoftDeleted).ToArrayAsync();
+            var result = new List<TaskDto>();
+            foreach (var task in employeeTaskProject)
             {
                 List<TaskNoteDto> taskNotes = new List<TaskNoteDto>();
-                var notes = await Db.Set<TaskNote>().Where(tn => tn.TaskId == employeeTaskProject.Id && tn.Day <= endDate && tn.Day >= startDate).ToListAsync();
+                var notes = await Db.Set<TaskNote>().Where(tn => tn.TaskId == task.Id && tn.Day <= endDate && tn.Day >= startDate).ToListAsync();
                 foreach (var item in notes)
                     taskNotes.Add(new TaskNoteDto { Day = item.Day, Hours = item.Hours, Id = item.Id });
-                List<TaskDto> result = new List<TaskDto>
-                {
-                    new TaskDto { Name = employeeTaskProject.Name, Leave = leave, TaskNotes = taskNotes, Id = employeeTaskProject.Id }
-                };
-                return Ok(result);
+                result.Add(new TaskDto { Name = task.Name, Leave = leave, TaskNotes = taskNotes, Id = task.Id });
             }
-            return NotFound();
+            return Ok(result);
         }
 
         /// <summary>

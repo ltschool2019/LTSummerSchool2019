@@ -10,7 +10,6 @@ import { CustomFieldType } from '../../../core/models/enums/customFieldType';
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 import { TaskService } from '../../../core/service/task.service';
 import { forkJoin } from 'rxjs';
-import { shareReplay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-task-details',
@@ -20,11 +19,9 @@ import { shareReplay } from 'rxjs/operators';
 export class TaskDetailsComponent implements OnInit {
   private project: Project;
   private task: Task;
+
+  public taskDetailsForm: FormGroup;
   public taskFields: Map<CustomField, CustomValue> = new Map<CustomField, CustomValue>();
-  public isUpdate: boolean = false;
-  private CustomFieldType = CustomFieldType;
-  private taskDetailsForm: FormGroup;
-  private projectId: number;
   
   constructor(
     private router: Router,
@@ -35,37 +32,35 @@ export class TaskDetailsComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.buildForm();
-  }  
-
-  private buildForm(): void {
-    this.projectId = Number(this.route.snapshot.paramMap.get('id'));
-    let taskId = Number(this.route.snapshot.paramMap.get('taskId'));
+    let projectId = Number(this.route.snapshot.paramMap.get('id'));
+    let taskId = Number(window.localStorage.getItem("editTaskId"));
     if (taskId && taskId != 0) {
       let taskRequest = this.taskService.getById(taskId);
-      let projectRequest = this.projectService.getProjectDetails(this.projectId);
+      let projectRequest = this.projectService.getProjectDetails(projectId);
       forkJoin(taskRequest, projectRequest).subscribe((response: [Task, Project]) => {
         this.task = response[0];
         this.project = response[1];
         this.taskFields = this.collationFieldsWithValues(this.project.customFields, this.task.customValues);
-        this.test();
+        this.addFormControlsForCustomFields(this.taskFields);
       });
     } else {
-      this.projectService.getProjectDetails(this.projectId).subscribe((response: Project) => {
+      this.projectService.getProjectDetails(projectId).subscribe((response: Project) => {
         this.project = response;
         this.taskFields = this.collationFieldsWithValues(this.project.customFields, this.task.customValues);
-        this.test();
+        this.addFormControlsForCustomFields(this.taskFields);
       });
       this.task = new Task()
       this.task.name = '';      
     }
-    this.taskDetailsForm = this.formBuilder.group({});
+    this.taskDetailsForm = this.formBuilder.group({
+      "TaskName": new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(200)])
+    });
   }
 
-  private test(): void {
-    this.taskDetailsForm.addControl("TaskName", new FormControl(this.task && this.task.name ? this.task.name : '', [Validators.required, Validators.minLength(1), Validators.maxLength(200)]));
-    if (this.taskFields) {
-      this.taskFields.forEach((value: CustomValue, key: CustomField) => {
+  private addFormControlsForCustomFields(taskFields: Map<CustomField, CustomValue>): void {
+    this.taskDetailsForm.get('TaskName').setValue(this.task && this.task.name ? this.task.name : '');
+    if (taskFields) {
+      taskFields.forEach((value: CustomValue, key: CustomField) => {
         let validators = [];
         if (key.isRequired || key.type == CustomFieldType.dropDown) {
           validators.push(Validators.required);
@@ -95,13 +90,14 @@ export class TaskDetailsComponent implements OnInit {
   }
 
   private cancel(): void {
-    this.router.navigateByUrl('user/manager_projects');
+    window.localStorage.removeItem("editTaskId");
+    this.router.navigateByUrl(`user/timesheet/${this.project.id}/tasks`);
   }
 
   private addTask(): void {
     if (this.taskDetailsForm.valid) {
       this.task.name = this.taskDetailsForm.value.TaskName;
-      this.task.projectId = this.projectId;
+      this.task.projectId = this.project.id;
       this.project.customFields.forEach(item => {
         let formControlValue = this.taskDetailsForm.get(`${item.id}`).value;
         let customValue = this.task.customValues.find(cv => cv.customFieldId == item.id);
@@ -113,9 +109,16 @@ export class TaskDetailsComponent implements OnInit {
         customValue.value = formControlValue;
         this.task.customValues.push(customValue);
       });
-      this.taskService.addNewTask(this.task).subscribe(
+      var response;
+      if (this.task.id && this.task.id != 0) {
+        response = this.taskService.updateTask(this.task);
+      } else {
+        response = this.taskService.addNewTask(this.task);
+      }
+      response.subscribe(
         (data): any => {
-          this.router.navigateByUrl('user/manager_projects');
+          window.localStorage.removeItem("editTaskId");
+          this.router.navigateByUrl(`user/timesheet/${this.project.id}/tasks`);
         },
         (err) => {
 

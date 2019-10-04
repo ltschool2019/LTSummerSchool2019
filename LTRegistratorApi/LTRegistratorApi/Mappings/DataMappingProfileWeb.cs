@@ -38,14 +38,22 @@ namespace LTRegistratorApi.Mappings
 
             CreateMap<ProjectFullDto, Project>()
                 .ForMember(p => p.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(p => p.CustomFieldProjects, opt => opt.MapFrom(src => src.CustomFields))
-                .ForAllOtherMembers(opt => opt.Ignore());
+                .ForMember(p => p.CustomFieldProjects, opt => opt.MapFrom(src => src.CustomFields));
 
             CreateMap<Project, ProjectFullDto>()
-                .ForMember(pf => pf.CustomFields, opt => opt.MapFrom(src => src.CustomFieldProjects));
+                .ForMember(pf => pf.CustomFields, opt => opt.MapFrom(src => src.CustomFieldProjects))
+                .ForMember(pf => pf.Employees, opt => opt.MapFrom(src => src.ProjectEmployees));
+
+            CreateMap<ProjectEmployee, EmployeeDto>()
+                .ForMember(ed => ed.Id, opt => opt.MapFrom(src => src.EmployeeId))
+                .ForMember(ed => ed.FirstName, opt => opt.MapFrom(src => src.Employee.FirstName))
+                .ForMember(ed => ed.SecondName, opt => opt.MapFrom(src => src.Employee.SecondName))
+                .ForMember(ed => ed.Mail, opt => opt.MapFrom(src => src.Employee.Mail))
+                .ForMember(ed => ed.Rate, opt => opt.MapFrom(src => src.Employee.Rate))
+                .ForMember(ed => ed.ManagerId, opt => opt.MapFrom(src => src.Employee.ManagerId));
 
             CreateMap<CustomFieldProject, CustomFieldDto>()
-                .ForMember(cf => cf.CustomFieldType, opt => opt.MapFrom(src => src.CustomField.Type))
+                .ForMember(cf => cf.Type, opt => opt.MapFrom(src => src.CustomField.Type))
                 .ForMember(cf => cf.Name, opt => opt.MapFrom(src => src.CustomField.Name))
                 .ForMember(cf => cf.Id, opt => opt.MapFrom(src => src.CustomField.Id))
                 .ForMember(cf => cf.Description, opt => opt.MapFrom(src => src.CustomField.Description))
@@ -57,11 +65,12 @@ namespace LTRegistratorApi.Mappings
             CreateMap<CustomFieldOption, CustomFieldOptionDto>();
 
             CreateMap<CustomFieldDto, CustomFieldProject>()
+                .ForMember(cfp => cfp.CustomFieldId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(cfp => cfp.CustomField, opt => opt.MapFrom(src => src));
 
             CreateMap<CustomFieldDto, CustomField>()
                 .ForMember(cf => cf.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(cf => cf.Type, opt => opt.MapFrom(src => src.CustomFieldType))
+                .ForMember(cf => cf.Type, opt => opt.MapFrom(src => src.Type))
                 .ForMember(cf => cf.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(cf => cf.IsRequired, opt => opt.MapFrom(src => src.IsRequired))
                 .ForMember(cf => cf.DefaultValue, opt => opt.MapFrom(src => src.DefaultValue))

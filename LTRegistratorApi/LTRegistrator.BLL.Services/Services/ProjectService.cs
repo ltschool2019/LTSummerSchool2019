@@ -9,6 +9,7 @@ using LTRegistrator.BLL.Contracts.Exceptions;
 using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Task = System.Threading.Tasks.Task;
 
 namespace LTRegistrator.BLL.Services.Services
 {
@@ -23,7 +24,7 @@ namespace LTRegistrator.BLL.Services.Services
             var role = await GetRole(authUserId);
             var project = await DbContext.Set<Project>()
                 .Include(p => p.CustomFieldProjects).ThenInclude(cf => cf.CustomField).ThenInclude(cf => cf.CustomFieldOptions)
-                .Include(p => p.ProjectEmployees)
+                .Include(p => p.ProjectEmployees).ThenInclude(pe => pe.Employee)
                 .FirstOrDefaultAsync(p => p.Id == projectId && (role == RoleType.Administrator || !p.SoftDeleted));
             
             if (project == null)
@@ -69,6 +70,59 @@ namespace LTRegistrator.BLL.Services.Services
             await DbContext.SaveChangesAsync();
 
             return project;
+        }
+
+        public async Task UpdateAsync(int authEmployeeId, Project project)
+        {
+            var role = await GetRole(authEmployeeId);
+            if (role == RoleType.Employee)
+            {
+                throw new ForbiddenException("Access denied");
+            }
+
+            var entity = await DbContext.Set<Project>()
+                .Include(p => p.ProjectEmployees)
+                .Include(p => p.CustomFieldProjects).ThenInclude(cfp => cfp.CustomField)
+                .FirstOrDefaultAsync(p => p.Id == project.Id);
+            
+            if (entity == null || role == RoleType.Manager && entity.SoftDeleted)
+            {
+                throw new NotFoundException("Project was not found");
+            }
+
+            entity.Name = project.Name;
+            var unusedCustomFields = entity.CustomFieldProjects
+                .Where(cfp => !project.CustomFieldProjects.Select(fp => fp.CustomFieldId).Contains(cfp.CustomFieldId));
+            var customValues = await DbContext.Set<CustomValue>()
+                .Where(cv => unusedCustomFields.Select(ucf => ucf.CustomFieldId).Contains(cv.CustomFieldId))
+                .ToArrayAsync();
+            DbContext.Set<CustomValue>().RemoveRange(customValues);
+            DbContext.Set<CustomFieldProject>().RemoveRange(unusedCustomFields);
+            foreach (var customFieldProject in project.CustomFieldProjects)
+            {
+                var current = entity.CustomFieldProjects.FirstOrDefault(cfp => cfp.CustomFieldId == customFieldProject.CustomFieldId);
+                if (current == null)
+                {
+                    customFieldProject.ProjectId = project.Id;
+                    DbContext.Set<CustomFieldProject>().Add(customFieldProject);
+                }
+                else
+                {
+                    current.CustomField.DefaultValue = customFieldProject.CustomField.DefaultValue;
+                    current.CustomField.Description = customFieldProject.CustomField.Description;
+                    current.CustomField.IsRequired = customFieldProject.CustomField.IsRequired;
+                    current.CustomField.MaxLength = customFieldProject.CustomField.MaxLength;
+                    current.CustomField.Name = customFieldProject.CustomField.Name;
+                    if (current.CustomField.Type != customFieldProject.CustomField.Type)
+                    {
+                        DbContext.Set<CustomValue>().RemoveRange(DbContext.Set<CustomValue>().Where(cv => cv.CustomFieldId == current.CustomFieldId));
+                        current.CustomField.Type = customFieldProject.CustomField.Type;
+                    }
+                    DbContext.Set<CustomFieldProject>().Update(current);
+                }
+            }
+
+            await DbContext.SaveChangesAsync();
         }
     }
 }

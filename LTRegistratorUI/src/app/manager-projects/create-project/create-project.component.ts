@@ -7,6 +7,9 @@ import { FormGroup, FormBuilder, Validators, FormArray, FormControl } from '@ang
 import { ManagerProjectsService } from '../../core/service/manager_projects.service';
 import { EnumsToArrayPipe } from '../../core/extensions/enum.extensions';
 import { CustomFieldOption } from '../../core/models/customFieldOption.model';
+import { EmployeeService } from '../../core/service/employee.service';
+import { ProjectService } from '../../core/service/project.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-create-project',
@@ -14,15 +17,21 @@ import { CustomFieldOption } from '../../core/models/customFieldOption.model';
   styleUrls: ['./create-project.component.scss']
 })
 export class CreateProjectComponent implements OnInit {
-   name: string = '';
-   project: Project;
-   customField: CustomField;
-   showAddCustomFieldPanel: boolean = false;
-   projectForm: FormGroup;
-   customFieldForm: FormGroup;
-   customFieldTypes = CustomFieldType;
-
-  constructor(private router: Router, private formBuilder: FormBuilder, private managerService: ManagerProjectsService) { 
+  private projectId: number;
+  
+  project: Project;
+  customField: CustomField;
+  showAddCustomFieldPanel: boolean = false;
+  projectForm: FormGroup;
+  customFieldForm: FormGroup;
+  customFieldTypes = CustomFieldType;
+   
+  constructor(
+    private router: Router, 
+    private formBuilder: FormBuilder, 
+    private managerService: ManagerProjectsService,
+    private projectService: ProjectService
+  ) { 
     this.project = new Project();
     this.customField = new CustomField();
   }
@@ -32,6 +41,25 @@ export class CreateProjectComponent implements OnInit {
     this.project.customFields.forEach(customField => {
       this.addCustomField(customField);
     });
+    this.projectId = Number(window.localStorage.getItem("projectEditId"));
+    if (this.projectId && this.projectId != 0) {
+      this.projectService.getProjectDetails(this.projectId).subscribe(
+        (project: Project) => {
+          this.fillProjectData(project);
+        },
+        (error: HttpErrorResponse) => {}
+      );
+    }        
+  }  
+
+  private fillProjectData(project: Project) {
+    this.project = project;
+    this.projectForm.patchValue({
+      ProjectName: project.name
+    });
+    project.customFields.forEach((item: CustomField) => {
+      this.addCustomField(item);
+    })
   }
 
   private buidForm(): void {
@@ -74,6 +102,7 @@ export class CreateProjectComponent implements OnInit {
     let contorl = <FormArray>this.projectForm.controls.CustomFields;
     contorl.push(
       this.formBuilder.group({
+        CustomFieldId: [customField.id ? customField.id : 0],
         CustomFieldName: [customField.name],
         CustomFieldType: [customField.type],
         CustomFieldDescription: [customField.description],
@@ -131,8 +160,10 @@ export class CreateProjectComponent implements OnInit {
   private addProject(): void {
     if (this.projectForm.valid) {
       this.project.name = this.projectForm.value.ProjectName;
+      this.project.customFields = [];
       this.projectForm.value.CustomFields.forEach(element => {
         var item = new CustomField();
+        item.id = element.CustomFieldId;
         item.name = element.CustomFieldName;
         item.type = element.CustomFieldType;
         item.description = element.CustomFieldDescription ? element.CustomFieldDescription: "";
@@ -152,15 +183,18 @@ export class CreateProjectComponent implements OnInit {
         }        
         this.project.customFields.push(item);
       });
-      this.managerService.addManagerProject(this.project).subscribe(
+      let response;
+      if (window.localStorage.getItem("projectEditId")) {
+        response = this.managerService.updateManagerProject(this.project);
+      } else {
+        response = this.managerService.addManagerProject(this.project);
+      }
+      response.subscribe(
         (data: any) => {
           this.router.navigateByUrl('user/manager_projects');
         },
-        (err) => {
-
-        }
+        (error: HttpErrorResponse) => {}
       );
     }
   }
-
 }

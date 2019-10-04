@@ -26,7 +26,7 @@ export class TaskListComponent implements OnInit {
     this.getTasks();
   }
 
-  getTasks(): void {
+  private getTasks(): void {
     let projectId = Number(this.route.snapshot.paramMap.get('id'));
     let currentDate = new Date();
     let startDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDay());
@@ -40,12 +40,15 @@ export class TaskListComponent implements OnInit {
     return formatDate(date, 'yyyy-MM-dd', 'en')
   }
 
-  private openTaskDetails(id: number) {
+  public openTaskDetails(id: number) {
+    window.localStorage.removeItem("editTaskId");
+    window.localStorage.setItem("editTaskId", id.toString());
     let projectId = Number(this.route.snapshot.paramMap.get('id'));
     this.router.navigateByUrl(`user/timesheet/${projectId}/tasks/task_details/${id}`)
   }
 
   public addNewTask(): void {
+    window.localStorage.removeItem("editTaskId");
     let projectId = Number(this.route.snapshot.paramMap.get('id'));
     this.router.navigateByUrl(`user/timesheet/${projectId}/tasks/task_details`);
   }
