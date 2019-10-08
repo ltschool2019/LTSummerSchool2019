@@ -10,10 +10,15 @@
         <mat-datepicker id="datePicker" #datePicker startView="year"
                         (monthSelected)="datePickerClose($event)"></mat-datepicker>
       </mat-form-field>
-
-      <button mat-raised-button type="submit" class="export__download" (click)="getMonthlyReport()">Выгрузка
-        месячного отчета
-      </button>
+      
+      <div class="button-container">
+        <div class="spinner-container" *ngIf="showSpinner">
+          <mat-spinner diameter="24"></mat-spinner>
+        </div>
+        <button mat-raised-button class="export__download" [disabled]="showSpinner" (click)="getMonthlyReport()">
+          Выгрузка месячного отчета
+        </button>
+      </div>
     </div>
   </div>
   <table mat-table [dataSource]="manProject" class="mat-elevation-z8">

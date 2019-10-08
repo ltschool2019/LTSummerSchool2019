@@ -109,9 +109,14 @@
     </div>
   </div>
   <div class="row">
-    <div class="buttons-group-right" >
+    <div class="buttons-group-right">
       <button mat-raised-button class="create-project__cancel" (click)="cancel()">Назад</button>
-      <button mat-raised-button class="create-project__add" (click)="addProject()">Сохранить проект</button>
+      <div class="button-container">
+          <div class="spinner-container" *ngIf="showSpinner">
+            <mat-spinner diameter="24"></mat-spinner>
+          </div>
+          <button mat-raised-button [disabled]="!projectForm.valid || showSpinner" (click)="addProject()">Сохранить задачу</button>
+        </div>
     </div>
   </div>
 </div>

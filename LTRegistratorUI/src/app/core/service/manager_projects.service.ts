@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpRequest, HttpErrorResponse } from '@angular/common/http';
-import { catchError, tap } from 'rxjs/operators';
 import { _throw } from 'rxjs-compat/observable/throw';
 import { environment } from '../../../environments/environment';
 import * as moment from 'moment/moment';
-import * as FileSaver from 'file-saver';
 import { Project } from '../models/project.model';
 
 @Injectable({
@@ -35,11 +33,7 @@ export class ManagerProjectsService {
 
   getMonthlyReport(date: Date) {
     return this.http.get(environment.apiBaseUrl + 'api/reports/monthly/' + moment(date).format('YYYY-MM-DD') + '/manager/' + localStorage.getItem('userId'),
-    { responseType: 'arraybuffer' })
-    .subscribe((response) => {
-      let blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-      FileSaver.saveAs(blob, 'monthly_report_' + moment(date).format('YYYY_MM') + '.xlsx')
-    });
+    { responseType: 'arraybuffer' });
   }
 
   deleteProject(id: number ) {

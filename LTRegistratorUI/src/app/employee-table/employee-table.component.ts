@@ -27,7 +27,7 @@ const EMPLOYEES: EmployeeItem[] = [
 })
 export class EmployeesTableComponent implements OnInit {
   public data: boolean;
-  @ViewChild(MatSort, { static: true }) sort: MatSort;
+  @ViewChild(MatSort, { static: true }) sort: MatSort;  
 
   constructor(public dialogRef: MatDialogRef<EmployeesTableComponent>
     ) { }

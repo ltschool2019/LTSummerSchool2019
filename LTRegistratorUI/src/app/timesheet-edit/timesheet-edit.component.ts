@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 // import { DateAdapter } from '@angular/material';
 
@@ -30,6 +30,9 @@ export class TimesheetEditComponent implements OnInit {
   startDate: any;
   endDate: any;
   canPut = false; // post или пут запрос
+
+  @ViewChild('LoaderComponent', { static: true }) LoaderComponent;
+
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
@@ -37,9 +40,10 @@ export class TimesheetEditComponent implements OnInit {
     private route: ActivatedRoute,
     private overlayService: OverlayService
     ///  private dateAdapter: DateAdapter<any>
-  ) {}
+  ) { }
 
   ngOnInit() {
+    this.LoaderComponent.showLoader();
     this.userId = this.userService.getUserId();
     this.initForm();
     this.setWeek();
@@ -48,7 +52,15 @@ export class TimesheetEditComponent implements OnInit {
       tap(user => this.projects = user.projects),
       map(() => this.setupCurrentProject()),
       map(() => this.getTasks())
-    ).subscribe(() => {});
+    ).subscribe(
+      () => {
+
+      },
+      error => {
+
+      },
+      () => this.LoaderComponent.hideLoader()
+    );
     // this.dateAdapter.setLocale('ru-Latn');
   }
 
@@ -67,7 +79,7 @@ export class TimesheetEditComponent implements OnInit {
     const day = new Date(curr.setDate(first));
     this.taskForm.patchValue({
       currentWeek: day
-    }, {onlySelf: true});
+    }, { onlySelf: true });
     this.setWeek();
   }
 
@@ -79,7 +91,7 @@ export class TimesheetEditComponent implements OnInit {
     const day = new Date(curr.setDate(first));
     this.taskForm.patchValue({
       currentWeek: day
-    }, {onlySelf: true});
+    }, { onlySelf: true });
     this.setWeek();
   }
 
@@ -128,9 +140,9 @@ export class TimesheetEditComponent implements OnInit {
           tasks.map(
             (task: any) => {
               task.taskNotes.map((taskNote: any) => {
-                  const index = this.week.findIndex(item => item.date === taskNote.day.slice(0, 10));
-                  this.taskForm.controls[`day${index}`].setValue(taskNote.hours.toString());
-                }
+                const index = this.week.findIndex(item => item.date === taskNote.day.slice(0, 10));
+                this.taskForm.controls[`day${index}`].setValue(taskNote.hours.toString());
+              }
               );
               task.vacation.map((leave: any) => {
                 const startIndex = this.week.findIndex(item => item.date === leave.start.slice(0, 10));

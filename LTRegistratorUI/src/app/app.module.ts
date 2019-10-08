@@ -32,6 +32,8 @@ import { TaskListComponent } from './timesheet/task-list/task-list.component';
 import { TaskDetailsComponent } from './timesheet/task-list/task-details/task-details.component';
 import { ProjectService } from './core/service/project.service';
 import { SharedModule } from './shared.module';
+import { LoaderComponent } from './shared/loader/loader.component';
+import { CommonModule } from '@angular/common';
 
 @NgModule({
   declarations: [

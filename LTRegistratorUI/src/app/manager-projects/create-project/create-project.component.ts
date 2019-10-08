@@ -18,20 +18,21 @@ import { HttpErrorResponse } from '@angular/common/http';
 })
 export class CreateProjectComponent implements OnInit {
   private projectId: number;
-  
+
   project: Project;
   customField: CustomField;
   showAddCustomFieldPanel: boolean = false;
   projectForm: FormGroup;
   customFieldForm: FormGroup;
   customFieldTypes = CustomFieldType;
-   
+  showSpinner: boolean = false;
+
   constructor(
-    private router: Router, 
-    private formBuilder: FormBuilder, 
+    private router: Router,
+    private formBuilder: FormBuilder,
     private managerService: ManagerProjectsService,
     private projectService: ProjectService
-  ) { 
+  ) {
     this.project = new Project();
     this.customField = new CustomField();
   }
@@ -47,10 +48,10 @@ export class CreateProjectComponent implements OnInit {
         (project: Project) => {
           this.fillProjectData(project);
         },
-        (error: HttpErrorResponse) => {}
+        (error: HttpErrorResponse) => { }
       );
-    }        
-  }  
+    }
+  }
 
   private fillProjectData(project: Project) {
     this.project = project;
@@ -150,7 +151,7 @@ export class CreateProjectComponent implements OnInit {
       this.addCustomField(item);
       this.customFieldForm.reset();
       this.showAddCustomFieldPanel = false;
-    }    
+    }
   }
 
   private cancel(): void {
@@ -159,6 +160,7 @@ export class CreateProjectComponent implements OnInit {
 
   private addProject(): void {
     if (this.projectForm.valid) {
+      this.showSpinner = true;
       this.project.name = this.projectForm.value.ProjectName;
       this.project.customFields = [];
       this.projectForm.value.CustomFields.forEach(element => {
@@ -166,7 +168,7 @@ export class CreateProjectComponent implements OnInit {
         item.id = element.CustomFieldId;
         item.name = element.CustomFieldName;
         item.type = element.CustomFieldType;
-        item.description = element.CustomFieldDescription ? element.CustomFieldDescription: "";
+        item.description = element.CustomFieldDescription ? element.CustomFieldDescription : "";
         item.isRequired = element.CustomFieldIsRequired ? element.CustomFieldIsRequired : false;
         if (item.type == CustomFieldType.textField) {
           item.defaultValue = element.CustomFieldDefaultValue;
@@ -180,7 +182,7 @@ export class CreateProjectComponent implements OnInit {
 
             item.fieldOptions.push(option);
           });
-        }        
+        }
         this.project.customFields.push(item);
       });
       let response;
@@ -193,7 +195,8 @@ export class CreateProjectComponent implements OnInit {
         (data: any) => {
           this.router.navigateByUrl('user/manager_projects');
         },
-        (error: HttpErrorResponse) => {}
+        (error: HttpErrorResponse) => { },
+        () => this.showSpinner = false
       );
     }
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
 import { Project } from '../core/models/project.model';
@@ -11,13 +11,17 @@ import { Project } from '../core/models/project.model';
 export class TimesheetComponent implements OnInit {
   projects: Project[] = [];
 
+  @ViewChild('LoaderComponent', { static: true }) LoaderComponent;
+
   constructor(
     private route: ActivatedRoute, 
     private router: Router) {
   }
 
   ngOnInit() {
+    this.LoaderComponent.showLoader();
     this.projects = this.route.snapshot.data.user.projects;
+    this.LoaderComponent.hideLoader();
   }
 
   openProjectDetails(id: number): void {

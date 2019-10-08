@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { EmployeeService } from '../../core/service/employee.service';
 import { UserService } from '../../core/service/user.service';
 import { MatTableDataSource } from '@angular/material/table';
@@ -15,6 +15,8 @@ export class TaskListComponent implements OnInit {
   public projectTasks: MatTableDataSource<Task>;
   displayedColumns: string[] = ['name', 'delete'];
 
+  @ViewChild('LoaderComponent', { static: true }) LoaderComponent;
+
   constructor(
     private employeeService: EmployeeService,
     private userService: UserService,
@@ -27,13 +29,19 @@ export class TaskListComponent implements OnInit {
   }
 
   private getTasks(): void {
+    this.LoaderComponent.showLoader();
     let projectId = Number(this.route.snapshot.paramMap.get('id'));
     let currentDate = new Date();
     let startDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, currentDate.getDay());
-    this.employeeService.getTasks(this.userService.getUserId(), projectId, this.FormatDate(startDate), this.FormatDate(currentDate))
-    .subscribe((tasks: []) => {
-      this.projectTasks = new MatTableDataSource(tasks);
-    });
+    this.employeeService.getTasks(this.userService.getUserId(), projectId, this.FormatDate(startDate), this.FormatDate(currentDate)).subscribe(
+      (tasks: []) => {
+        this.projectTasks = new MatTableDataSource(tasks);
+      },
+      error => {
+
+      },
+      () => this.LoaderComponent.hideLoader()
+    );
   }
 
   private FormatDate(date: Date): string {

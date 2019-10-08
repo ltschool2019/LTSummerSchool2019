@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { ProjectService } from '../../../core/service/project.service';
 import { ActivatedRoute } from '@angular/router';
@@ -22,7 +22,10 @@ export class TaskDetailsComponent implements OnInit {
 
   public taskDetailsForm: FormGroup;
   public taskFields: Map<CustomField, CustomValue> = new Map<CustomField, CustomValue>();
-  
+  public showSpinner: boolean = false;
+
+  @ViewChild('LoaderComponent', { static: true }) LoaderComponent;
+
   constructor(
     private router: Router,
     private projectService: ProjectService,
@@ -32,25 +35,38 @@ export class TaskDetailsComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    this.LoaderComponent.showLoader();
     let projectId = Number(this.route.snapshot.paramMap.get('id'));
     let taskId = Number(window.localStorage.getItem("editTaskId"));
     if (taskId && taskId != 0) {
       let taskRequest = this.taskService.getById(taskId);
       let projectRequest = this.projectService.getProjectDetails(projectId);
-      forkJoin(taskRequest, projectRequest).subscribe((response: [Task, Project]) => {
-        this.task = response[0];
-        this.project = response[1];
-        this.taskFields = this.collationFieldsWithValues(this.project.customFields, this.task.customValues);
-        this.addFormControlsForCustomFields(this.taskFields);
-      });
+      forkJoin(taskRequest, projectRequest).subscribe(
+        (response: [Task, Project]) => {
+          this.task = response[0];
+          this.project = response[1];
+          this.taskFields = this.collationFieldsWithValues(this.project.customFields, this.task.customValues);
+          this.addFormControlsForCustomFields(this.taskFields);
+        },
+        error => {
+
+        },
+        () => this.LoaderComponent.hideLoader()
+      );
     } else {
-      this.projectService.getProjectDetails(projectId).subscribe((response: Project) => {
-        this.project = response;
-        this.taskFields = this.collationFieldsWithValues(this.project.customFields, this.task.customValues);
-        this.addFormControlsForCustomFields(this.taskFields);
-      });
+      this.projectService.getProjectDetails(projectId).subscribe(
+        (response: Project) => {
+          this.project = response;
+          this.taskFields = this.collationFieldsWithValues(this.project.customFields, this.task.customValues);
+          this.addFormControlsForCustomFields(this.taskFields);
+        },
+        error => {
+
+        },
+        () => this.LoaderComponent.hideLoader()
+      );
       this.task = new Task()
-      this.task.name = '';      
+      this.task.name = '';
     }
     this.taskDetailsForm = this.formBuilder.group({
       "TaskName": new FormControl('', [Validators.required, Validators.minLength(1), Validators.maxLength(200)])
@@ -73,7 +89,7 @@ export class TaskDetailsComponent implements OnInit {
     }
   }
 
-  private collationFieldsWithValues(customFields: CustomField[], customValues: CustomValue[]) : Map<CustomField, CustomValue> {
+  private collationFieldsWithValues(customFields: CustomField[], customValues: CustomValue[]): Map<CustomField, CustomValue> {
     let result = new Map<CustomField, CustomValue>();
     customFields.forEach(customField => {
       let customValue = customValues.find(cv => cv.customFieldId == customField.id);
@@ -85,7 +101,7 @@ export class TaskDetailsComponent implements OnInit {
       }
       result.set(customField, customValue);
     });
-    
+
     return result;
   }
 
@@ -96,6 +112,7 @@ export class TaskDetailsComponent implements OnInit {
 
   private addTask(): void {
     if (this.taskDetailsForm.valid) {
+      this.showSpinner = true;
       this.task.name = this.taskDetailsForm.value.TaskName;
       this.task.projectId = this.project.id;
       this.project.customFields.forEach(item => {
@@ -122,9 +139,10 @@ export class TaskDetailsComponent implements OnInit {
         },
         (err) => {
 
-        }
+        },
+        () => this.showSpinner = false
       );
-    }    
+    }
   }
 
 }

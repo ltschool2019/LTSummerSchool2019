@@ -8,6 +8,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { OverlayService } from '../shared/overlay/overlay.service';
 import { MatDatepicker } from '@angular/material';
 import { Router } from "@angular/router";
+import * as moment from 'moment/moment';
+import * as FileSaver from 'file-saver';
 
 @Component({
   selector: 'app-manager-projects',
@@ -20,12 +22,13 @@ export class ManagerProjectsComponent implements OnInit {
   reportDateFC: FormControl;
 
   displayedColumns: string[] = ['name', 'delete'];
+  showSpinner: boolean = false;
 
-  @ViewChild('datePicker', {static: false}) datePicker: MatDatepicker<Date>;
+  @ViewChild('datePicker', { static: false }) datePicker: MatDatepicker<Date>;
 
   constructor(
     public dialog: MatDialog,
-    private managerProjectsService: ManagerProjectsService, 
+    private managerProjectsService: ManagerProjectsService,
     private router: Router,
     private overlayService: OverlayService) { }
 
@@ -46,7 +49,15 @@ export class ManagerProjectsComponent implements OnInit {
   }
 
   getMonthlyReport(): void {
-    this.managerProjectsService.getMonthlyReport(this.reportDateFC.value);
+    this.showSpinner = true;
+    this.managerProjectsService.getMonthlyReport(this.reportDateFC.value).subscribe(
+      (response) => {
+        let blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        FileSaver.saveAs(blob, 'monthly_report_' + moment(this.reportDateFC.value).format('YYYY_MM') + '.xlsx')
+      },
+      error => { },
+      () => this.showSpinner = false
+    );
   }
 
   datePickerClose($event) {
@@ -56,7 +67,7 @@ export class ManagerProjectsComponent implements OnInit {
 
   getManagerProjects(): void {
     this.managerProjectsService.getManagerProjects().subscribe((data: []) => {
-      this.manProject =  new MatTableDataSource(data); 
+      this.manProject = new MatTableDataSource(data);
     });
   }
 
