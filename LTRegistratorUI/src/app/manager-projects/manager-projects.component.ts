@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ManagerProjectsService } from 'src/app/core/service/manager_projects.service';
 import { ManagerProjects } from 'src/app/shared/models/manager_projects.model';
-import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { AddProjectDialogComponent } from 'src/app/add-project-dialog/add-project-dialog.component';
 import { MatDialog } from '@angular/material/dialog';
+import { OverlayService } from '../shared/overlay/overlay.service';
+import { MatDatepicker } from '@angular/material';
 import { Router } from "@angular/router";
 
 @Component({
@@ -15,15 +17,21 @@ import { Router } from "@angular/router";
 export class ManagerProjectsComponent implements OnInit {
   public manProject: MatTableDataSource<ManagerProjects>;
   manProjectForm: FormGroup;
+  reportDateFC: FormControl;
+
   displayedColumns: string[] = ['name', 'delete'];
+
+  @ViewChild('datePicker', {static: false}) datePicker: MatDatepicker<Date>;
 
   constructor(
     public dialog: MatDialog,
     private managerProjectsService: ManagerProjectsService, 
-    private router: Router) {}
+    private router: Router,
+    private overlayService: OverlayService) { }
 
   ngOnInit() {
     this.getManagerProjects();
+    this.reportDateFC = new FormControl(new Date());
   }
 
   createProject(): void {
@@ -38,7 +46,12 @@ export class ManagerProjectsComponent implements OnInit {
   }
 
   getMonthlyReport(): void {
-    this.managerProjectsService.getMonthlyReport(new Date());
+    this.managerProjectsService.getMonthlyReport(this.reportDateFC.value);
+  }
+
+  datePickerClose($event) {
+    this.reportDateFC.setValue($event);
+    this.datePicker.close();
   }
 
   getManagerProjects(): void {

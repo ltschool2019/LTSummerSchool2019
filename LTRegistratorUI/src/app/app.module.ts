@@ -1,5 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { OverlayModule } from "./shared/overlay/overlay.module";
+import { MaterialModule } from './material.module';
+
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -18,7 +21,7 @@ import { UserComponent } from './user/user.component';
 import { EmployeesTableComponent } from './employee-table/employee-table.component';
 import { AddProjectDialogComponent } from './add-project-dialog/add-project-dialog.component';
 import { LoginService } from 'src/app/core/service/login.service';
-import { MaterialModule } from './material.module';
+
 import { AdminComponent } from './admin/admin.component';
 import { VacationEditDialogComponent } from './vacation/vacation-edit-dialog/vacation-edit-dialog.component';
 import { ManagerProjectsComponent } from './manager-projects/manager-projects.component';
@@ -29,7 +32,6 @@ import { TaskListComponent } from './timesheet/task-list/task-list.component';
 import { TaskDetailsComponent } from './timesheet/task-list/task-details/task-details.component';
 import { ProjectService } from './core/service/project.service';
 import { SharedModule } from './shared.module';
-
 
 @NgModule({
   declarations: [
@@ -58,6 +60,7 @@ import { SharedModule } from './shared.module';
     MaterialModule,
     AppRoutingModule,
     ReactiveFormsModule,
+    OverlayModule,
     FormsModule,
     HttpClientModule,
     BrowserAnimationsModule,

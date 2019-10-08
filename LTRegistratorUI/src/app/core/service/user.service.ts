@@ -47,6 +47,10 @@ export class UserService {
     this.currentUser.id = id;
   }
 
+  public clearUserInfo() {
+    this.user$ = null;
+  }
+
   private getUrl() {
     return environment.apiBaseUrl + `api/employee/${this.currentUser.id}/info`;
   }

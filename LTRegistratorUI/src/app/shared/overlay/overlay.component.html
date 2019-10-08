@@ -1,0 +1,18 @@
+<div class="overlay"
+     [ngClass]="{
+     'overlay-info': data.type == DATA_OVERLAY_TYPE.INFO,
+     'overlay-success': data.type == DATA_OVERLAY_TYPE.SUCCESS,
+     'overlay-danger': data.type == DATA_OVERLAY_TYPE.DANGER
+     }"
+>
+  <div class="row">
+      {{data.message}}
+
+    <button class="overlay-close" mat-button (click)="close()">
+      <i class="material-icons">
+        clear
+      </i>
+    </button>
+
+  </div>
+</div>

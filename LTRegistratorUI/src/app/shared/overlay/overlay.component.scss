@@ -1,0 +1,46 @@
+@import "~src/sass/variables";
+
+.overlay {
+  position: absolute;
+  padding: 25px;
+  width: calc(100% - 70px);
+  line-height: 1.5;
+  font-size: 16px;
+  color: white;
+  opacity: 0.8;
+  bottom: 40px;
+  left: 10px;
+  .row {
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .btn {
+    color: white;
+  }
+  &-info {
+    background-color: gray;
+  }
+  &-success {
+    background-color: green;
+  }
+  &-danger {
+    background-color: red;
+  }
+  &-close {
+    position: relative;
+    right: -15px;
+    color: white;
+    padding: 0;
+    width: 50px;
+    height: 50px;
+    background: inherit;
+    border: none;
+    &:hover {
+      cursor: pointer
+    }
+  }
+}

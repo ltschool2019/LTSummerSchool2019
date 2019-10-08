@@ -3,7 +3,7 @@
   <form [formGroup]="vacationForm" (ngSubmit)="onSubmit()" class="vacation-form">
     <button mat-mini-fab type="submit">+</button>
     <mat-form-field>
-      <mat-label>Select</mat-label>
+      <mat-label>Выберите тип</mat-label>
       <mat-select formControlName="type">
         <mat-option *ngFor="let vacationType of vacationTypes" [value]="vacationType.value">
           {{vacationType.viewValue}}
@@ -11,13 +11,13 @@
       </mat-select>
     </mat-form-field>
     <mat-form-field>
-      <input matInput [matDatepicker]="start" placeholder="From"
+      <input matInput [matDatepicker]="start" placeholder="С"
         formControlName="start">
       <mat-datepicker-toggle [for]="start" matSuffix></mat-datepicker-toggle>
       <mat-datepicker #start></mat-datepicker>
     </mat-form-field>
     <mat-form-field>
-      <input matInput [matDatepicker]="end" placeholder="To" formControlName="end">
+      <input matInput [matDatepicker]="end" placeholder="По" formControlName="end">
       <mat-datepicker-toggle [for]="end" matSuffix></mat-datepicker-toggle>
       <mat-datepicker #end></mat-datepicker>
     </mat-form-field>

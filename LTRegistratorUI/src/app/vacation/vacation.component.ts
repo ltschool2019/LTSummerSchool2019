@@ -7,6 +7,7 @@ import { VacationEditDialogComponent } from './vacation-edit-dialog/vacation-edi
 import { Vacation } from '../core/models/vacation.model';
 import { VacationService } from '../core/service/vacation.service';
 import { UserService } from '../core/service/user.service';
+import { OverlayService } from "../shared/overlay/overlay.service";
 
 export interface VacationType {
   value: string;
@@ -37,7 +38,9 @@ export class VacationComponent implements OnInit {
     private fb: FormBuilder,
     private vacationService: VacationService,
     private userService: UserService,
-    public dialog: MatDialog) {
+    public dialog: MatDialog,
+    private overlayService: OverlayService
+  ) {
   }
 
   ngOnInit() {
@@ -65,14 +68,21 @@ export class VacationComponent implements OnInit {
 
     this.vacationService.addVacation(this.userId, newVacation)
       .subscribe(() => {
-        this.vacations.push(newVacation);
-      });
+          this.vacations.push(newVacation);
+        },
+        (err) => {
+          this.overlayService.danger('Ошибка создания');
+        });
   }
 
   // delete
   delete(vacation: Vacation): void {
     this.vacations = this.vacations.filter(v => v !== vacation);
-    this.vacationService.deleteVacation(+this.userId, +vacation.id).subscribe();
+    this.vacationService.deleteVacation(+this.userId, +vacation.id).subscribe(() => {
+      },
+      (err) => {
+        this.overlayService.danger('Ошибка удаления');
+      });
   }
 
 
@@ -97,6 +107,8 @@ export class VacationComponent implements OnInit {
       .subscribe(() => {
           this.vacations = this.vacations.filter(v => v.id !== newVacation.id);
           this.vacations.push(newVacation);
+        }, (err) => {
+          this.overlayService.danger('Ошибка редактирования');
         }
       );
   }
