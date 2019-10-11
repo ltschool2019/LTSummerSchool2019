@@ -10,6 +10,7 @@ import { CustomFieldType } from '../../../core/models/enums/customFieldType';
 import { FormGroup, FormControl, FormBuilder, Validators } from '@angular/forms';
 import { TaskService } from '../../../core/service/task.service';
 import { forkJoin } from 'rxjs';
+import { OverlayService } from '../../../shared/overlay/overlay.service';
 
 @Component({
   selector: 'app-task-details',
@@ -31,7 +32,8 @@ export class TaskDetailsComponent implements OnInit {
     private projectService: ProjectService,
     private route: ActivatedRoute,
     private formBuilder: FormBuilder,
-    private taskService: TaskService
+    private taskService: TaskService,
+    private overlayService: OverlayService
   ) { }
 
   ngOnInit() {
@@ -49,7 +51,7 @@ export class TaskDetailsComponent implements OnInit {
           this.addFormControlsForCustomFields(this.taskFields);
         },
         error => {
-
+          this.overlayService.danger(error.message);
         },
         () => this.LoaderComponent.hideLoader()
       );
@@ -61,7 +63,7 @@ export class TaskDetailsComponent implements OnInit {
           this.addFormControlsForCustomFields(this.taskFields);
         },
         error => {
-
+          this.overlayService.danger(error.message);
         },
         () => this.LoaderComponent.hideLoader()
       );
@@ -138,9 +140,12 @@ export class TaskDetailsComponent implements OnInit {
           this.router.navigateByUrl(`user/timesheet/${this.project.id}/tasks`);
         },
         (err) => {
-
+          this.overlayService.danger(err.message);
         },
-        () => this.showSpinner = false
+        () => {
+          this.showSpinner = false;
+          this.overlayService.success("Здача успешно добавлена")
+        }
       );
     }
   }

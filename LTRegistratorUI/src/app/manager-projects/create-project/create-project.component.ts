@@ -10,6 +10,7 @@ import { CustomFieldOption } from '../../core/models/customFieldOption.model';
 import { EmployeeService } from '../../core/service/employee.service';
 import { ProjectService } from '../../core/service/project.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { OverlayService } from '../../shared/overlay/overlay.service';
 
 @Component({
   selector: 'app-create-project',
@@ -31,7 +32,8 @@ export class CreateProjectComponent implements OnInit {
     private router: Router,
     private formBuilder: FormBuilder,
     private managerService: ManagerProjectsService,
-    private projectService: ProjectService
+    private projectService: ProjectService,
+    private overlayService: OverlayService
   ) {
     this.project = new Project();
     this.customField = new CustomField();
@@ -48,7 +50,9 @@ export class CreateProjectComponent implements OnInit {
         (project: Project) => {
           this.fillProjectData(project);
         },
-        (error: HttpErrorResponse) => { }
+        (error: HttpErrorResponse) => {
+          this.overlayService.danger(error.message);
+         }
       );
     }
   }
@@ -195,8 +199,13 @@ export class CreateProjectComponent implements OnInit {
         (data: any) => {
           this.router.navigateByUrl('user/manager_projects');
         },
-        (error: HttpErrorResponse) => { },
-        () => this.showSpinner = false
+        (error: HttpErrorResponse) => { 
+          this.overlayService.danger(error.message);
+        },
+        () => {
+          this.showSpinner = false;
+          this.overlayService.success("Проект успешно создан");
+        }
       );
     }
   }

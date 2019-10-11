@@ -12,7 +12,8 @@ export class OverlayService {
 
   constructor(private snackBar: MatSnackBar) {
     this.config = {
-      duration: 2000,
+      duration: 3000,
+      horizontalPosition: 'end'
     };
   }
 

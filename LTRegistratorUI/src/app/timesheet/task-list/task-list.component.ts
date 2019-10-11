@@ -5,6 +5,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { Task } from '../../core/models/task.model';
 import { formatDate } from '@angular/common';
 import { Router, ActivatedRoute } from "@angular/router";
+import { OverlayService } from '../../shared/overlay/overlay.service';
 
 @Component({
   selector: 'app-task-list',
@@ -21,7 +22,8 @@ export class TaskListComponent implements OnInit {
     private employeeService: EmployeeService,
     private userService: UserService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private overlayService: OverlayService
   ) { }
 
   ngOnInit() {
@@ -38,7 +40,7 @@ export class TaskListComponent implements OnInit {
         this.projectTasks = new MatTableDataSource(tasks);
       },
       error => {
-
+        this.overlayService.danger("Ошибка загрузки списка задач");
       },
       () => this.LoaderComponent.hideLoader()
     );
