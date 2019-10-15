@@ -6,6 +6,7 @@ import { Task } from '../../core/models/task.model';
 import { formatDate } from '@angular/common';
 import { Router, ActivatedRoute } from "@angular/router";
 import { OverlayService } from '../../shared/overlay/overlay.service';
+import { ApiError } from '../../core/models/apiError.model';
 
 @Component({
   selector: 'app-task-list',
@@ -39,11 +40,11 @@ export class TaskListComponent implements OnInit {
       (tasks: []) => {
         this.projectTasks = new MatTableDataSource(tasks);
       },
-      error => {
-        this.overlayService.danger("Ошибка загрузки списка задач");
-      },
-      () => this.LoaderComponent.hideLoader()
-    );
+      err => {
+        let apiError = <ApiError>err.error;
+        this.overlayService.danger(apiError.message);
+      }      
+    ).add(() => this.LoaderComponent.hideLoader());
   }
 
   private FormatDate(date: Date): string {
@@ -61,5 +62,20 @@ export class TaskListComponent implements OnInit {
     window.localStorage.removeItem("editTaskId");
     let projectId = Number(this.route.snapshot.paramMap.get('id'));
     this.router.navigateByUrl(`user/timesheet/${projectId}/tasks/task_details`);
+  }
+
+  public deleteTask(id: number): void {
+    this.employeeService.deleteTask(id).subscribe(
+      () => {
+        this.overlayService.success("Задача успешно удалена");
+        let taskIndex = this.projectTasks.data.findIndex(t => t.id == id);
+        this.projectTasks.data.splice(taskIndex, 1);
+        this.projectTasks._updateChangeSubscription();
+      },
+      err => {
+        let apiError = <ApiError>err.error;
+        this.overlayService.danger(apiError.message);
+      }
+    )
   }
 }

@@ -233,7 +233,7 @@ export class TimesheetEditComponent implements OnInit {
 
   // delete
   delete(): void {
-    this.employeeService.deleteTask(+this.userId, this.task[0].id).subscribe(() => {
+    this.employeeService.deleteTask(this.task[0].id).subscribe(() => {
     }, (err) => {
       this.overlayService.danger('Ошибка удаления');
     });

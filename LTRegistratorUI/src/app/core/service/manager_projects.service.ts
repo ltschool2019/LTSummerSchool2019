@@ -20,15 +20,15 @@ export class ManagerProjectsService {
   }
 
   addManagerProject(project: Project): any {
-    return this.http.post<any>(this.projectPostUrl, project);
+    return this.http.post<any>(environment.apiBaseUrl + 'api/project', project);
   }
 
   updateManagerProject(project: Project) {
-    return this.http.put<any>(this.projectPostUrl, project);
+    return this.http.put<any>(environment.apiBaseUrl + 'api/project', project);
   }
 
   getManagerUrlGet() {
-    return environment.apiBaseUrl + `api/manager/` + localStorage.getItem('userId') + `/projects`;
+    return environment.apiBaseUrl + `api/project`;
   }
 
   getMonthlyReport(date: Date) {
@@ -41,7 +41,7 @@ export class ManagerProjectsService {
   }
 
   deleteProjectGerUrl(id:number){
-    return environment.apiBaseUrl + `api/manager/project/` + id;
+    return environment.apiBaseUrl + `api/project/` + id;
   }
   private handleError(error: HttpErrorResponse) {
     if (error.error instanceof ErrorEvent) {

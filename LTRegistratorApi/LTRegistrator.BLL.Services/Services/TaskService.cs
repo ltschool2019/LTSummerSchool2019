@@ -17,6 +17,11 @@ namespace LTRegistrator.BLL.Services.Services
         {
         }
 
+        public async System.Threading.Tasks.Task<Task[]> GetAllByEmployeeIdAndProjectId(int authUserId, int employeeId, int projectId, DateTime startDate, DateTime endDate)
+        {
+            throw new NotImplementedException();
+        }
+
         public async System.Threading.Tasks.Task<Task> GetByIdAsync(int authUserId, int taskId)
         {
             var task = await DbContext.Set<Task>()
@@ -84,6 +89,27 @@ namespace LTRegistrator.BLL.Services.Services
                 }
             }
 
+            await DbContext.SaveChangesAsync();
+        }
+
+        public async System.Threading.Tasks.Task RemoveAsync(int authUserId, int taskId)
+        {
+            var task = await DbContext.Set<Task>().FirstOrDefaultAsync(t => t.Id == taskId);
+            if (task == null)
+            {
+                throw new NotFoundException("Task was not found");
+            }
+
+            if (task.EmployeeId != authUserId)
+            {
+                var role = await GetRole(authUserId);
+                if (role == RoleType.Employee)
+                {
+                    throw new ForbiddenException("Access denied");
+                }
+            }
+
+            DbContext.Set<Task>().Remove(task);
             await DbContext.SaveChangesAsync();
         }
     }

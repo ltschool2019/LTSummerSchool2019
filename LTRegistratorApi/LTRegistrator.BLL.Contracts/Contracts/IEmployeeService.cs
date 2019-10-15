@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using LTRegistrator.Domain.Entities;
+using Task = System.Threading.Tasks.Task;
 
 namespace LTRegistrator.BLL.Contracts.Contracts
 {
     public interface IEmployeeService
     {
-        Task<IEnumerable<Employee>> GetAllAsync(int authEmployeeId);
-        Task<Response<Employee>> GetByIdAsync(int id);
-        Task<Response<Employee>> AddLeavesAsync(int userId, ICollection<Leave> leaves);
-        Task<Response<Employee>> UpdateLeavesAsync(int userId, ICollection<Leave> leaves);
-        Task<Response<Employee>> DeleteLeavesAsync(int userId, ICollection<int> leaveIds);
+        Task<Employee[]> GetAllAsync(int authEmployeeId);
+        Task<Employee[]> GetByProjectIdAsync(int authUserId, int projectId);
+        Task<Employee> GetByIdAsync(int id);
+        Task<Leave> AddLeaveAsync(int userId, Leave leave);
+        Task<Leave> UpdateLeaveAsync(int userId, Leave leave);
+        Task DeleteLeaveAsync(int userId, int leaveId);
     }
 }

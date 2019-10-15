@@ -1,17 +1,17 @@
 
 export class Vacation {
     id: any;
-    type: any;
+    typeLeave: any;
     //FIXME: Сделать тип - date 
-    start: any;
-    end: any;
+    startDate: any;
+    endDate: any;
 
 
     constructor(leaveId: any, typeLeave: string, startDate: any, endDate: any) {
         this.id = leaveId;
-        this.type = typeLeave;
-        this.start = startDate;
-        this.end = endDate;
+        this.typeLeave = typeLeave;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
 
 }

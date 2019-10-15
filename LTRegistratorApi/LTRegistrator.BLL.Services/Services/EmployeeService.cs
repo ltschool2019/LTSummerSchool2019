@@ -4,12 +4,12 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
-using LTRegistrator.BLL.Contracts;
 using LTRegistrator.BLL.Contracts.Contracts;
 using LTRegistrator.BLL.Contracts.Exceptions;
 using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Task = System.Threading.Tasks.Task;
 
 namespace LTRegistrator.BLL.Services.Services
 {
@@ -17,7 +17,7 @@ namespace LTRegistrator.BLL.Services.Services
     {
         public EmployeeService(DbContext db, IMapper mapper) : base(db, mapper) { }
 
-        public async Task<IEnumerable<Employee>> GetAllAsync(int authEmployeeId)
+        public async Task<Employee[]> GetAllAsync(int authEmployeeId)
         {
             var role = await GetRole(authEmployeeId);
             if (role == RoleType.Employee)
@@ -34,7 +34,28 @@ namespace LTRegistrator.BLL.Services.Services
             return await employees.ToArrayAsync();
         }
 
-        public async Task<Response<Employee>> GetByIdAsync(int id)
+        public async Task<Employee[]> GetByProjectIdAsync(int authUserId, int projectId)
+        {
+            var project = await DbContext.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId);
+            var role = await GetRole(authUserId);
+            if (project == null || project.SoftDeleted && role != RoleType.Administrator)
+            {
+                throw new NotFoundException("Project was not found");
+            }
+
+            var employees = await DbContext.Set<ProjectEmployee>().Where(pe => pe.ProjectId == projectId)
+                .Select(pe => pe.Employee)
+                .Include(e => e.ProjectEmployees).ThenInclude(pe => pe.Project)
+                .ToArrayAsync();
+
+            return employees.Select(e =>
+            {
+                e.ProjectEmployees = e.ProjectEmployees.Where(pe => !pe.Project.SoftDeleted).ToList();
+                return e;
+            }).ToArray();
+        }
+
+        public async Task<Employee> GetByIdAsync(int id)
         {
             var currentMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
             var employee = await DbContext.Set<Employee>()
@@ -45,7 +66,7 @@ namespace LTRegistrator.BLL.Services.Services
                 .SingleOrDefaultAsync(e => e.Id == id);
             if (employee == null)
             {
-                return new Response<Employee>(HttpStatusCode.NotFound, $"Employee with id = {id} not found");
+                throw new NotFoundException("Employee was not found");
             }
 
             employee.ProjectEmployees = employee.ProjectEmployees.Where(pe => !pe.Project.SoftDeleted).ToList();
@@ -57,98 +78,81 @@ namespace LTRegistrator.BLL.Services.Services
                 }
             }
 
-            return new Response<Employee>(employee);
+            return employee;
         }
 
-        public async Task<Response<Employee>> AddLeavesAsync(int userId, ICollection<Leave> leaves)
+        public async Task<Leave> AddLeaveAsync(int userId, Leave leave)
         {
             var employee = await DbContext.Set<Employee>().Include(e => e.Leaves).FirstOrDefaultAsync(e => e.Id == userId);
             if (employee == null)
             {
-                return new Response<Employee>(HttpStatusCode.NotFound, $"Employee with id = {userId} not found");
+                throw new NotFoundException("Employee was not found");
             }
 
-            if (LeavesValidator.TryMergeLeaves(employee.Leaves.ToList(), leaves))
+            if (LeavesValidator.TryMergeLeaves(employee.Leaves.ToList(), new[] { leave }))
             {
-                employee.Leaves = employee.Leaves.Concat(leaves).ToList();
+                leave.EmployeeId = employee.Id;
+                DbContext.Set<Leave>().Add(leave);
                 await DbContext.SaveChangesAsync();
-
-                return new Response<Employee>(employee);
+                return leave;
             }
 
-            return new Response<Employee>(HttpStatusCode.BadRequest, "Transferred leave is not correct");
+            throw new BadRequestException("Transferred leave is not correct");
         }
 
-        public async Task<Response<Employee>> UpdateLeavesAsync(int userId, ICollection<Leave> leaves)
+        public async Task<Leave> UpdateLeaveAsync(int userId, Leave leave)
         {
-            var employee = await DbContext.Set<Employee>().Include(e => e.Leaves).SingleOrDefaultAsync(e => e.Id == userId);
+            var employee = await DbContext.Set<Employee>().SingleOrDefaultAsync(e => e.Id == userId);
             if (employee == null)
             {
-                return new Response<Employee>(HttpStatusCode.NotFound, $"Employee with id = {userId} not found");
+                throw new NotFoundException("Employee was not found");
             }
 
-            try
+            var entity = await DbContext.Set<Leave>().FirstOrDefaultAsync(l => l.Id == leave.Id);
+            if (entity == null)
             {
-                foreach (Leave leave in leaves)
-                {
-                    leave.EmployeeId = employee.Id;
-                    leave.Employee = employee;
-                    var currentLeave = employee.Leaves.SingleOrDefault(l => l.Id == leave.Id);
-                    if (currentLeave == null)
-                    {
-                        return new Response<Employee>(HttpStatusCode.NotFound, $"Leave with id = {leave.Id} not found");
-                    }
-                    Mapper.Map(leave, currentLeave);
-                    DbContext.Entry(currentLeave).State = EntityState.Modified;
-                    DbContext.Set<Leave>().Update(currentLeave);
-                }
-
-                if (!LeavesValidator.ValidateLeaves(employee.Leaves.ToList()))
-                {
-                    return new Response<Employee>(HttpStatusCode.BadRequest, "Transferred leave is not correct");
-                }
-
-                await DbContext.SaveChangesAsync();
+                throw new NotFoundException("Leave was not found");
             }
-            catch (Exception e)
+
+            if (entity.EmployeeId != userId)
             {
-                return new Response<Employee>(HttpStatusCode.InternalServerError, "Internal server error");
+                throw new ForbiddenException("Access denied");
             }
 
-            return new Response<Employee>(Mapper.Map<Employee>(employee));
-        }
+            Mapper.Map(leave, entity);
 
-        public async Task<Response<Employee>> DeleteLeavesAsync(int userId, ICollection<int> leaveIds)
-        {
-
-            if (!leaveIds.Any())
+            if (!LeavesValidator.ValidateLeaves(employee.Leaves.ToList()))
             {
-                return new Response<Employee>(HttpStatusCode.BadRequest, "Leave ids not transferred");
+                throw new BadRequestException("Transferred leave is not correct");
             }
 
-            var employee = await DbContext.Set<Employee>().Include(e => e.Leaves).SingleOrDefaultAsync(e => e.Id == userId);
-            if (employee == null)
-            {
-                return new Response<Employee>(HttpStatusCode.NotFound, $"Employee with id = {userId} not found");
-            }
-
-            var leaves = await DbContext.Set<Leave>().Where(l => leaveIds.Contains(l.Id)).ToListAsync();
-            if (leaves.Count != leaveIds.Count)
-            {
-                return new Response<Employee>(HttpStatusCode.BadRequest, "transmitted id's are not correct");
-            }
-
-            if (leaves.Any(l => l.EmployeeId != userId))
-            {
-                return new Response<Employee>(HttpStatusCode.Forbidden, "You cannot change another employee’s leave");
-            }
-
-            foreach (var leave in leaves)
-            {
-                DbContext.Set<Leave>().Remove(leave);
-            }
             await DbContext.SaveChangesAsync();
-            return new Response<Employee>(employee);
+
+            return leave;
+        }
+
+        public async Task DeleteLeaveAsync(int userId, int leaveId)
+        {
+            var employee = await DbContext.Set<Employee>().SingleOrDefaultAsync(e => e.Id == userId);
+            if (employee == null)
+            {
+                throw new NotFoundException("Employee was not found");
+            }
+
+            var leave = await DbContext.Set<Leave>().FirstOrDefaultAsync(l => l.Id == leaveId);
+            if (leave == null)
+            {
+                throw new NotFoundException("Leave was not found");
+            }
+
+            if (leave.EmployeeId != userId)
+            {
+                throw new ForbiddenException("You cannot change another employee’s leave");
+            }
+
+            DbContext.Set<Leave>().Remove(leave);
+
+            await DbContext.SaveChangesAsync();
         }
     }
 }

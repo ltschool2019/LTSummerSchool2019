@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using LTRegistrator.BLL.Services;
 using LTRegistrator.Domain.Entities;
 using LTRegistrator.Domain.Enums;
@@ -33,10 +34,11 @@ namespace LTRegistratorApi.Controllers
         /// <param name="configuration">To use the file setting</param>
         public AccountController(
             DbContext db,
+            IMapper mapper,
             UserManager<User> userManager,
             SignInManager<User> signInManager,
             IConfiguration configuration
-            ) : base(db)
+            ) : base(db, mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;

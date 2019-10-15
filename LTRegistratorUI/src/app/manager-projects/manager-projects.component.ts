@@ -10,6 +10,7 @@ import { MatDatepicker } from '@angular/material';
 import { Router } from "@angular/router";
 import * as moment from 'moment/moment';
 import * as FileSaver from 'file-saver';
+import { ApiError } from '../core/models/apiError.model';
 
 @Component({
   selector: 'app-manager-projects',
@@ -24,6 +25,7 @@ export class ManagerProjectsComponent implements OnInit {
   displayedColumns: string[] = ['name', 'delete'];
   showSpinner: boolean = false;
 
+  @ViewChild('LoaderComponent', { static: true }) LoaderComponent;
   @ViewChild('datePicker', { static: false }) datePicker: MatDatepicker<Date>;
 
   constructor(
@@ -66,16 +68,32 @@ export class ManagerProjectsComponent implements OnInit {
   }
 
   getManagerProjects(): void {
-    this.managerProjectsService.getManagerProjects().subscribe((data: []) => {
-      this.manProject = new MatTableDataSource(data);
-    });
+    this.LoaderComponent.showLoader();
+    this.managerProjectsService.getManagerProjects().subscribe(
+      (data: []) => {
+        this.manProject = new MatTableDataSource(data);
+      },
+      err => {
+        let apiError = <ApiError>err.error;
+        this.overlayService.danger(apiError.message);
+      }
+    ).add(() => this.LoaderComponent.hideLoader());
   }
 
   deleteProject(id: number): void {
-    this.managerProjectsService.deleteProject(id).subscribe((project) => {
-      this.manProject.data = this.manProject.data.filter((x) => {
-        return x.id !== id;
-      });
-    });
+    this.managerProjectsService.deleteProject(id).subscribe(
+      () => {
+        this.manProject.data = this.manProject.data.filter(
+          (x) => {
+            return x.id !== id;
+          }
+        );
+        this.overlayService.success("Проект успешно удален");
+      },
+      err => {
+        let apiError = <ApiError>err.error;
+        this.overlayService.danger(apiError.message);
+      }
+    );
   }
 }

@@ -30,19 +30,12 @@ namespace LTRegistratorApi.Mappings
                 .ForMember(l => l.EmployeeId, opt => opt.Ignore())
                 .ForMember(l => l.Employee, opt => opt.Ignore());
 
-            CreateMap<Leave, Leave>();
+            CreateMap<Leave, Leave>()
+                .ForMember(l => l.EmployeeId, opt => opt.Ignore());
 
             CreateMap<Leave, LeaveDto>();
 
             CreateMap<LeaveInputDto, Leave>();
-
-            CreateMap<ProjectFullDto, Project>()
-                .ForMember(p => p.Name, opt => opt.MapFrom(src => src.Name))
-                .ForMember(p => p.CustomFieldProjects, opt => opt.MapFrom(src => src.CustomFields));
-
-            CreateMap<Project, ProjectFullDto>()
-                .ForMember(pf => pf.CustomFields, opt => opt.MapFrom(src => src.CustomFieldProjects))
-                .ForMember(pf => pf.Employees, opt => opt.MapFrom(src => src.ProjectEmployees));
 
             CreateMap<ProjectEmployee, EmployeeDto>()
                 .ForMember(ed => ed.Id, opt => opt.MapFrom(src => src.EmployeeId))
@@ -103,6 +96,21 @@ namespace LTRegistratorApi.Mappings
 
             CreateMap<CustomValueDto, CustomValue>();
 
+
+            #endregion
+
+            #region Projects
+
+            CreateMap<ProjectFullDto, Project>()
+                .ForMember(p => p.Name, opt => opt.MapFrom(src => src.Name))
+                .ForMember(p => p.CustomFieldProjects, opt => opt.MapFrom(src => src.CustomFields));
+
+            CreateMap<Project, ProjectFullDto>()
+                .ForMember(pf => pf.CustomFields, opt => opt.MapFrom(src => src.CustomFieldProjects))
+                .ForMember(pf => pf.Employees, opt => opt.MapFrom(src => src.ProjectEmployees));
+
+            CreateMap<Project, ProjectDto>()
+                .ForMember(pd => pd.TotalHours, opt => opt.Ignore());
 
             #endregion
         }

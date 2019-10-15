@@ -13,10 +13,24 @@ using Task = System.Threading.Tasks.Task;
 
 namespace LTRegistrator.BLL.Services.Services
 {
-    public class ProjectService: BaseService, IProjectService
+    public class ProjectService : BaseService, IProjectService
     {
         public ProjectService(DbContext db, IMapper mapper) : base(db, mapper)
         {
+        }
+
+        public async Task<Project[]> GetProjects(int authUserId)
+        {
+            var role = await GetRole(authUserId);
+            if (role == RoleType.Administrator)
+            {
+                return await DbContext.Set<Project>().Include(p => p.ProjectEmployees).ToArrayAsync();
+            }
+
+            return await DbContext.Set<ProjectEmployee>()
+                .Include(pe => pe.Project)
+                .Where(pe => pe.EmployeeId == authUserId && !pe.Project.SoftDeleted)
+                .Select(pe => pe.Project).ToArrayAsync();
         }
 
         public async Task<Project> GetByIdAsync(int authUserId, int projectId)
@@ -26,7 +40,7 @@ namespace LTRegistrator.BLL.Services.Services
                 .Include(p => p.CustomFieldProjects).ThenInclude(cf => cf.CustomField).ThenInclude(cf => cf.CustomFieldOptions)
                 .Include(p => p.ProjectEmployees).ThenInclude(pe => pe.Employee)
                 .FirstOrDefaultAsync(p => p.Id == projectId && (role == RoleType.Administrator || !p.SoftDeleted));
-            
+
             if (project == null)
             {
                 throw new NotFoundException("Project was not found");
@@ -84,7 +98,7 @@ namespace LTRegistrator.BLL.Services.Services
                 .Include(p => p.ProjectEmployees)
                 .Include(p => p.CustomFieldProjects).ThenInclude(cfp => cfp.CustomField)
                 .FirstOrDefaultAsync(p => p.Id == project.Id);
-            
+
             if (entity == null || role == RoleType.Manager && entity.SoftDeleted)
             {
                 throw new NotFoundException("Project was not found");
@@ -120,6 +134,32 @@ namespace LTRegistrator.BLL.Services.Services
                     }
                     DbContext.Set<CustomFieldProject>().Update(current);
                 }
+            }
+
+            await DbContext.SaveChangesAsync();
+        }
+
+        public async Task RemoveAsync(int authUserId, int projectId)
+        {
+            var role = await GetRole(authUserId);
+            if (role == RoleType.Employee)
+            {
+                throw new ForbiddenException("Access denied");
+            }
+
+            var project = await DbContext.Set<Project>().FirstOrDefaultAsync(p => p.Id == projectId);
+            if (project == null || project.SoftDeleted && role == RoleType.Manager)
+            {
+                throw new NotFoundException("Project was not found");
+            }
+
+            if (role == RoleType.Administrator)
+            {
+                DbContext.Set<Project>().Remove(project);
+            }
+            else
+            {
+                project.SoftDeleted = true;
             }
 
             await DbContext.SaveChangesAsync();

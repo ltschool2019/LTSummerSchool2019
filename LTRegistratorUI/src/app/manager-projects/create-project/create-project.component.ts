@@ -11,6 +11,7 @@ import { EmployeeService } from '../../core/service/employee.service';
 import { ProjectService } from '../../core/service/project.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { OverlayService } from '../../shared/overlay/overlay.service';
+import { ApiError } from '../../core/models/apiError.model';
 
 @Component({
   selector: 'app-create-project',
@@ -197,16 +198,14 @@ export class CreateProjectComponent implements OnInit {
       }
       response.subscribe(
         (data: any) => {
+          this.overlayService.success(window.localStorage.getItem("projectEditId") ? "Проект успешно обновлен": "Проект успешно создан");
           this.router.navigateByUrl('user/manager_projects');
         },
-        (error: HttpErrorResponse) => { 
-          this.overlayService.danger(error.message);
-        },
-        () => {
-          this.showSpinner = false;
-          this.overlayService.success("Проект успешно создан");
-        }
-      );
+        (error: HttpErrorResponse) => {
+          let apiError = <ApiError>error.error;
+          this.overlayService.danger(apiError.message);
+        }        
+      ).add(() => this.showSpinner = false);
     }
   }
 }
