@@ -1,0 +1,57 @@
+.create-project {
+    padding: 40px 20px 20px 60px;
+
+    &__title {
+        align-items: center;
+        margin-bottom: 40px;
+    }
+}
+
+.title {
+    &__name {
+        font-size: 20px;
+        font-weight: 500;
+        padding-right: 40px;
+    }
+}
+
+.column {
+    float: left;
+    width: 50%;
+  }
+  
+  /* Clear floats after the columns */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+  mat-form-field {
+    width: 50%;
+    padding-top: 10px;
+  }
+
+  .buttons-group-right {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center; 
+    padding-left: 20px;
+  }
+
+  .spinner-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .button-container {
+    display: inline-block;
+    position: relative;
+  }

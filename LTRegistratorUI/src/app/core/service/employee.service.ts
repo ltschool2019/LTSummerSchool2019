@@ -25,7 +25,12 @@ export class EmployeeService {
     `).pipe(
       map((data: any) =>
         data.map((task: any) => {
-          return new Task(task.id, task.name, task.taskNotes, task.leave);
+          var result = new Task();
+          result.id = task.id;
+          result.name = task.name;
+          result.taskNotes = task.taskNotes;
+          result.vacation = task.leave
+          return result;
         }))
       // map((data: any) => { console.log(data); return new Task(data.id, data.name, data.taskNotes, data.leave); })
     );
@@ -64,8 +69,13 @@ export class EmployeeService {
 
   // delete
   // api/timesheet-edit/{EmployeeID}/leaves?leaveID=2
-  public deleteTask(userId: number, taskId: number): Observable<any> {
-    return this.http.delete<Task>(environment.apiBaseUrl + `api/task/${taskId}/employee/${userId}`);
+  public deleteTask(taskId: number): Observable<any> {
+    return this.http.delete<Task>(environment.apiBaseUrl + `api/task/${taskId}`);
+  }
+
+  public getSubordinateEmployees() {
+    let url = environment.apiBaseUrl + `api/employee`;
+    return this.http.get(url);
   }
 
   private getUrl(userId: number, projectId: number) {

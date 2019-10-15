@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using AutoMapper;
-using LTRegistrator.BLL.Contracts;
 using LTRegistrator.BLL.Contracts.Contracts;
 using LTRegistrator.Domain.Entities;
 using LTRegistratorApi.Model;
@@ -19,7 +18,6 @@ namespace LTRegistratorApi.Controllers
     public class EmployeeController : BaseController
     {
         private readonly IEmployeeService _employeeService;
-        private readonly IMapper _mapper;
 
         /// <summary>
         /// 
@@ -27,10 +25,34 @@ namespace LTRegistratorApi.Controllers
         /// <param name="employeeService"></param>
         /// <param name="mapper"></param>
         /// <param name="db"></param>
-        public EmployeeController(IEmployeeService employeeService, IMapper mapper, DbContext db) : base(db)
+        public EmployeeController(IEmployeeService employeeService, IMapper mapper, DbContext db) : base(db, mapper)
         {
             _employeeService = employeeService;
-            _mapper = mapper;
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> GetEmployees()
+        {
+            var employees = await _employeeService.GetAllAsync(CurrentEmployeeId);
+
+            return Ok(Mapper.Map<EmployeeDto[]>(employees));
+        }
+
+        /// <summary>
+        /// Returns employees on project
+        /// </summary>
+        /// <param name="projectId"></param>
+        /// <returns></returns>
+        /// <response code="200">List of employee on project</response>
+        /// <response code="404">Project not found</response>
+        [HttpGet("project/{projectId}")]
+        [ProducesResponseType(typeof(EmployeeDto[]), 200)]
+        [ProducesResponseType(404)]
+        public async Task<ActionResult> GetEmployeesByProject(int projectId)
+        {
+            var employees = await _employeeService.GetByProjectIdAsync(CurrentEmployeeId, projectId);
+
+            return Ok(Mapper.Map<EmployeeDto[]>(employees));
         }
 
         /// <summary>
@@ -46,11 +68,9 @@ namespace LTRegistratorApi.Controllers
         [Authorize(Policy = "AccessAllowed")]
         public async Task<ActionResult> GetInfoAsync(int employeeId)
         {
-            var response = await _employeeService.GetByIdAsync(employeeId);
+            var employee = await _employeeService.GetByIdAsync(employeeId);
 
-            return response.Status == ResponseResult.Success
-            ? Ok(_mapper.Map<EmployeeDto>(response.Result))
-            : StatusCode((int)response.Error.StatusCode, response.Error.Message);
+            return Ok(Mapper.Map<EmployeeDto>(employee));
         }
 
         /// <summary>
@@ -65,11 +85,9 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(404)]
         public async Task<ActionResult> GetLeavesAsync(int employeeId)
         {
-            var response = await _employeeService.GetByIdAsync(employeeId);
+            var employee = await _employeeService.GetByIdAsync(employeeId);
 
-            return response.Status == ResponseResult.Success
-                ? Ok(_mapper.Map<ICollection<LeaveDto>>(response.Result.Leaves))
-                : StatusCode((int)response.Error.StatusCode, response.Error.Message);
+            return Ok(Mapper.Map<LeaveDto[]>(employee.Leaves));
         }
 
         /// <summary>
@@ -86,7 +104,7 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult> SetLeavesAsync(int employeeId, [FromBody] ICollection<LeaveInputDto> leaves)
+        public async Task<ActionResult> AddLeave(int employeeId, [FromBody] LeaveInputDto leaves)
         {
             if (leaves == null)
                 return BadRequest();
@@ -96,8 +114,8 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var response = await _employeeService.AddLeavesAsync(employeeId, _mapper.Map<ICollection<Leave>>(leaves));
-            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, new { response.Error.Message });
+            var entity = await _employeeService.AddLeaveAsync(employeeId, Mapper.Map<Leave>(leaves));
+            return Ok(Mapper.Map<LeaveDto>(entity));
         }
 
         /// <summary>
@@ -114,9 +132,9 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult> UpdateLeavesAsync(int employeeId, [FromBody] List<LeaveDto> leaves)
+        public async Task<ActionResult> UpdateLeave(int employeeId, [FromBody] LeaveDto leave)
         {
-            if (leaves == null)
+            if (leave == null)
                 return BadRequest();
 
             if (!ModelState.IsValid)
@@ -124,8 +142,8 @@ namespace LTRegistratorApi.Controllers
                 return BadRequest(ModelState);
             }
 
-            var response = await _employeeService.UpdateLeavesAsync(employeeId, _mapper.Map<ICollection<Leave>>(leaves));
-            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, response.Error.Message);
+            var entity = await _employeeService.UpdateLeaveAsync(employeeId, Mapper.Map<Leave>(leave));
+            return Ok(Mapper.Map<LeaveDto>(entity));
         }
 
         /// <summary>
@@ -133,7 +151,7 @@ namespace LTRegistratorApi.Controllers
         /// Deletes a leaves record.
         /// </summary>
         /// <param name="employeeId">UserId</param>
-        /// <param name="leaveID"> IDs of leaves that should be deleted</param>
+        /// <param name="leaveIds"> Ids of leaves that should be deleted</param>
         /// <returns>Was the operation successful?</returns>
         /// <response code="200">Operation successful</response>
         /// <response code="400">Bad request</response>
@@ -144,18 +162,11 @@ namespace LTRegistratorApi.Controllers
         [ProducesResponseType(400)]
         [ProducesResponseType(403)]
         [ProducesResponseType(404)]
-        public async Task<ActionResult> DeleteLeavesAsync(int employeeId, [FromQuery] List<int> leaveID)
+        public async Task<ActionResult> DeleteLeave(int employeeId, [FromQuery] int leaveId)
         {
-            if (leaveID == null)
-                return BadRequest();
+            await _employeeService.DeleteLeaveAsync(employeeId, leaveId);
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var response = await _employeeService.DeleteLeavesAsync(employeeId, leaveID);
-            return response.Status == ResponseResult.Success ? (ActionResult)Ok() : StatusCode((int)response.Error.StatusCode, response.Error.Message);
+            return Ok();
         }
     }
 }

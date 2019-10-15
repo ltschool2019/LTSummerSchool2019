@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import * as moment from 'moment';
@@ -8,6 +8,7 @@ import { Vacation } from '../core/models/vacation.model';
 import { VacationService } from '../core/service/vacation.service';
 import { UserService } from '../core/service/user.service';
 import { OverlayService } from "../shared/overlay/overlay.service";
+import { ApiError } from '../core/models/apiError.model';
 
 export interface VacationType {
   value: string;
@@ -34,6 +35,8 @@ export class VacationComponent implements OnInit {
   vacations: Vacation[] = [];
   private userId: number;
 
+  @ViewChild('LoaderComponent', { static: true }) LoaderComponent;
+
   constructor(
     private fb: FormBuilder,
     private vacationService: VacationService,
@@ -53,42 +56,56 @@ export class VacationComponent implements OnInit {
 
   // get
   getVacations(): void {
-    this.vacationService.getVacations(this.userId)
-      .subscribe(vacations => this.vacations = vacations);
+    this.LoaderComponent.showLoader();
+    this.vacationService.getVacations(this.userId).subscribe(
+      vacations => {
+        this.vacations = vacations
+      },
+      err => {
+        let apiError = <ApiError>err.error;
+        this.overlayService.danger(apiError.message);
+      }
+    ).add(() => this.LoaderComponent.hideLoader());
   }
 
   // post
   onSubmit() {
     const newVacation = new Vacation(
       0,
-      this.vacationForm.get('type').value,
-      moment(this.vacationForm.get('start').value).toISOString(true),
-      moment(this.vacationForm.get('end').value).toISOString(true)
+      this.vacationForm.get('typeLeave').value,
+      moment(this.vacationForm.get('startDate').value).toISOString(true),
+      moment(this.vacationForm.get('endDate').value).toISOString(true)
     );
 
-    this.vacationService.addVacation(this.userId, newVacation)
-      .subscribe(() => {
-          this.vacations.push(newVacation);
-        },
-        (err) => {
-          this.overlayService.danger('Ошибка создания');
-        });
+    this.vacationService.addVacation(this.userId, newVacation).subscribe(
+      (vocation: Vacation) => {
+        this.vacations.push(vocation);
+        this.overlayService.success("Отпуск успешно создан")
+      },
+      err => {
+        let apiError = <ApiError>err.error;
+        this.overlayService.danger(apiError.message);
+      }
+    );
   }
 
   // delete
   delete(vacation: Vacation): void {
-    this.vacations = this.vacations.filter(v => v !== vacation);
-    this.vacationService.deleteVacation(+this.userId, +vacation.id).subscribe(() => {
+    this.vacationService.deleteVacation(+this.userId, +vacation.id).subscribe(
+      () => {
+        this.vacations = this.vacations.filter(v => v !== vacation);
+        this.overlayService.success("Отпуск упешно удалено");
       },
-      (err) => {
-        this.overlayService.danger('Ошибка удаления');
+      err => {
+        let apiError = <ApiError>err.error;
+        this.overlayService.danger(apiError.message);
       });
   }
 
 
   openEditModal(vacation: Vacation) {
     const dialogRef = this.dialog.open(VacationEditDialogComponent,
-      {data: {id: vacation.id, type: vacation.type, start: vacation.start, end: vacation.end}});
+      {data: {id: vacation.id, type: vacation.typeLeave, start: vacation.startDate, end: vacation.endDate}});
     dialogRef.afterClosed().subscribe(result => {
       if (result !== undefined && result !== 'false') {
         this.editVacation(result);
@@ -103,21 +120,24 @@ export class VacationComponent implements OnInit {
       moment(value.start).toISOString(true),
       moment(value.end).toISOString(true)
     );
-    this.vacationService.editVacation(this.userId, newVacation)
-      .subscribe(() => {
-          this.vacations = this.vacations.filter(v => v.id !== newVacation.id);
-          this.vacations.push(newVacation);
-        }, (err) => {
-          this.overlayService.danger('Ошибка редактирования');
-        }
-      );
+    this.vacationService.editVacation(this.userId, newVacation).subscribe(
+      (vacation: Vacation) => {
+        this.vacations = this.vacations.filter(v => v.id !== vacation.id);
+        this.vacations.push(vacation);
+        this.overlayService.success("Отпуск успешно обновлен")
+      }, 
+      err => {
+        let apiError = <ApiError>err.error;
+        this.overlayService.danger(apiError.message);
+      }
+    );
   }
 
   private initForm(): void {
     this.vacationForm = this.fb.group({
-      type: 'SickLeave',
-      start: [new Date(), [Validators.required]],
-      end: [new Date(), [Validators.required]],
+      typeLeave: 'SickLeave',
+      startDate: [new Date(), [Validators.required]],
+      endDate: [new Date(), [Validators.required]],
     });
   }
 }

@@ -111,6 +111,8 @@ namespace LTRegistratorApi
             services.AddTransient<HttpContext>(s => s.GetService<IHttpContextAccessor>().HttpContext);
             services.AddTransient(typeof(IEmployeeService), typeof(EmployeeService));
             services.AddTransient(typeof(IReportService), typeof(ReportService));
+            services.AddTransient(typeof(IProjectService), typeof(ProjectService));
+            services.AddTransient(typeof(ITaskService), typeof(TaskService));
 
             var mappingConfig = new MapperConfiguration(mc =>
             {

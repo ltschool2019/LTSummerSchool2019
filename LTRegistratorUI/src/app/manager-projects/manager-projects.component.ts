@@ -7,6 +7,10 @@ import { AddProjectDialogComponent } from 'src/app/add-project-dialog/add-projec
 import { MatDialog } from '@angular/material/dialog';
 import { OverlayService } from '../shared/overlay/overlay.service';
 import { MatDatepicker } from '@angular/material';
+import { Router } from "@angular/router";
+import * as moment from 'moment/moment';
+import * as FileSaver from 'file-saver';
+import { ApiError } from '../core/models/apiError.model';
 
 @Component({
   selector: 'app-manager-projects',
@@ -19,39 +23,43 @@ export class ManagerProjectsComponent implements OnInit {
   reportDateFC: FormControl;
 
   displayedColumns: string[] = ['name', 'delete'];
+  showSpinner: boolean = false;
 
-  @ViewChild('datePicker', {static: false}) datePicker: MatDatepicker<Date>;
+  @ViewChild('LoaderComponent', { static: true }) LoaderComponent;
+  @ViewChild('datePicker', { static: false }) datePicker: MatDatepicker<Date>;
 
   constructor(
     public dialog: MatDialog,
     private managerProjectsService: ManagerProjectsService,
-    private overlayService: OverlayService) {
-  }
+    private router: Router,
+    private overlayService: OverlayService) { }
 
   ngOnInit() {
     this.getManagerProjects();
     this.reportDateFC = new FormControl(new Date());
   }
 
-  openDialogAddProj(): void {
-    const dialogRef = this.dialog.open(AddProjectDialogComponent, {
-      width: '350px'
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      if (!result) {
-        return;
-      }
-      this.managerProjectsService.addManagerProject(result)
-        .subscribe((project) => {
-          this.manProject.data = [...this.manProject.data, project];
-        }, () => {
-          this.overlayService.danger('Ошибка создания');
-        });
-    });
+  createProject(): void {
+    window.localStorage.removeItem("projectEditId");
+    this.router.navigateByUrl('user/project_details');
+  }
+
+  updateProject(id: number): void {
+    window.localStorage.removeItem("projectEditId");
+    window.localStorage.setItem("projectEditId", id.toString());
+    this.router.navigateByUrl(`user/project_details`);
   }
 
   getMonthlyReport(): void {
-    this.managerProjectsService.getMonthlyReport(this.reportDateFC.value);
+    this.showSpinner = true;
+    this.managerProjectsService.getMonthlyReport(this.reportDateFC.value).subscribe(
+      (response) => {
+        let blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        FileSaver.saveAs(blob, 'monthly_report_' + moment(this.reportDateFC.value).format('YYYY_MM') + '.xlsx')
+      },
+      error => { },
+      () => this.showSpinner = false
+    );
   }
 
   datePickerClose($event) {
@@ -60,20 +68,32 @@ export class ManagerProjectsComponent implements OnInit {
   }
 
   getManagerProjects(): void {
-    this.managerProjectsService.getManagerProjects()
-      .subscribe((data: []) => {
+    this.LoaderComponent.showLoader();
+    this.managerProjectsService.getManagerProjects().subscribe(
+      (data: []) => {
         this.manProject = new MatTableDataSource(data);
-      });
+      },
+      err => {
+        let apiError = <ApiError>err.error;
+        this.overlayService.danger(apiError.message);
+      }
+    ).add(() => this.LoaderComponent.hideLoader());
   }
 
   deleteProject(id: number): void {
-    this.managerProjectsService.deleteProject(id)
-      .subscribe((project) => {
-        this.manProject.data = this.manProject.data.filter((x) => {
-          return x.id !== id;
-        });
-      }, () => {
-        this.overlayService.danger('Ошибка удаления');
-      });
+    this.managerProjectsService.deleteProject(id).subscribe(
+      () => {
+        this.manProject.data = this.manProject.data.filter(
+          (x) => {
+            return x.id !== id;
+          }
+        );
+        this.overlayService.success("Проект успешно удален");
+      },
+      err => {
+        let apiError = <ApiError>err.error;
+        this.overlayService.danger(apiError.message);
+      }
+    );
   }
 }

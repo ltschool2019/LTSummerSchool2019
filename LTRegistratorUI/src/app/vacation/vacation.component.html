@@ -4,29 +4,29 @@
     <button mat-mini-fab type="submit">+</button>
     <mat-form-field>
       <mat-label>Выберите тип</mat-label>
-      <mat-select formControlName="type">
+      <mat-select formControlName="typeLeave">
         <mat-option *ngFor="let vacationType of vacationTypes" [value]="vacationType.value">
           {{vacationType.viewValue}}
         </mat-option>
       </mat-select>
     </mat-form-field>
     <mat-form-field>
-      <input matInput [matDatepicker]="start" placeholder="С"
-        formControlName="start">
-      <mat-datepicker-toggle [for]="start" matSuffix></mat-datepicker-toggle>
+      <input matInput [matDatepicker]="startDate" placeholder="С"
+        formControlName="startDate">
+      <mat-datepicker-toggle [for]="startDate" matSuffix></mat-datepicker-toggle>
       <mat-datepicker #start></mat-datepicker>
     </mat-form-field>
     <mat-form-field>
-      <input matInput [matDatepicker]="end" placeholder="По" formControlName="end">
-      <mat-datepicker-toggle [for]="end" matSuffix></mat-datepicker-toggle>
+      <input matInput [matDatepicker]="endDate" placeholder="По" formControlName="endDate">
+      <mat-datepicker-toggle [for]="endDate" matSuffix></mat-datepicker-toggle>
       <mat-datepicker #end></mat-datepicker>
     </mat-form-field>
   </form>
 
   <mat-list>
     <mat-list-item *ngFor="let vacation of vacations">
-      <p class="vacation-list__vacation"> {{vacation.type}} from {{vacation.start.substring(0,10)}} to
-        {{vacation.end.substring(0,10)}}</p>
+      <p class="vacation-list__vacation"> {{vacation.typeLeave}} from {{vacation.startDate.substring(0,10)}} to
+        {{vacation.endDate.substring(0,10)}}</p>
       <button mat-icon-button aria-label="Edit current leave" class="vacation-list__edit" title="edit leave"
         (click)="openEditModal(vacation)" id="vacation-edit-button" name="edit-button">
         <mat-icon>edit</mat-icon>
@@ -37,5 +37,5 @@
       </button>
     </mat-list-item>
   </mat-list>
-
+  <app-loader #LoaderComponent></app-loader>
 </section>

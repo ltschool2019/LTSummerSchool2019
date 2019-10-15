@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 // import { DateAdapter } from '@angular/material';
 
@@ -12,6 +12,7 @@ import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs/Observable';
 import { map, tap } from 'rxjs/operators';
 import { OverlayService } from "../shared/overlay/overlay.service";
+import { Vacation } from '../core/models/vacation.model';
 
 @Component({
   selector: 'app-timesheet-edit',
@@ -29,6 +30,9 @@ export class TimesheetEditComponent implements OnInit {
   startDate: any;
   endDate: any;
   canPut = false; // post или пут запрос
+
+  @ViewChild('LoaderComponent', { static: true }) LoaderComponent;
+
   constructor(
     private fb: FormBuilder,
     private userService: UserService,
@@ -36,9 +40,10 @@ export class TimesheetEditComponent implements OnInit {
     private route: ActivatedRoute,
     private overlayService: OverlayService
     ///  private dateAdapter: DateAdapter<any>
-  ) {}
+  ) { }
 
   ngOnInit() {
+    this.LoaderComponent.showLoader();
     this.userId = this.userService.getUserId();
     this.initForm();
     this.setWeek();
@@ -47,7 +52,15 @@ export class TimesheetEditComponent implements OnInit {
       tap(user => this.projects = user.projects),
       map(() => this.setupCurrentProject()),
       map(() => this.getTasks())
-    ).subscribe(() => {});
+    ).subscribe(
+      () => {
+
+      },
+      error => {
+
+      },
+      () => this.LoaderComponent.hideLoader()
+    );
     // this.dateAdapter.setLocale('ru-Latn');
   }
 
@@ -66,7 +79,7 @@ export class TimesheetEditComponent implements OnInit {
     const day = new Date(curr.setDate(first));
     this.taskForm.patchValue({
       currentWeek: day
-    }, {onlySelf: true});
+    }, { onlySelf: true });
     this.setWeek();
   }
 
@@ -78,7 +91,7 @@ export class TimesheetEditComponent implements OnInit {
     const day = new Date(curr.setDate(first));
     this.taskForm.patchValue({
       currentWeek: day
-    }, {onlySelf: true});
+    }, { onlySelf: true });
     this.setWeek();
   }
 
@@ -127,9 +140,9 @@ export class TimesheetEditComponent implements OnInit {
           tasks.map(
             (task: any) => {
               task.taskNotes.map((taskNote: any) => {
-                  const index = this.week.findIndex(item => item.date === taskNote.day.slice(0, 10));
-                  this.taskForm.controls[`day${index}`].setValue(taskNote.hours.toString());
-                }
+                const index = this.week.findIndex(item => item.date === taskNote.day.slice(0, 10));
+                this.taskForm.controls[`day${index}`].setValue(taskNote.hours.toString());
+              }
               );
               task.vacation.map((leave: any) => {
                 const startIndex = this.week.findIndex(item => item.date === leave.start.slice(0, 10));
@@ -181,7 +194,7 @@ export class TimesheetEditComponent implements OnInit {
     for (let i = 0; i < 7; i++) {
       newTaskNotes.push(new TaskNote(0, this.week[i].date, Number(this.taskForm.controls[`day${i}`].value)));
     }
-    const newTask = new Task(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.name, newTaskNotes, []);
+    const newTask = this.getTask(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.name, newTaskNotes, []);
 
     this.employeeService.addTask(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.id, newTask)
       .subscribe(() => {
@@ -197,7 +210,7 @@ export class TimesheetEditComponent implements OnInit {
     for (let i = 0; i < 7; i++) {
       newTaskNotes.push(new TaskNote(0, this.week[i].date, Number(this.taskForm.controls[`day${i}`].value)));
     }
-    const newTask = new Task(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.name, newTaskNotes, []);
+    const newTask = this.getTask(+localStorage.getItem('userId'), this.taskForm.controls['project'].value.name, newTaskNotes, []);
     this.employeeService.editTask(+localStorage.getItem('userId'), this.task[0].id, newTask)
       .subscribe(() => {
         this.sumTotalHours();
@@ -208,9 +221,19 @@ export class TimesheetEditComponent implements OnInit {
       });
   }
 
+  private getTask(id: number, name: string, taskNotes: TaskNote[], vacation: Vacation[]): Task {
+    var task = new Task();
+    task.id = id;
+    task.name = name;
+    task.taskNotes = taskNotes;
+    task.vacation = vacation;
+
+    return task;
+  }
+
   // delete
   delete(): void {
-    this.employeeService.deleteTask(+this.userId, this.task[0].id).subscribe(() => {
+    this.employeeService.deleteTask(this.task[0].id).subscribe(() => {
     }, (err) => {
       this.overlayService.danger('Ошибка удаления');
     });

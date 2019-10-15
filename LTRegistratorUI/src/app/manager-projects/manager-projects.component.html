@@ -1,8 +1,7 @@
 <div class="manager-projects">
   <div class="manager-projects__title title">
     <div class="title__name">Список проектов</div>
-    <button mat-raised-button type="submit" class="manager-projects__add" (click)="openDialogAddProj()">Создать проект
-    </button>
+    <button mat-raised-button type="submit" class="manager-projects__add" (click)="createProject()">Создать проект</button>
     <span class="manager-projects__flex-space"></span>
     <div class="manager-projects__export export">
       <mat-form-field class="export__date">
@@ -11,10 +10,15 @@
         <mat-datepicker id="datePicker" #datePicker startView="year"
                         (monthSelected)="datePickerClose($event)"></mat-datepicker>
       </mat-form-field>
-
-      <button mat-raised-button type="submit" class="export__download" (click)="getMonthlyReport()">Выгрузка
-        месячного отчета
-      </button>
+      
+      <div class="button-container">
+        <div class="spinner-container" *ngIf="showSpinner">
+          <mat-spinner diameter="24"></mat-spinner>
+        </div>
+        <button mat-raised-button class="export__download" [disabled]="showSpinner" (click)="getMonthlyReport()">
+          Выгрузка месячного отчета
+        </button>
+      </div>
     </div>
   </div>
   <table mat-table [dataSource]="manProject" class="mat-elevation-z8">
@@ -22,7 +26,7 @@
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef> Название</th>
       <td mat-cell *matCellDef="let element">
-        <button mat-button class="project-link" routerLink='/user/em_table' [routerLinkActive]="'active'">
+        <button mat-button class="project-link" (click)="updateProject(element.id)">
           Project {{element.name}}</button>
       </td>
     </ng-container>
@@ -39,4 +43,5 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
+  <app-loader #LoaderComponent></app-loader>
 </div>

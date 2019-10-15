@@ -20,6 +20,10 @@ namespace LTRegistrator.BLL.Services
         public DbSet<ProjectEmployee> ProjectEmployee { get; set; }
         public DbSet<Task> Task { get; set; }
         public DbSet<TaskNote> TaskNote { get; set; }
+        public DbSet<CustomField> CustomFields { get; set; }
+        public DbSet<CustomFieldProject> CustomFieldProjects { get; set; }
+        public DbSet<CustomValue> CustomValues { get; set; }
+        public DbSet<CustomFieldOption> CustomFieldOptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,6 +34,10 @@ namespace LTRegistrator.BLL.Services
             modelBuilder.ApplyConfiguration(new UserMap());
             modelBuilder.ApplyConfiguration(new TaskMap());
             modelBuilder.ApplyConfiguration(new TaskNoteMap());
+            modelBuilder.ApplyConfiguration(new CustomFieldMap());
+            modelBuilder.ApplyConfiguration(new CustomFieldProjectMap());
+            modelBuilder.ApplyConfiguration(new CustomValueMap());
+            modelBuilder.ApplyConfiguration(new CustomFieldOptionMap());
 
             base.OnModelCreating(modelBuilder);
         }

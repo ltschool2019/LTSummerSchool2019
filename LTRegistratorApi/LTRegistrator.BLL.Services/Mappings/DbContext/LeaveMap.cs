@@ -11,6 +11,8 @@ namespace LTRegistrator.BLL.Services.Mappings.DbContext
     {
         public void Configure(EntityTypeBuilder<Leave> builder)
         {
+            builder.ToTable("Leaves");
+
             builder.HasKey(l => l.Id);
 
             builder.Property(l => l.Id).ValueGeneratedOnAdd();

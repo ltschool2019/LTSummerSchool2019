@@ -8,4 +8,8 @@
     <ProjectReference Include="..\LTRegistrator.Domain\LTRegistrator.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\CustomValues\" />
+  </ItemGroup>
+
 </Project>

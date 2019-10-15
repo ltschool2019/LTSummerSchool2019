@@ -56,7 +56,7 @@ export class LoginComponent implements OnInit {
         this.router.navigateByUrl('user/timesheet');
       }, err => {
         this.overlayService.danger(
-          'try again'
+          err.message
         )
       });
   }

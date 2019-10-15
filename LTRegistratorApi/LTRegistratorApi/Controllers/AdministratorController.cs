@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
+using AutoMapper;
 using Task = LTRegistrator.Domain.Entities.Task;
 
 namespace LTRegistratorApi.Controllers
@@ -29,7 +30,7 @@ namespace LTRegistratorApi.Controllers
         /// </summary>
         /// <param name="db"></param>
         /// <param name="userManager"></param>
-        public AdministratorController(DbContext db, UserManager<User> userManager) : base(db)
+        public AdministratorController(DbContext db, IMapper mapper, UserManager<User> userManager) : base(db, mapper)
         {
             _userManager = userManager;
         }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using LTRegistrator.Domain.Entities;
 using LTRegistratorApi.Model;
+using LTRegistratorApi.Model.Tasks;
 using Xunit;
 using Microsoft.AspNetCore.Mvc;
 
